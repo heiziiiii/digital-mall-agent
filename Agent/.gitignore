@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+.env
+.coverage
+dist/
+build/
+*.egg-info/
+
+# Java / Maven
+target/
+
+# Local run and smoke-test artifacts
+*.log
+*_test_result.json
+*_forward_test_result.json
+src/agent/_api_test.py

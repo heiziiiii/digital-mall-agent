@@ -1,0 +1,66 @@
+server:
+  # 默认 8080（容器用，配合 compose 的 8080:8080 映射）；本地运行用 SERVER_PORT 覆盖为 8081
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: digital-cs-mcp
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:digital_cs}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  ai:
+    # 嵌入/模型调用失败时快速失败：向量侧本就是可降级路径，避免默认 10 次指数退避重试拖垮工具调用延迟。
+    retry:
+      max-attempts: 1
+    # Spring AI Alibaba DashScope：用于混合检索的 dense(语义) 向量嵌入。
+    # 未配置真实 key 时服务可正常启动，检索自动降级为纯 sparse 关键词检索（dense 通道关闭）。
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:sk-dummy-replace-me}
+      embedding:
+        options:
+          model: text-embedding-v3
+    # Qdrant 向量库：商品详情 / 售后知识分库存储——各自独立 collection（见下方 app.qdrant）；为全项目唯一检索后端。
+    # 走 gRPC 端口(6334)；检索直连原生 QdrantClient 做 sparse(关键词)+dense(语义) 混合 + 服务端 RRF 融合。
+    # initialize-schema=false：集合由 /admin/reindex 的 ensureCollections 自动创建（dense 1024 维 COSINE + sparse IDF 命名向量）。
+    # 此处自动配置的 QdrantClient / EmbeddingModel Bean 被 VectorSearchService 直接复用；
+    # collection-name 仅供自动配置的(未使用) QdrantVectorStore Bean 占位，实际集合名见 app.qdrant。
+    vectorstore:
+      qdrant:
+        host: ${QDRANT_HOST:localhost}
+        port: ${QDRANT_PORT:6334}
+        api-key: ${QDRANT_API_KEY:}
+        use-tls: false
+        collection-name: digital_cs_vectors
+        initialize-schema: false
+    mcp:
+      server:
+        # MCP 服务器元信息；WebMVC SSE 传输默认暴露 /sse 与 /mcp/message
+        name: digital-cs-mcp
+        version: 0.0.1
+        type: SYNC
+        instructions: "数码产品智能客服 MCP 服务器：提供商品(库存价格+详情语义检索)、订单物流、售后单处理、售后知识库语义检索、客户资料查询等工具；商品详情与知识库检索统一由 Qdrant 向量语义完成。"
+
+# 应用自定义：Qdrant 双集合（商品详情 / 售后知识分库存储，由 VectorSearchService 按 type 映射）
+app:
+  qdrant:
+    product-collection: ${QDRANT_PRODUCT_COLLECTION:digital_cs_products}
+    knowledge-collection: ${QDRANT_KNOWLEDGE_COLLECTION:digital_cs_knowledge}
+
+# MyBatis-Plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+logging:
+  level:
+    com.digitalcs.mcp: INFO
+    org.springframework.ai.mcp: INFO

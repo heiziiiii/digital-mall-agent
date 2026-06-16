@@ -1,0 +1,51 @@
+# ===== Java / Maven =====
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+mvnw
+mvnw.cmd
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+.coverage
+*.egg-info/
+
+# ===== Node / 前端 =====
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===== 环境变量 / 密钥 =====
+.env
+.env.*
+!.env.example
+*.local
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ===== 日志 / 测试产物 =====
+*.log
+*_test_result.json
+*_forward_test_result.json
+
+# ===== 操作系统 =====
+.DS_Store
+Thumbs.db

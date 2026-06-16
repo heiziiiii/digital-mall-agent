@@ -1,0 +1,150 @@
+[
+  {
+    "productNo": "P10001",
+    "name": "极客Pro X1 旗舰手机",
+    "subtitle": "6.7英寸 5000mAh 长续航",
+    "category": "手机",
+    "brand": "极客Pro",
+    "tags": ["续航久", "快充强", "性价比高", "大屏"],
+    "price": 3999.00,
+    "marketPrice": 4299.00,
+    "publishedAt": "2024-03-01",
+    "description": "极客Pro X1 搭载旗舰处理器，6.7英寸OLED屏，5000mAh大电池，支持百瓦快充。",
+    "specs": [
+      {"name": "处理器", "value": "旗舰8核"},
+      {"name": "屏幕", "value": "6.7英寸 OLED 120Hz"},
+      {"name": "电池", "value": "5000mAh"},
+      {"name": "快充", "value": "100W"}
+    ]
+  },
+  {
+    "productNo": "P10002",
+    "name": "星云 Air 14 轻薄本",
+    "subtitle": "14英寸 2.8K 屏 1.2kg",
+    "category": "笔记本电脑",
+    "brand": "星云",
+    "tags": ["轻薄便携", "续航久", "高刷屏", "办公创作"],
+    "price": 5299.00,
+    "marketPrice": 5599.00,
+    "publishedAt": "2024-02-15",
+    "description": "星云Air 14 轻薄笔记本，2.8K高刷屏，长续航，适合办公与轻度创作。",
+    "specs": [
+      {"name": "处理器", "value": "低功耗酷睿"},
+      {"name": "屏幕", "value": "14英寸 2.8K"}
+    ]
+  },
+  {
+    "productNo": "P10003",
+    "name": "苹果 iPhone 15 Pro",
+    "subtitle": "6.1英寸 钛金属 A17 Pro",
+    "category": "手机",
+    "brand": "苹果",
+    "tags": ["性能高", "机身轻", "影像强", "系统流畅"],
+    "price": 8999.00,
+    "marketPrice": 9299.00,
+    "publishedAt": "2023-09-22",
+    "description": "苹果 iPhone 15 Pro 采用钛金属边框，搭载 A17 Pro 芯片，全新潜望长焦，支持 USB-C 与灵动岛。",
+    "specs": [
+      {"name": "处理器", "value": "A17 Pro"},
+      {"name": "屏幕", "value": "6.1英寸 超视网膜XDR 120Hz"},
+      {"name": "存储", "value": "256G"},
+      {"name": "接口", "value": "USB-C"},
+      {"name": "材质", "value": "钛金属"}
+    ]
+  },
+  {
+    "productNo": "P10004",
+    "name": "三星 Galaxy S24 Ultra",
+    "subtitle": "6.8英寸 2K 内置S Pen",
+    "category": "手机",
+    "brand": "三星",
+    "tags": ["屏幕好", "影像强", "手写笔", "商务旗舰"],
+    "price": 9699.00,
+    "marketPrice": 9999.00,
+    "publishedAt": "2024-01-31",
+    "description": "三星 Galaxy S24 Ultra 搭载第三代骁龙8旗舰芯片，2K 动态 AMOLED 直屏，内置 S Pen，5000mAh 大电池支持45W快充，AI 影像出色。",
+    "specs": [
+      {"name": "处理器", "value": "第三代骁龙8 Gen3 领先版"},
+      {"name": "屏幕", "value": "6.8英寸 2K AMOLED 120Hz"},
+      {"name": "电池", "value": "5000mAh"},
+      {"name": "快充", "value": "45W"},
+      {"name": "影像", "value": "2亿像素主摄"}
+    ]
+  },
+  {
+    "productNo": "P10005",
+    "name": "华为 Mate 60 Pro",
+    "subtitle": "6.82英寸 卫星通话 玄武钢化昆仑玻璃",
+    "category": "手机",
+    "brand": "华为",
+    "tags": ["信号强", "卫星通话", "耐摔", "续航久"],
+    "price": 6999.00,
+    "marketPrice": 7299.00,
+    "publishedAt": "2023-08-29",
+    "description": "华为 Mate 60 Pro 支持卫星通话，搭载麒麟旗舰芯片与鸿蒙系统，玄武架构与昆仑玻璃更耐摔，5000mAh 电池支持88W有线快充。",
+    "specs": [
+      {"name": "处理器", "value": "麒麟9000S"},
+      {"name": "屏幕", "value": "6.82英寸 OLED 120Hz"},
+      {"name": "电池", "value": "5000mAh"},
+      {"name": "快充", "value": "88W有线 50W无线"},
+      {"name": "特色", "value": "卫星通话"}
+    ]
+  },
+  {
+    "productNo": "P10006",
+    "name": "小米 14 Pro",
+    "subtitle": "6.73英寸 全等深微曲屏 徕卡光学",
+    "category": "手机",
+    "brand": "小米",
+    "tags": ["性能高", "快充强", "影像强", "屏幕好"],
+    "price": 5299.00,
+    "marketPrice": 5499.00,
+    "publishedAt": "2023-10-31",
+    "description": "小米 14 Pro 搭载第三代骁龙8旗舰芯片，徕卡可变光圈主摄，全等深四曲屏，4880mAh 电池支持120W秒充与50W无线快充。",
+    "specs": [
+      {"name": "处理器", "value": "第三代骁龙8 Gen3"},
+      {"name": "屏幕", "value": "6.73英寸 2K LTPO 120Hz"},
+      {"name": "电池", "value": "4880mAh"},
+      {"name": "快充", "value": "120W有线 50W无线"},
+      {"name": "影像", "value": "徕卡光学可变光圈"}
+    ]
+  },
+  {
+    "productNo": "P10007",
+    "name": "OPPO Find X7 Ultra",
+    "subtitle": "6.82英寸 双潜望长焦 哈苏影像",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": ["影像强", "长焦好", "快充强", "高端旗舰"],
+    "price": 5999.00,
+    "marketPrice": 6299.00,
+    "publishedAt": "2024-01-08",
+    "description": "OPPO Find X7 Ultra 搭载哈苏影像系统与双潜望长焦，第三代骁龙8芯片，6.82英寸2K曲面屏，5000mAh 电池支持100W超级闪充。",
+    "specs": [
+      {"name": "处理器", "value": "第三代骁龙8 Gen3"},
+      {"name": "屏幕", "value": "6.82英寸 2K 曲面屏 120Hz"},
+      {"name": "电池", "value": "5000mAh"},
+      {"name": "快充", "value": "100W有线 50W无线"},
+      {"name": "影像", "value": "哈苏双潜望长焦"}
+    ]
+  },
+  {
+    "productNo": "P10008",
+    "name": "vivo X100 Pro",
+    "subtitle": "6.78英寸 蔡司APO超级长焦 天玑9300",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": ["影像强", "长焦好", "续航久", "性能高"],
+    "price": 4999.00,
+    "marketPrice": 5299.00,
+    "publishedAt": "2023-11-13",
+    "description": "vivo X100 Pro 搭载天玑9300旗舰芯片与蔡司APO超级长焦，6.78英寸2K曲面屏，5400mAh 蓝海电池支持100W有线快充。",
+    "specs": [
+      {"name": "处理器", "value": "天玑9300"},
+      {"name": "屏幕", "value": "6.78英寸 2K AMOLED 120Hz"},
+      {"name": "电池", "value": "5400mAh"},
+      {"name": "快充", "value": "100W有线 50W无线"},
+      {"name": "影像", "value": "蔡司APO超级长焦"}
+    ]
+  }
+]

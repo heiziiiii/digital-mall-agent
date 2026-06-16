@@ -1,0 +1,13 @@
+# 构建产物（镜像内会重新编译，避免污染上下文）
+target/
+*.iml
+.idea/
+.vscode/
+
+# 版本控制与文档
+.git/
+.gitignore
+*.md
+
+# 本地环境文件
+.env

@@ -1,0 +1,89 @@
+# 数码智能客服 MCP 服务器 —— 一键拉起完整运行环境
+# 包含：应用本体 + MySQL(权威库) + Qdrant(语义检索，唯一检索后端)
+# 说明：Qdrant / DashScope 不可用时服务仍能启动并自动降级(检索返回空)，仅 MySQL 为硬依赖。
+name: digital-cs-mcp
+
+services:
+
+  # ---------------- 应用：MCP 服务器 ----------------
+  app:
+    build: .
+    container_name: digital-cs-mcp
+    ports:
+      - "8080:8080"
+    environment:
+      # 数据库（指向 compose 内的 mysql 服务）
+      MYSQL_HOST: mysql
+      MYSQL_PORT: "3306"
+      MYSQL_DB: digital_cs
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      # Qdrant 向量库（gRPC 端口）
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6334"
+      # Redis 缓存（指向 compose 内的 redis 服务）
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      # DashScope 嵌入 key（按需替换；缺省时向量检索降级为纯关键词）
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-sk-dummy-replace-me}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ---------------- MySQL：权威存储 ----------------
+  mysql:
+    image: mysql:8.0
+    container_name: digital-cs-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: digital_cs
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    # 宿主机用 3307 避免与本地已运行的 MySQL(3306) 冲突；容器内仍是 3306，app 经 Docker 网络连接不受影响
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 首次启动自动建表 + 灌入种子数据（按文件名顺序执行）；种子与 /admin/reset 共用 seed/mysql.sql
+      - ./src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./src/main/resources/seed/mysql.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ---------------- Redis：缓存 ----------------
+  redis:
+    image: redis:7-alpine
+    container_name: digital-cs-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ---------------- Qdrant：向量检索（单容器，无外部依赖） ----------------
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: digital-cs-qdrant
+    ports:
+      - "6333:6333"   # REST / Web UI
+      - "6334:6334"   # gRPC（应用经此端口连接）
+    volumes:
+      - qdrant-data:/qdrant/storage
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  qdrant-data:
+  redis-data:

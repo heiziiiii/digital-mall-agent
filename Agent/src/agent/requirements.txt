@@ -1,0 +1,13 @@
+fastapi>=0.115.0
+# PydanticAI：Agent 编排 + 工具循环 + 原生 MCP 客户端（替换 langgraph/langchain）
+pydantic-ai-slim[openai,mcp]>=0.0.30
+pydantic-settings>=2.6.1
+python-dotenv>=1.0.1
+pytest>=8.3.4
+pytest-asyncio>=0.24.0
+uvicorn>=0.30.6
+# 多层记忆存储：Redis(L2) / MySQL(L3, SQLAlchemy 异步 + aiomysql 纯 Python 驱动) / Qdrant(L4 向量库)
+redis>=5.0
+sqlalchemy[asyncio]>=2.0
+aiomysql>=0.2.0
+qdrant-client>=1.7
