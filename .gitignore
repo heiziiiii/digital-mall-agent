@@ -43,6 +43,8 @@ yarn-error.log*
 
 # ===== 日志 / 测试产物 =====
 *.log
+logs/
+*.jsonl
 *_test_result.json
 *_forward_test_result.json
 
