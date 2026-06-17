@@ -270,7 +270,7 @@ data: {"type":"done","thread_id":"d6d6bb5ec75844ddbe9f137697aeb998","session_id"
 | `done`  | 全部完成，读取 `final_answer` |
 | `error` | 执行失败，读取 `message` |
 
-`stage` 取值与节奏：先是 `memory_load`（记忆提取）、`decide`（任务编排，`update.tasks` 给出本轮带优先级/依赖的任务计划），随后**按依赖分波**逐个产出各任务阶段 `order_agent` / `tech_agent` / `product_agent`（同一波内的独立任务并发执行、逐个产出事件），最后 `summarize`（生成回答）、`safety`（安全审核）、`memory_save`（记忆保存）。纯闲聊轮没有任务阶段。
+`stage` 取值与节奏：先是 `memory_load`（记忆提取）、`decide`（任务编排，`update.tasks` 给出本轮带优先级/依赖的任务计划），随后**按依赖分波**逐个产出各任务阶段 `order_agent` / `tech_agent` / `product_agent`（同一波内的独立任务并发执行、逐个产出事件），最后 `summarize`（生成回答）、`memory_save`（记忆保存）。纯闲聊轮没有任务阶段。
 
 前端建议：
 

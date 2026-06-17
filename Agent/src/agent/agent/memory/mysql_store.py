@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from agent.config import get_settings
@@ -158,6 +158,95 @@ async def load_latest_customer_session(
         "user_profile": _json_loads(row["user_profile"], {}),
         "turns": int(row["turns"] or 0),
     }
+
+
+def _customer_conditions(
+    customer_id: int | None, customer_no: str | None
+) -> tuple[str, dict[str, Any]]:
+    """构造按客户身份过滤的 SQL 条件；二者皆空返回恒假条件。"""
+    conditions: list[str] = []
+    params: dict[str, Any] = {}
+    if customer_id is not None:
+        conditions.append("customer_id = :customer_id")
+        params["customer_id"] = customer_id
+    if customer_no:
+        conditions.append("customer_no = :customer_no")
+        params["customer_no"] = customer_no
+    if not conditions:
+        return "1 = 0", params
+    return " OR ".join(conditions), params
+
+
+async def list_customer_session_ids(
+    customer_id: int | None = None,
+    customer_no: str | None = None,
+) -> list[str]:
+    """返回某客户名下全部会话 id，用于跨层清理。"""
+    if customer_id is None and not customer_no:
+        return []
+    where, params = _customer_conditions(customer_id, customer_no)
+    engine = _require_engine()
+    async with engine.connect() as conn:
+        result = await conn.execute(
+            text(
+                f"SELECT session_id FROM agent_memory_sessions WHERE {where}"
+            ),
+            params,
+        )
+        rows = result.mappings().all()
+    return [str(row["session_id"]) for row in rows]
+
+
+async def delete_customer(
+    customer_id: int | None = None,
+    customer_no: str | None = None,
+) -> dict[str, int]:
+    """按客户身份删除会话状态与消息流水；返回各表删除行数。"""
+    session_ids = await list_customer_session_ids(customer_id, customer_no)
+    if not session_ids:
+        return {"sessions": 0, "messages": 0}
+    where, params = _customer_conditions(customer_id, customer_no)
+    engine = _require_engine()
+    async with engine.begin() as conn:
+        messages_result = await conn.execute(
+            text(
+                "DELETE FROM agent_memory_messages WHERE session_id IN :session_ids"
+            ).bindparams(bindparam("session_ids", expanding=True)),
+            {"session_ids": session_ids},
+        )
+        sessions_result = await conn.execute(
+            text(f"DELETE FROM agent_memory_sessions WHERE {where}"),
+            params,
+        )
+    return {
+        "sessions": int(sessions_result.rowcount or 0),
+        "messages": int(messages_result.rowcount or 0),
+    }
+
+
+async def order_owner(order_no: str) -> int | None:
+    """按订单号读取归属客户 id；订单不存在返回 None。"""
+    normalized = (order_no or "").strip()
+    if not normalized:
+        return None
+    engine = _require_engine()
+    async with engine.connect() as conn:
+        result = await conn.execute(
+            text(
+                """
+                SELECT customer_id
+                FROM orders
+                WHERE order_no = :order_no
+                LIMIT 1
+                """
+            ),
+            {"order_no": normalized},
+        )
+        row = result.mappings().first()
+    if row is None:
+        return None
+    owner = row["customer_id"]
+    return int(owner) if owner is not None else None
 
 
 async def recent_messages(session_id: str, limit: int) -> list[dict]:

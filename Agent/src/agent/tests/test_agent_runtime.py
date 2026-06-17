@@ -1,4 +1,4 @@
-﻿"""多 Agent 运行时测试：决策→分波并发执行→总结→本地安全审核（全程不触发 LLM/网络）。
+"""多 Agent 运行时测试：决策→分波并发执行→总结→记忆保存（全程不触发 LLM/网络）。
 
 通过 monkeypatch 替换运行链路内的 Agent 调用，使断言聚焦于编排/执行逻辑本身。
 """
@@ -78,7 +78,6 @@ def test_dependent_tasks_run_in_dependency_order(monkeypatch) -> None:
         "order_agent",
         "product_agent",
         "summarize",
-        "safety",
         "memory_save",
     ]
     assert ctx.agent_results == {"order": "order-result", "product": "product-result"}
@@ -93,7 +92,7 @@ def test_independent_tasks_run_in_one_wave(monkeypatch) -> None:
     stages = _run(ctx, decision)
 
     # 同优先级且无依赖 → 同一波并发执行，但事件按波内顺序逐个产出
-    assert stages == ["memory_load", "decide", "tech_agent", "product_agent", "summarize", "safety", "memory_save"]
+    assert stages == ["memory_load", "decide", "tech_agent", "product_agent", "summarize", "memory_save"]
     assert ctx.agent_results == {"tech": "tech-result", "product": "product-result"}
 
 
@@ -119,7 +118,8 @@ def test_specialist_contexts_are_isolated_by_agent() -> None:
 
     # 未显式声明 tasks 时不再硬编码默认依赖，产品专家不注入任何前序结果
     assert "【选购偏好】" in product_context
-    assert "【近期产品对话】" in product_context
+    assert "【近期产品对话】" not in product_context
+    assert "O100" not in product_context
     assert "【前序处理结果】" not in product_context
     assert "iPhone 15 Pro" not in product_context
     assert "customer-7" not in product_context
@@ -131,11 +131,13 @@ def test_specialist_contexts_are_isolated_by_agent() -> None:
     assert "customer_no" not in order_context
     assert "customer_id" not in order_context
     assert "customer-7" not in order_context
-    assert "【近期订单/售后对话】" in order_context
+    assert "【近期订单/售后对话】" not in order_context
+    assert "O100" not in order_context
     assert "【选购偏好】" not in order_context
     assert "【前序处理结果】" not in order_context
 
-    assert "【近期技术对话】" in tech_context
+    assert "【近期技术对话】" not in tech_context
+    assert "O100" not in tech_context
     assert "customer-7" not in tech_context
     assert "【选购偏好】" not in tech_context
     assert "【前序处理结果】" not in tech_context
@@ -170,7 +172,7 @@ def test_rewritten_query_is_passed_to_specialist_context() -> None:
 
     product_context = CustomerAgent()._build_specialist_context("product", ctx)
 
-    assert "【当前问题】基于订单专家输出的已购手机，与当前新款手机做选购比较。" in product_context
+    assert "【任务上下文】基于订单专家输出的已购手机，与当前新款手机做选购比较。" in product_context
     assert "我最近买的那个手机和新款比哪个好" not in product_context
     assert "最近订单商品为 iPhone 15 Pro" in product_context
 
@@ -280,7 +282,7 @@ def test_chat_skips_specialists(monkeypatch) -> None:
 
     stages = _run(ctx, decision)
 
-    assert stages == ["memory_load", "decide", "summarize", "safety", "memory_save"]
+    assert stages == ["memory_load", "decide", "summarize", "memory_save"]
 
 
 def test_product_recommendation_always_uses_summarize(monkeypatch) -> None:
@@ -307,7 +309,7 @@ def test_product_recommendation_always_uses_summarize(monkeypatch) -> None:
         ).iter_run(ctx)
     ]
 
-    assert stages == ["memory_load", "decide", "product_agent", "summarize", "safety", "memory_save"]
+    assert stages == ["memory_load", "decide", "product_agent", "summarize", "memory_save"]
     assert seen_payloads
     assert '"current_emotion": "焦急"' in seen_payloads[0]
     assert '\\"match_score\\":92' in seen_payloads[0]
@@ -328,9 +330,9 @@ def test_empty_product_recommendation_uses_summarize(monkeypatch) -> None:
     seen_payloads: list[str] = []
 
     async def fake_specialist(_name, context, deps=None):
-        assert "【近期产品对话】" in context
-        assert "华为 Mate 60 Pro" in context
-        assert "苹果 iPhone 15 Pro" in context
+        assert "【近期产品对话】" not in context
+        assert "华为 Mate 60 Pro" not in context
+        assert "苹果 iPhone 15 Pro" not in context
         return '{"reply_type":"product_recommendation","summary":"暂未检索到可靠匹配的商品","recommendations":[],"notes":"没有找到符合条件且数据可靠的商品。"}'
 
     summarize_agent = _FakeSummarizeAgent(
@@ -345,13 +347,14 @@ def test_empty_product_recommendation_uses_summarize(monkeypatch) -> None:
         ).iter_run(ctx)
     ]
 
-    assert stages == ["memory_load", "decide", "product_agent", "summarize", "safety", "memory_save"]
+    assert stages == ["memory_load", "decide", "product_agent", "summarize", "memory_save"]
     assert seen_payloads
-    assert '"recent_dialogue"' in seen_payloads[0]
+    assert '"recent_dialogue"' not in seen_payloads[0]
+    assert '"history_summary"' not in seen_payloads[0]
     assert ctx.final_answer == "我需要重新核实两款的影像参数后再给你准确比较。"
 
 
-def test_local_safety_blocks_unmasked_phone_without_regeneration(monkeypatch) -> None:
+def test_runtime_skips_local_safety(monkeypatch) -> None:
     ctx = AgentContext(user_input="查一下我的资料", session_id="s3")
     decision = _decision([], mode="simple")
 
@@ -361,11 +364,11 @@ def test_local_safety_blocks_unmasked_phone_without_regeneration(monkeypatch) ->
         for event in _make_agent(decision, summarize_agent=summarize_agent).iter_run(ctx)
     ]
 
-    assert stages == ["memory_load", "decide", "summarize", "safety", "memory_save"]
-    assert ctx.safety_retry == 1
+    assert stages == ["memory_load", "decide", "summarize", "memory_save"]
+    assert ctx.safety_retry == 0
     assert ctx.safety_passed is True
-    assert ctx.final_answer == "抱歉，这个问题我暂时无法直接回答。如需进一步帮助，请联系人工客服。"
-    assert ctx.safety_feedback == "回答包含未脱敏手机号"
+    assert ctx.final_answer == "你的手机号是 13812345678。"
+    assert ctx.safety_feedback == ""
 
 
 def test_local_safety_allows_masked_customer_info() -> None:

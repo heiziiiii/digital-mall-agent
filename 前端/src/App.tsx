@@ -4,9 +4,15 @@ import ChatHeader from './components/ChatHeader'
 import Welcome from './components/Welcome'
 import MessageBubble from './components/MessageBubble'
 import Composer from './components/Composer'
+import OrdersView from './components/OrdersView'
+import AfterSalesView from './components/AfterSalesView'
+import { historySubtitle, historyTitle } from './historyDisplay'
 import {
+  appendAgentMemory,
   clearAuthToken,
   confirmAction,
+  createOrder,
+  deleteHistoryConversation,
   getCurrentUser,
   getHistoryConversation,
   getHistorySessions,
@@ -20,6 +26,7 @@ import {
   type HistoryMessage,
   type HistorySession,
   type LoginResponse,
+  type Order,
   type PendingAction,
   type ProductRecommendation,
   type SessionResponse,
@@ -29,6 +36,9 @@ import {
 
 type MessageRole = 'user' | 'bot'
 type AuthStatus = 'checking' | 'authenticated' | 'anonymous'
+
+// 主内容区当前视图：聊天 / 我的订单 / 我的售后
+export type View = 'chat' | 'orders' | 'aftersales'
 
 type TextBlock = { type: 'text'; value: string }
 type ProductBlock = { type: 'product'; value: ProductData }
@@ -91,7 +101,7 @@ const toUserInfo = (profile: LoginResponse | CurrentUserResponse): UserInfo => {
 const GREETING_TEXT =
   '你好呀，我是 **阿数** ✨ 你的 AI 智能客服。推荐产品、查看订单、售后服务、解决技术问题，都可以直接跟我说。先说说你的需求吧～'
 
-const REVIEW_FLOW_RE = /售后|退款|退货|换货|维修|退换|取消订单|申请/
+const REVIEW_FLOW_RE = /售后|退款|退货|换货|维修|退换|取消订单|申请|下单|购买|买这|就要|帮我买/
 const SESSION_ID_KEY = 'agent_session_id'
 const HISTORY_CACHE_PREFIX = 'agent_history_sessions'
 
@@ -105,14 +115,6 @@ const greetingMessage = (): Message => ({
   role: 'bot',
   blocks: [{ type: 'text', value: GREETING_TEXT }],
 })
-
-const loadSessionId = () => {
-  try {
-    return localStorage.getItem(SESSION_ID_KEY) || undefined
-  } catch {
-    return undefined
-  }
-}
 
 const saveSessionId = (sessionId: string) => {
   try {
@@ -143,6 +145,8 @@ const loadHistoryCache = (customerNo?: string): HistorySession[] => {
       .map((item) => ({
         sessionId: item.sessionId,
         rollingSummary: typeof item.rollingSummary === 'string' ? item.rollingSummary : undefined,
+        lastUserMessage: typeof item.lastUserMessage === 'string' ? item.lastUserMessage : undefined,
+        lastAssistantMessage: typeof item.lastAssistantMessage === 'string' ? item.lastAssistantMessage : undefined,
         updatedAt: typeof item.updatedAt === 'string' ? item.updatedAt : undefined,
       }))
   } catch {
@@ -158,29 +162,12 @@ const saveHistoryCache = (customerNo: string | undefined, sessions: HistorySessi
   }
 }
 
-const historyPreview = (sessionId: string) =>
-  sessionId.length > 12 ? `${sessionId.slice(0, 6)}...${sessionId.slice(-6)}` : sessionId
-
-const cleanSummary = (summary?: string) =>
-  (summary ?? '')
-    .replace(/\s+/g, ' ')
-    .replace(/^用户[^，。；;:：]*[，。；;:：]\s*/, '')
-    .trim()
-
-const clipText = (text: string, max: number) => {
-  const chars = Array.from(text)
-  return chars.length > max ? `${chars.slice(0, max).join('')}...` : text
-}
-
-const historyTitle = (session: HistorySession, fallbackIndex: number) => {
-  const summary = cleanSummary(session.rollingSummary)
-  if (!summary) return `对话 ${fallbackIndex + 1}`
-  return clipText(summary.split(/[。；;.!?！？]/)[0] || summary, 18)
-}
-
-const historySubtitle = (session: HistorySession) => {
-  const summary = cleanSummary(session.rollingSummary)
-  return summary ? clipText(summary, 32) : '历史对话'
+const clearHistoryCache = (customerNo?: string) => {
+  try {
+    localStorage.removeItem(historyCacheKey(customerNo))
+  } catch {
+    /* 忽略本地存储不可用的情况 */
+  }
 }
 
 const restoredHistoryMessage = (session: HistorySession): Message => ({
@@ -217,6 +204,37 @@ const emptyHistoryMessage = (): Message => ({
   blocks: [{ type: 'text', value: '这段历史暂无可展示的消息。' }],
 })
 
+const errorMessage = (error: unknown, fallback: string) => {
+  if (!(error instanceof Error) || !error.message) return fallback
+  try {
+    const parsed = JSON.parse(error.message)
+    if (typeof parsed?.detail === 'string' && parsed.detail.trim()) return parsed.detail
+    if (typeof parsed?.message === 'string' && parsed.message.trim()) return parsed.message
+  } catch {
+    /* 忽略非 JSON 错误消息 */
+  }
+  return error.message || fallback
+}
+
+const firstTextBlock = (message: Message) => {
+  const text = message.blocks.find((block): block is TextBlock => block.type === 'text')
+  return text?.value.trim() || ''
+}
+
+const recentDialogueLabels = (messages: Message[], fallbackTitle = '新的咨询', fallbackPreview = '开始一段新对话') => {
+  const lastUser = [...messages].reverse().find((message) => message.role === 'user')
+  const lastBot = [...messages].reverse().find((message) => message.role === 'bot' && firstTextBlock(message))
+  return {
+    title: firstTextBlock(lastUser ?? messages[0]) || fallbackTitle,
+    preview: firstTextBlock(lastBot ?? messages[0]) || fallbackPreview,
+  }
+}
+
+const historyListLabels = (session: HistorySession, fallbackIndex: number) => ({
+  title: session.lastUserMessage?.trim() || historyTitle(session, fallbackIndex),
+  preview: session.lastAssistantMessage?.trim() || historySubtitle(session),
+})
+
 const toChatMessage = (message: HistoryMessage): Message => ({
   id: newId(),
   role: message.role === 'user' ? 'user' : 'bot',
@@ -225,30 +243,19 @@ const toChatMessage = (message: HistoryMessage): Message => ({
 
 /* ----------------------------- 初始会话 ----------------------------- */
 
-// 初始仅一个空白会话，所有商品/订单内容均由后端实时返回
-const seedConversations = (): Conversation[] => {
-  const savedSessionId = loadSessionId()
-  if (savedSessionId) {
-    const session = { sessionId: savedSessionId }
-    return [{
-      id: newId(),
-      title: '上次对话',
-      preview: historySubtitle(session),
-      time: '历史',
-      messages: [restoredHistoryMessage(session)],
-      sessionId: savedSessionId,
-      historyLoaded: false,
-      historyLoading: false,
-    }]
-  }
-  return [{
-    id: newId(),
-    title: '新的咨询',
-    preview: '开始一段新对话',
-    time: '刚刚',
-    messages: [greetingMessage()],
-  }]
-}
+// 一条全新的空白会话：仅有欢迎语、没有 sessionId，
+// 在用户发送第一条消息前不会与后端发生任何交互（惰性新建）。
+const newConversationItem = (): Conversation => ({
+  id: newId(),
+  title: '新的咨询',
+  preview: '开始一段新对话',
+  time: '刚刚',
+  messages: [greetingMessage()],
+})
+
+// 每次进入/登录都从一条全新空白会话开始；历史会话只在侧边栏按需加载，
+// 不再自动恢复“上次对话”，避免拿到失效 sessionId 反复请求后端。
+const seedConversations = (): Conversation[] => [newConversationItem()]
 
 /* ----------------------------- 主组件 ----------------------------- */
 
@@ -260,15 +267,17 @@ export default function App() {
   const [progress, setProgress] = useState('')
   const [reviewBusy, setReviewBusy] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [view, setView] = useState<View>('chat')
   const [user, setUser] = useState<UserInfo | null>(null)
   const [authStatus, setAuthStatus] = useState<AuthStatus>(() => (hasAuthToken() ? 'checking' : 'anonymous'))
-  const [phone, setPhone] = useState('13700003333')
+  const [phone, setPhone] = useState('13500005555')
   const [password, setPassword] = useState('123456')
   const [authError, setAuthError] = useState('')
 
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const typingTimerRef = useRef<number | null>(null)
   const loadingHistoryRef = useRef<Set<number>>(new Set())
+  const preloadingHistoryRef = useRef<Set<string>>(new Set())
 
   const active = useMemo(
     () => conversations.find((c) => c.id === activeId) ?? conversations[0],
@@ -334,9 +343,6 @@ export default function App() {
     }))
   }
 
-  const setActiveSession = (sessionId?: string, threadId?: string) =>
-    setConversationSession(activeId, sessionId, threadId)
-
   const hydrateHistory = (historySessions: HistorySession[] = [], fallbackSessionIds: string[] = []) => {
     const mergedSessions = historySessions.length
       ? historySessions
@@ -352,11 +358,19 @@ export default function App() {
         const session = conversation.sessionId ? sessionsById.get(conversation.sessionId) : undefined
         const onlyInitialGreeting =
           conversation.messages.length === 1 && conversation.messages[0].role === 'bot'
-        if (!session || !onlyInitialGreeting || conversation.historyLoaded !== undefined) return conversation
+        if (!session || !onlyInitialGreeting) return conversation
+        if (conversation.historyLoaded === true) return conversation
+        if (conversation.historyLoaded === false || conversation.historyLoading === false) {
+          return {
+            ...conversation,
+            ...historyListLabels(session, 0),
+            messages: [restoredHistoryMessage(session)],
+            historyLoading: false,
+          }
+        }
         return {
           ...conversation,
-          title: historyTitle(session, 0),
-          preview: historySubtitle(session),
+          ...historyListLabels(session, 0),
           time: '历史',
           messages: [restoredHistoryMessage(session)],
           historyLoaded: false,
@@ -368,8 +382,7 @@ export default function App() {
         .filter((session) => !existing.has(session.sessionId))
         .map((session, index): Conversation => ({
           id: newId(),
-          title: historyTitle(session, index),
-          preview: historySubtitle(session),
+          ...historyListLabels(session, index),
           time: '历史',
           messages: [restoredHistoryMessage(session)],
           sessionId: session.sessionId,
@@ -394,10 +407,15 @@ export default function App() {
     try {
       const detail = await getHistoryConversation(sessionId)
       const loadedMessages = detail.messages.map(toChatMessage)
+      const labels = recentDialogueLabels(
+        loadedMessages,
+        historyTitle(detail.session, 0),
+        historySubtitle(detail.session),
+      )
       patchConversation(conversationId, (c) => ({
         ...c,
-        title: historyTitle(detail.session, 0),
-        preview: historySubtitle(detail.session),
+        title: labels.title,
+        preview: labels.preview,
         messages: loadedMessages.length ? loadedMessages : [emptyHistoryMessage()],
         historyLoaded: true,
         historyLoading: false,
@@ -409,7 +427,7 @@ export default function App() {
           sessionId,
           rollingSummary: c.preview,
         })],
-        historyLoaded: false,
+        historyLoaded: true,
         historyLoading: false,
       }))
     } finally {
@@ -423,6 +441,17 @@ export default function App() {
       loadHistory(active.id, active.sessionId)
     }
   }, [authStatus, active.id, active.sessionId, active.historyLoaded, active.historyLoading])
+
+  useEffect(() => {
+    if (authStatus !== 'authenticated') return
+    conversations.forEach((conversation) => {
+      if (!conversation.sessionId || conversation.historyLoaded !== false || conversation.historyLoading) return
+      if (preloadingHistoryRef.current.has(conversation.sessionId)) return
+      preloadingHistoryRef.current.add(conversation.sessionId)
+      loadHistory(conversation.id, conversation.sessionId)
+        .finally(() => preloadingHistoryRef.current.delete(conversation.sessionId!))
+    })
+  }, [authStatus, conversations])
 
   // 打字机：逐字渲染文本，完成后把卡片块追加到同一条消息
   const typeOut = (text: string, extras: MessageBlock[], conversationId = activeId) =>
@@ -451,6 +480,11 @@ export default function App() {
               ),
             }))
           }
+          patchConversation(conversationId, (c) => ({
+            ...c,
+            preview: text || c.preview,
+            time: '刚刚',
+          }))
           resolve()
         }
       }
@@ -473,14 +507,16 @@ export default function App() {
     setConversationSession(conversationId, result.session_id, result.thread_id)
 
     if (result.status === 'awaiting_review' && result.pending_action) {
+      const answer = result.final_answer || '这一步会执行需要确认的业务操作，请先核对。'
       appendMessage({
         id: newId(),
         role: 'bot',
         blocks: [
-          { type: 'text', value: result.final_answer || '这一步会创建或修改售后信息，请先确认。' },
+          { type: 'text', value: answer },
           { type: 'review', value: result.pending_action },
         ],
       }, conversationId)
+      patchConversation(conversationId, (c) => ({ ...c, preview: answer, time: '刚刚' }))
       return
     }
 
@@ -550,35 +586,79 @@ export default function App() {
     if (!text || typing || reviewBusy) return
     const conversationId = active.id
     const sessionId = active.sessionId
-    // 判定须在追加消息前完成：appendMessage 与下面的 patchActive 都是同一批 setState 队列，
-    // 若放到追加之后再判断，c.messages 已含刚加入的用户消息，some(...) 恒为 true，标题永远不会更新。
-    const isFirstUserMessage = !active.messages.some((m) => m.role === 'user')
     appendMessage({ id: newId(), role: 'user', blocks: [{ type: 'text', value: text }] })
-    // 用首条用户消息更新会话标题
     patchActive((c) => ({
       ...c,
-      title: isFirstUserMessage ? text.slice(0, 14) : c.title,
-      preview: text.slice(0, 18),
+      title: text,
+      preview: '等待回答...',
       time: '刚刚',
     }))
     setInput('')
     respond(text, conversationId, sessionId)
   }
 
+  const orderProduct = (product: ProductData) => {
+    if (!product.productNo || typing || reviewBusy) return
+    const conversationId = active.id
+    const sessionId = active.sessionId
+    const userMessage = `立即下单：${product.name}（${product.productNo}）x1`
+    appendMessage({ id: newId(), role: 'user', blocks: [{ type: 'text', value: userMessage }] }, conversationId)
+    patchConversation(conversationId, (c) => ({
+      ...c,
+      title: product.name ? `下单 ${product.name}` : c.title,
+      preview: '正在创建订单...',
+      time: '刚刚',
+    }))
+
+    const orderSummary = (order: Order) => {
+      const item = order.items?.[0]
+      const productName = item?.productName || product.name
+      const amount = order.totalAmount == null ? '' : `，订单金额 ¥${order.totalAmount}`
+      return `已为你创建待付款订单 ${order.orderNo}：${productName} x${item?.quantity ?? 1}${amount}。这笔订单已经记入当前对话，后面你可以直接问“刚才那单”。`
+    }
+
+    return createOrder({ productNo: product.productNo, quantity: 1 })
+      .then(async (order) => {
+        const assistantMessage = orderSummary(order)
+        appendMessage({ id: newId(), role: 'bot', blocks: [{ type: 'text', value: assistantMessage }] }, conversationId)
+        patchConversation(conversationId, (c) => ({ ...c, preview: assistantMessage, time: '刚刚' }))
+        try {
+          const memory = await appendAgentMemory({
+            sessionId,
+            userMessage,
+            assistantMessage,
+          })
+          setConversationSession(conversationId, memory.session_id || sessionId, memory.thread_id)
+        } catch {
+          appendMessage({
+            id: newId(),
+            role: 'bot',
+            blocks: [{ type: 'text', value: '订单已创建，但这次下单记录暂时没有写入会话记忆。' }],
+          }, conversationId)
+        }
+      })
+      .catch((error) => {
+        const message = errorMessage(error, '下单失败，请稍后重试。')
+        appendMessage({ id: newId(), role: 'bot', blocks: [{ type: 'text', value: message }] }, conversationId)
+        patchConversation(conversationId, (c) => ({ ...c, preview: message, time: '刚刚' }))
+        throw error
+      })
+  }
+
+  const navigateTo = (next: View) => {
+    setView(next)
+    setSidebarOpen(false)
+  }
+
   const newConversation = () => {
+    setView('chat')
     // 当前会话没有任何用户输入时，直接复用，不重复新建
     if (!active.messages.some((m) => m.role === 'user')) {
       setSidebarOpen(false)
       return
     }
     clearSessionId()
-    const conv: Conversation = {
-      id: newId(),
-      title: '新的咨询',
-      preview: '开始一段新对话',
-      time: '刚刚',
-      messages: [greetingMessage()],
-    }
+    const conv = newConversationItem()
     setConversations((list) => [conv, ...list])
     setActiveId(conv.id)
     setSidebarOpen(false)
@@ -591,10 +671,42 @@ export default function App() {
     } else {
       clearSessionId()
     }
+    setView('chat')
     setActiveId(id)
     setSidebarOpen(false)
     if (next?.sessionId && next.historyLoaded === false && !next.historyLoading) {
       loadHistory(id, next.sessionId)
+    }
+  }
+
+  const deleteConversation = async (id: number) => {
+    const target = conversations.find((c) => c.id === id)
+    if (!target) return
+    if (!window.confirm('确定删除这段对话吗？删除后无法恢复。')) return
+
+    // 已落库的历史会话需先请求后端删除；本地未发起过的新会话只在前端移除。
+    if (target.sessionId) {
+      try {
+        await deleteHistoryConversation(target.sessionId)
+      } catch {
+        window.alert('删除失败，请稍后再试。')
+        return
+      }
+      // 同步清理本地历史缓存
+      const cached = loadHistoryCache(user?.customerNo)
+      saveHistoryCache(user?.customerNo, cached.filter((s) => s.sessionId !== target.sessionId))
+    }
+
+    const remaining = conversations.filter((c) => c.id !== id)
+    const nextList = remaining.length ? remaining : seedConversations()
+    setConversations(nextList)
+
+    // 删除的是当前激活会话时，切换到剩余的第一条并同步 session 存储
+    if (activeId === id) {
+      const next = nextList[0]
+      setActiveId(next.id)
+      if (next.sessionId) saveSessionId(next.sessionId)
+      else clearSessionId()
     }
   }
 
@@ -604,13 +716,19 @@ export default function App() {
     setAuthStatus('checking')
     try {
       const profile = await login(phone.trim(), password)
+      clearSessionId()
+      const next = seedConversations()
+      setConversations(next)
+      setActiveId(next[0].id)
       setUser(toUserInfo(profile))
-      hydrateHistory(profile.historySessions, profile.historySessionIds)
       const loginHistory = profile.historySessions?.length
         ? profile.historySessions
         : (profile.historySessionIds ?? []).map((sessionId) => ({ sessionId }))
+      hydrateHistory(loginHistory)
       if (loginHistory.length) {
         saveHistoryCache(profile.customerNo, loginHistory)
+      } else {
+        clearHistoryCache(profile.customerNo)
       }
       setAuthStatus('authenticated')
     } catch {
@@ -621,14 +739,19 @@ export default function App() {
   }
 
   const signOut = async () => {
-    await logout()
-    clearSessionId()
-    const next = seedConversations()
-    setUser(null)
-    setAuthStatus('anonymous')
-    setConversations(next)
-    setActiveId(next[0].id)
-    setSidebarOpen(false)
+    const previousCustomerNo = user?.customerNo
+    try {
+      await logout()
+    } finally {
+      clearSessionId()
+      clearHistoryCache(previousCustomerNo)
+      const next = seedConversations()
+      setUser(null)
+      setAuthStatus('anonymous')
+      setConversations(next)
+      setActiveId(next[0].id)
+      setSidebarOpen(false)
+    }
   }
 
   const continueAfterConfirm = async (messageId: number, payload: Parameters<typeof confirmAction>[0], conversationId = activeId) => {
@@ -647,11 +770,11 @@ export default function App() {
       setTyping(false)
       setProgress('')
       await showSessionResult(result, conversationId)
-    } catch {
+    } catch (error) {
       setReviewBusy(false)
       setTyping(false)
       setProgress('')
-      await typeOut('确认操作失败，请稍后再试。', [], conversationId)
+      await typeOut(errorMessage(error, '确认操作失败，请稍后再试。'), [], conversationId)
     }
   }
 
@@ -728,60 +851,74 @@ export default function App() {
         activeId={activeId}
         user={user}
         open={sidebarOpen}
+        view={view}
         onSelect={selectConversation}
         onNew={newConversation}
+        onDelete={deleteConversation}
+        onNavigate={navigateTo}
         onClose={() => setSidebarOpen(false)}
       />
 
-      <div className="main">
-        <ChatHeader
-          title={active.title}
-          user={user}
-          onMenu={() => setSidebarOpen(true)}
-          onLogout={signOut}
-        />
+      {view === 'orders' ? (
+        <div className="main">
+          <OrdersView onMenu={() => setSidebarOpen(true)} />
+        </div>
+      ) : view === 'aftersales' ? (
+        <div className="main">
+          <AfterSalesView onMenu={() => setSidebarOpen(true)} />
+        </div>
+      ) : (
+        <div className="main">
+          <ChatHeader
+            title={active.title}
+            user={user}
+            onMenu={() => setSidebarOpen(true)}
+            onLogout={signOut}
+          />
 
-        <div className="scroll" ref={scrollRef}>
-          <div className="thread">
-            {onlyGreeting && <Welcome user={user} onPick={(s) => send(s)} />}
+          <div className="scroll" ref={scrollRef}>
+            <div className="thread">
+              {onlyGreeting && <Welcome user={user} onPick={(s) => send(s)} />}
 
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                msg={message}
-                user={user}
-                reviewBusy={reviewBusy}
-                onApproveReview={approveReview}
-                onCancelReview={cancelReview}
-              />
-            ))}
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  msg={message}
+                  user={user}
+                  reviewBusy={reviewBusy}
+                  onOrderProduct={orderProduct}
+                  onApproveReview={approveReview}
+                  onCancelReview={cancelReview}
+                />
+              ))}
 
-            {typing && (
-              <div className="msg bot">
-                <div className="avatar bot">数</div>
-                <div className="bubble-wrap">
-                  <div className="bubble bot typing-bubble">
-                    <div className="typing">
-                      <span />
-                      <span />
-                      <span />
+              {typing && (
+                <div className="msg bot">
+                  <div className="avatar bot">数</div>
+                  <div className="bubble-wrap">
+                    <div className="bubble bot typing-bubble">
+                      <div className="typing">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                      {progress && <span className="typing-label">{progress}</span>}
                     </div>
-                    {progress && <span className="typing-label">{progress}</span>}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <Composer
-          value={input}
-          disabled={typing || reviewBusy}
-          onChange={setInput}
-          onSend={() => send()}
-          onQuick={(q) => send(q)}
-        />
-      </div>
+          <Composer
+            value={input}
+            disabled={typing || reviewBusy}
+            onChange={setInput}
+            onSend={() => send()}
+            onQuick={(q) => send(q)}
+          />
+        </div>
+      )}
     </div>
   )
 }

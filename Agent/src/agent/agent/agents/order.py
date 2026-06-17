@@ -78,18 +78,13 @@ class OrderAgent:
         self,
         ctx: AgentContext,
         query: str = "",
-        recent_dialogue: str = "",
         previous_results: str = "",
     ) -> str:
-        """构造订单专家上下文，只接收订单线索；认证身份通过 deps 传给工具。"""
+        """构造订单专家上下文，只接收规划任务和依赖结果；认证身份通过 deps 传给工具。"""
         lines: list[str] = []
-        if ctx.current_emotion and ctx.current_emotion != "中性":
-            lines.append(f"【当前用户情绪】{ctx.current_emotion}")
-        if recent_dialogue:
-            lines.append(f"【近期订单/售后对话】\n{recent_dialogue}")
         if previous_results:
             lines.append(f"【前序处理结果】\n{previous_results}")
-        lines.append(f"【当前问题】{query or ctx.user_input}")
+        lines.append(f"【任务上下文】{query or ctx.user_input}")
         return "\n".join(lines)
 
     def deps(self, ctx: AgentContext) -> SpecialistDeps:

@@ -182,9 +182,49 @@ def test_human_service_suspends_with_pending_action() -> None:
     assert pending["tool"] == "createHumanService"
     assert pending["call_id"] == "call_human"
     assert pending["required_fields"] == ["reason"]
-    assert pending["editable_fields"] == ["orderNo", "afterSaleNo", "reason"]
+    assert pending["editable_fields"] == ["orderNo", "reason"]
     assert pending["known_fields"]["reason"] == "用户要求人工处理"
     assert "人工服务申请" in pending["instruction"]
+
+
+def test_human_request_directly_invokes_human_service_action() -> None:
+    """编排判定需要人工服务（无专家任务）时，主流程直接走 createHumanService 待确认。
+
+    这里不替换 ``_start_human_service_action``，验证「规划 → 直接发起人工服务工具调用」
+    这条真实链路：不绕任何专家任务，直接构造 createHumanService 的待确认动作。
+    """
+    decision = DecisionResult(
+        intent="order",
+        tasks=[],
+        planning_mode="planned",
+        human_service={
+            "reason": "用户要求转人工处理退款",
+            "orderNo": "O1",
+            "afterSaleNo": "",
+        },
+    )
+    agent = CustomerAgent(
+        orchestrator=_FakeOrchestrator(decision),
+        summarize_agent=_FakeSummarize("已为你转接人工客服"),
+        memory_loader=lambda ctx: None,
+        memory_saver=lambda ctx: None,
+    )
+    ctx = AgentContext(user_input="我要转人工", session_id="s1", customer_id=7)
+
+    gen = agent.iter_run(ctx)
+    review = _drive_to_review(gen)
+
+    pending = review["update"]["pending_action"]
+    assert pending["tool"] == "createHumanService"
+    assert pending["agent"] == "tool"
+    assert pending["state"] == "awaiting_review"
+    assert pending["args"]["reason"] == "用户要求转人工处理退款"
+    assert pending["args"]["orderNo"] == "O1"
+    assert pending["required_fields"] == ["reason"]
+    assert pending["editable_fields"] == ["orderNo", "reason"]
+    # 直达人工服务动作：挂起待确认，且未跑任何专家任务
+    assert ctx.pending_review is not None
+    assert ctx.agent_results == {}
 
 
 def test_confirm_with_edited_args_resumes_and_persists() -> None:
@@ -214,7 +254,7 @@ def test_confirm_with_edited_args_resumes_and_persists() -> None:
 
 
 def test_cancel_resumes_with_denial() -> None:
-    # 取消后订单专家答复（即安全审核证据）含确认词，避免被"未经确认的写承诺"规则拦截
+    # 取消后订单专家答复保持明确，避免误导用户以为已提交写操作
     order = _FakeOrder("已取消该售后申请，未提交到业务系统")
     ctx = AgentContext(user_input="算了不退了", session_id="s1", customer_id=7)
 

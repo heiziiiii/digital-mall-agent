@@ -5,7 +5,10 @@ from __future__ import annotations
 import time
 
 import pytest
+from fastapi import HTTPException
 
+from agent.api import routes
+from agent.api.schemas import MemoryAppendRequest
 from agent.api.runner import RunManager, RunSession
 
 
@@ -166,5 +169,58 @@ def test_confirm_can_resume_stream_session_after_review() -> None:
     assert session.status == "completed"
     assert session.final_answer == "confirmed"
     assert fake.decisions[0]["approved"] is True
+
+
+def test_confirm_order_owner_validation_rejects_foreign_order(monkeypatch) -> None:
+    class _Runtime:
+        @staticmethod
+        def run(coro):
+            coro.close()
+            return 3
+
+    monkeypatch.setattr(routes, "get_runtime", lambda: _Runtime())
+
+    with pytest.raises(HTTPException) as exc:
+        routes._validate_confirm_order_owner(
+            {
+                "tool": "createAfterSale",
+                "args": {"orderNo": "O1", "type": 1, "reason": "退货"},
+            },
+            None,
+            customer_id=5,
+        )
+
+    assert exc.value.status_code == 409
+    assert "不属于当前登录用户" in exc.value.detail
+
+
+def test_append_memory_records_external_business_event(monkeypatch) -> None:
+    saved = {}
+
+    def _save_memory(ctx):
+        saved["session_id"] = ctx.session_id
+        saved["user_input"] = ctx.user_input
+        saved["final_answer"] = ctx.final_answer
+        saved["customer_id"] = ctx.customer_id
+
+    monkeypatch.setattr(routes.memory_store, "save_memory", _save_memory)
+
+    response = routes.append_memory(
+        MemoryAppendRequest(
+            session_id="s1",
+            user_message="立即下单：小米 14 Pro（P10006）x1",
+            assistant_message="已为你创建待付款订单 O200。",
+        ),
+        x_customer_id="5",
+    )
+
+    assert response.status == "completed"
+    assert response.session_id == "s1"
+    assert saved == {
+        "session_id": "s1",
+        "user_input": "立即下单：小米 14 Pro（P10006）x1",
+        "final_answer": "已为你创建待付款订单 O200。",
+        "customer_id": 5,
+    }
 
 

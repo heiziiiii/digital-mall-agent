@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # 单次 LLM 请求超时（秒）与失败重试次数；调小可让慢/挂的接口更快暴露失败
     openai_timeout: float = 30.0
     openai_max_retries: int = 1
-    # 安全审核是兜底保险丝：默认不重生成，失败时直接切换兜底话术
+    # 安全审核配置保留；当前主 Agent 流程未接入安全审核阶段
     safety_max_retries: int = 0
     # MCP 服务器地址（SSE 传输），客服工具由此服务器提供
     mcp_server_url: str = "http://localhost:8081/sse"

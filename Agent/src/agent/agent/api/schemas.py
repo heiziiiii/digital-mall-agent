@@ -39,6 +39,23 @@ class ConfirmRequest(BaseModel):
     message: str | None = Field(None, description="取消说明或重新生成意见，可选")
 
 
+class MemoryAppendRequest(BaseModel):
+    """把外部业务事件写入指定 Agent 记忆会话。"""
+
+    session_id: str | None = Field(None, description="可选；用于延续同一记忆会话")
+    user_message: str = Field(..., min_length=1, description="作为用户侧事件写入的内容")
+    assistant_message: str = Field(..., min_length=1, description="作为客服侧结果写入的内容")
+
+
+class MemoryPurgeResponse(BaseModel):
+    """按用户清理长期记忆的结果。"""
+
+    customer_id: int | None = None
+    customer_no: str | None = None
+    deleted_sessions: int = Field(0, description="删除的会话状态记录数")
+    deleted_messages: int = Field(0, description="删除的消息流水记录数")
+
+
 class SessionResponse(BaseModel):
     """统一会话响应结构。"""
 

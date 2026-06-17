@@ -49,12 +49,12 @@ def test_user_id_tools_cover_private_mcp_tools() -> None:
         "queryOrder",
         "trackLogistics",
         "listCustomerOrders",
+        "createOrder",
         "queryAfterSale",
         "listOrderAfterSales",
         "listCustomerAfterSales",
         "createAfterSale",
         "createHumanService",
-        "getCustomerById",
     }.issubset(USER_ID_TOOLS)
 
 
@@ -78,6 +78,7 @@ def test_user_id_param_is_hidden_from_model_schema() -> None:
 
 
 def test_create_after_sale_is_registered_as_write_approval_tool() -> None:
+    assert "createOrder" in WRITE_APPROVAL_TOOLS
     assert "createAfterSale" in WRITE_APPROVAL_TOOLS
     assert "createHumanService" in WRITE_APPROVAL_TOOLS
 
@@ -101,13 +102,18 @@ def test_context_toolset_no_longer_marks_write_tool_manually_unapproved() -> Non
 
 def test_toolset_for_wraps_with_pydantic_ai_approval_required(monkeypatch) -> None:
     inner = _FakeInner(
-        {"createAfterSale": _tool("createAfterSale"), "queryOrder": _tool("queryOrder")}
+        {
+            "createOrder": _tool("createOrder"),
+            "createAfterSale": _tool("createAfterSale"),
+            "queryOrder": _tool("queryOrder"),
+        }
     )
     monkeypatch.setattr("agent.tools.mcp_client.get_mcp_server", lambda: inner)
 
     toolset = toolset_for("order")
 
     assert isinstance(toolset, ApprovalRequiredToolset)
+    assert toolset.approval_required_func(None, ToolDefinition(name="createOrder"), {})
     assert toolset.approval_required_func(None, ToolDefinition(name="createAfterSale"), {})
     assert toolset_for("service").approval_required_func(None, ToolDefinition(name="createHumanService"), {})
     assert not toolset.approval_required_func(None, ToolDefinition(name="queryOrder"), {})

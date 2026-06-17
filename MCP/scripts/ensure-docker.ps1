@@ -46,7 +46,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 try {
     Write-Host "[ensure-docker] 启动依赖容器 mysql / redis / qdrant ..."
-    docker compose up -d mysql redis qdrant
+    docker compose up -d --remove-orphans mysql redis qdrant
     if ($LASTEXITCODE -ne 0) {
         Write-Error "[ensure-docker] docker compose up 失败"
         exit 1

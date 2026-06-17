@@ -54,6 +54,13 @@ async def set_state(session_id: str, state: dict) -> None:
     await _client.set(_key(session_id), json.dumps(state, ensure_ascii=False), ex=ttl)
 
 
+async def delete_state(session_id: str) -> None:
+    """删除会话状态缓存；未启动或未命中时静默忽略。"""
+    if _client is None:
+        return
+    await _client.delete(_key(session_id))
+
+
 async def get_task_state(thread_id: str) -> dict | None:
     """读取当前任务运行状态快照；未命中返回 None。"""
     if _client is None:

@@ -232,6 +232,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .new-chat:hover { transform: translateY(-1px); filter: brightness(1.04); box-shadow: 0 18px 34px -12px var(--brand-glow); }
 .new-chat:active { transform: translateY(0); }
 
+/* 快捷入口：我的订单 / 我的售后 */
+.nav-group { display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 11px 12px;
+  border-radius: 13px;
+  color: var(--ink-2);
+  font-size: 13.5px; font-weight: 600;
+  transition: background 0.16s ease, color 0.16s ease;
+}
+.nav-item svg { color: var(--ink-3); transition: color 0.16s ease; }
+.nav-item:hover { background: var(--line-2); color: var(--ink); }
+.nav-item:hover svg { color: var(--brand); }
+.nav-item.active { background: var(--brand-soft); color: var(--brand-strong); }
+.nav-item.active svg { color: var(--brand); }
+
 /* 历史会话列表 */
 .conv-scroll {
   flex: 1;
@@ -261,6 +278,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-radius: 13px;
   transition: background 0.16s ease;
   position: relative;
+  cursor: pointer;
 }
 .conv-item:hover { background: var(--line-2); }
 .conv-item.active { background: var(--brand-soft); }
@@ -284,6 +302,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .conv-time { font-size: 11px; color: var(--ink-3); flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+.conv-delete {
+  flex-shrink: 0;
+  display: grid; place-items: center;
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  color: var(--ink-3);
+  opacity: 0;
+  transition: opacity 0.16s ease, background 0.16s ease, color 0.16s ease;
+}
+.conv-item:hover .conv-delete { opacity: 1; }
+.conv-delete:hover { background: rgba(220, 38, 38, 0.12); color: #dc2626; }
 
 /* 用户卡片 */
 .user-card {
@@ -671,6 +700,128 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 /* 快捷操作行 */
 .action-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .action-row .btn-outline { flex: 0 0 auto; height: 34px; padding: 0 14px; }
+
+/* ============================= 我的订单 / 我的售后 页面 ============================= */
+
+.page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.page-body {
+  max-width: 820px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.page-state {
+  margin: 40px auto;
+  padding: 28px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+.page-state.error { color: #dc2626; }
+
+/* 状态徽章（语义色调） */
+.tag {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center;
+  font-size: 12px; font-weight: 700;
+  padding: 5px 11px; border-radius: 9px;
+  background: var(--line-2); color: var(--ink-2);
+}
+.tag-brand { background: var(--brand-soft); color: var(--brand-strong); }
+.tag-success { background: #e7f7ee; color: #1aa260; }
+.tag-warn { background: #fff4e3; color: #b9821f; }
+.tag-danger { background: #fdecec; color: #dc2626; }
+.tag-neutral { background: var(--line-2); color: var(--ink-2); }
+.tag-soft { font-weight: 600; }
+
+/* 订单明细列表 */
+.order-items {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex; flex-direction: column; gap: 9px;
+}
+.order-item {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+}
+.order-item-name {
+  font-size: 13.5px; color: var(--ink);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.order-item-spec {
+  margin-left: 8px;
+  font-style: normal; font-size: 12px; color: var(--ink-3);
+}
+.order-item-meta { flex-shrink: 0; display: flex; align-items: baseline; gap: 10px; }
+.order-item-price { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+.order-item-qty { font-size: 12px; color: var(--ink-3); }
+
+/* 物流概况行 */
+.order-logistics {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bg-warm);
+  border: 1px solid var(--line);
+}
+.order-logistics-text {
+  font-size: 12.5px; color: var(--ink-2);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* 订单卡底部：支付状态 + 实付金额 */
+.order-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.order-foot .order-amount { padding: 0; }
+
+/* 卡片操作行（撤销待付款订单 / 待审核售后） */
+.order-actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.btn-cancel {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-size: 12.5px; font-weight: 700;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  color: var(--ink-2);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.btn-cancel:hover:not(:disabled) { border-color: #dc2626; color: #dc2626; background: #fdecec; }
+.btn-cancel:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 售后字段表 */
+.order-fields {
+  margin: 12px 0 0;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.order-field { display: flex; gap: 10px; }
+.order-field dt {
+  flex-shrink: 0;
+  width: 64px;
+  font-size: 12.5px; color: var(--ink-3); font-weight: 600;
+}
+.order-field dd {
+  margin: 0;
+  font-size: 13px; color: var(--ink); line-height: 1.6;
+  word-break: break-word;
+}
 
 /* ============================= 欢迎屏 ============================= */
 

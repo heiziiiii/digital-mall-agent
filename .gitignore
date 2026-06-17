@@ -47,6 +47,12 @@ logs/
 *.jsonl
 *_test_result.json
 *_forward_test_result.json
+Agent/src/agent/tests/results/
+Agent/src/agent/tests/agent_question_answer_test_record.md
+
+# ===== AI 助手生成文件 =====
+CLAUDE.md
+.github/modernize/
 
 # ===== 操作系统 =====
 .DS_Store

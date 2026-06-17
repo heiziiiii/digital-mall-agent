@@ -1,29 +1,35 @@
-import type { Conversation, UserInfo } from '../App'
+import type { Conversation, UserInfo, View } from '../App'
 
 type SidebarProps = {
   conversations: Conversation[]
   activeId: number
   user: UserInfo
   open: boolean
+  view: View
   onSelect: (id: number) => void
   onNew: () => void
+  onDelete: (id: number) => void
+  onNavigate: (view: View) => void
   onClose: () => void
 }
 
-// 侧边栏：Logo · 新建对话 · 历史对话 · 用户信息（含 VIP 状态）
+// 侧边栏：Logo · 新建对话 · 我的订单/售后 · 历史对话 · 用户信息（含 VIP 状态）
 export default function Sidebar({
   conversations,
   activeId,
   user,
   open,
+  view,
   onSelect,
   onNew,
+  onDelete,
+  onNavigate,
   onClose,
 }: SidebarProps) {
   const renderItem = (c: Conversation) => (
-    <button
+    <div
       key={c.id}
-      className={`conv-item${c.id === activeId ? ' active' : ''}`}
+      className={`conv-item${view === 'chat' && c.id === activeId ? ' active' : ''}`}
       onClick={() => onSelect(c.id)}
     >
       <span className="conv-dot" />
@@ -32,7 +38,27 @@ export default function Sidebar({
         <span className="conv-preview">{c.preview}</span>
       </span>
       <span className="conv-time">{c.time}</span>
-    </button>
+      <button
+        type="button"
+        className="conv-delete"
+        aria-label="删除对话"
+        title="删除对话"
+        onClick={(event) => {
+          event.stopPropagation()
+          onDelete(c.id)
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M6 7h12M9 7V5h6v2m-7 0v12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V7M10 11v6M14 11v6"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+    </div>
   )
 
   return (
@@ -60,6 +86,42 @@ export default function Sidebar({
           </svg>
           新建对话
         </button>
+
+        {/* 快捷入口：我的订单 / 我的售后 */}
+        <div className="nav-group">
+          <button
+            type="button"
+            className={`nav-item${view === 'orders' ? ' active' : ''}`}
+            onClick={() => onNavigate('orders')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M6 4h9l4 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path d="M9 12h6M9 16h6M9 8h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+            我的订单
+          </button>
+          <button
+            type="button"
+            className={`nav-item${view === 'aftersales' ? ' active' : ''}`}
+            onClick={() => onNavigate('aftersales')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3 5 6v5c0 4 3 7 7 9 4-2 7-5 7-9V6l-7-3Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path d="m9 11 2 2 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            我的售后
+          </button>
+        </div>
 
         {/* 历史对话 */}
         <div className="conv-scroll">

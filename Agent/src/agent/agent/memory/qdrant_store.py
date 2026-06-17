@@ -12,6 +12,8 @@ from qdrant_client.models import (
     Distance,
     FieldCondition,
     Filter,
+    FilterSelector,
+    MatchAny,
     MatchValue,
     PointStruct,
     VectorParams,
@@ -131,6 +133,39 @@ async def upsert_memory(
             )
         ],
     )
+
+
+async def delete_customer(
+    customer_id: int | None = None,
+    customer_no: str | None = None,
+    session_ids: list[str] | None = None,
+) -> None:
+    """删除某客户的全部记忆点：会话快照、长期语义记忆与（按会话）消息快照。
+
+    会话快照与长期语义记忆点带有 ``customer_id``/``customer_no`` 字段，可直接按身份删除；
+    消息快照只带 ``session_id``，需由调用方传入该客户名下会话 id 列表一并清理。
+    """
+    if _client is None:
+        raise RuntimeError("Qdrant 客户端尚未启动")
+    collection = get_settings().qdrant_collection
+    for field, value in (("customer_id", customer_id), ("customer_no", customer_no)):
+        if value in (None, ""):
+            continue
+        await _client.delete(
+            collection_name=collection,
+            points_selector=FilterSelector(
+                filter=Filter(must=[FieldCondition(key=field, match=MatchValue(value=value))])
+            ),
+        )
+    if session_ids:
+        await _client.delete(
+            collection_name=collection,
+            points_selector=FilterSelector(
+                filter=Filter(
+                    must=[FieldCondition(key="session_id", match=MatchAny(any=list(session_ids)))]
+                )
+            ),
+        )
 
 
 async def load_session(session_id: str) -> dict | None:

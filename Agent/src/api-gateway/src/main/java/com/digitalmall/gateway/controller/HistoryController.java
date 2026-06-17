@@ -6,6 +6,7 @@ import com.digitalmall.gateway.dto.HistorySession;
 import com.digitalmall.gateway.dto.SessionUser;
 import com.digitalmall.gateway.repository.AgentSessionRepository;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +50,19 @@ public class HistoryController {
                                 .collectList()
                                 .map(messages -> ApiResult.ok(new HistoryConversation(session, messages)))))
                 .defaultIfEmpty(ApiResult.error(404, "历史会话不存在或无权访问"));
+    }
+
+    @DeleteMapping("/{sessionId}")
+    public Mono<ApiResult<Boolean>> delete(
+            @PathVariable String sessionId,
+            ServerWebExchange exchange) {
+        return currentUser(exchange)
+                .flatMap(user -> agentSessionRepository
+                        .deleteSessionByCustomer(sessionId, user.customerId(), user.customerNo()))
+                .map(deleted -> deleted
+                        ? ApiResult.ok(Boolean.TRUE)
+                        : ApiResult.<Boolean>error(404, "历史会话不存在或无权访问"))
+                .switchIfEmpty(Mono.just(ApiResult.error(401, "未登录或登录已过期")));
     }
 
     private Mono<SessionUser> currentUser(ServerWebExchange exchange) {

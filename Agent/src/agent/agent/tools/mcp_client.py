@@ -21,17 +21,17 @@ USER_ID_TOOLS = frozenset(
         "queryOrder",
         "trackLogistics",
         "listCustomerOrders",
+        "createOrder",
         "queryAfterSale",
         "listOrderAfterSales",
         "listCustomerAfterSales",
         "createAfterSale",
         "createHumanService",
-        "getCustomerById",
     }
 )
 # 高风险写操作：交由 PydanticAI 原生 approval_required + DeferredToolRequests 流程。
 # 模型发起调用时不直接执行，而是挂起等待用户审核确认/修改后再落库。新增写工具登记到此即可。
-WRITE_APPROVAL_TOOLS = frozenset({"createAfterSale", "createHumanService"})
+WRITE_APPROVAL_TOOLS = frozenset({"createOrder", "createAfterSale", "createHumanService"})
 _MODEL_ARGS_VALIDATOR = TypeAdapter(dict[str, Any]).validator
 
 _AGENT_TOOLS = {
@@ -40,7 +40,7 @@ _AGENT_TOOLS = {
         "queryOrder",
         "trackLogistics",
         "listCustomerOrders",
-        "getCustomerById",
+        "createOrder",
         "queryAfterSale",
         "listOrderAfterSales",
         "listCustomerAfterSales",

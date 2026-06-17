@@ -28,7 +28,6 @@ from agent.agents.memory_summary import (
 from agent.config import get_settings
 from agent.memory import local_cache, mysql_store, qdrant_store, redis_store
 from agent.memory.runtime import get_runtime
-from agent.tools.mcp_client import get_mcp_server
 
 if TYPE_CHECKING:
     # 仅用于类型注解；运行时不导入，避免与运行时包初始化形成循环依赖
@@ -53,6 +52,20 @@ def _default_state() -> dict:
         "user_profile": UserProfile().model_dump(),
         "turns": 0,
     }
+
+
+def _memory_recent_history(rolling_summary: str, history: list[dict]) -> list[dict]:
+    """把压缩早期会话记忆放在近期对话窗口前，仅供记忆提取使用。"""
+    recent = list(history)
+    if not rolling_summary:
+        return recent
+    return [
+        {
+            "role": "summary",
+            "content": f"压缩早期会话记忆：{rolling_summary}",
+        },
+        *recent,
+    ]
 
 
 def _coerce_profile(raw: object) -> UserProfile:
@@ -138,21 +151,21 @@ def _sanitize_customer(raw: dict | None) -> dict:
     return safe
 
 
+def _lightweight_profile(authenticated_customer: dict, full_profile: dict) -> dict:
+    """记忆输入端首轮只暴露基础身份和画像概况，避免完整画像过早进入上下文。"""
+    profile = {
+        "authenticated_customer": authenticated_customer,
+        "has_stored_profile": any(
+            value not in (None, "", [])
+            for value in (full_profile or {}).values()
+        ),
+    }
+    return profile
+
+
 async def _load_authenticated_customer(customer_id: int | None) -> dict:
-    """用服务端认证 userId 查询客户资料，并只返回脱敏后的安全字段。"""
-    if customer_id is None:
-        return {}
-    try:
-        # direct_call_tool 不经过专家 Agent 的工具上下文，需显式打开 MCP 会话。
-        mcp_server = get_mcp_server()
-        async with mcp_server:
-            result = await mcp_server.direct_call_tool(
-                "getCustomerById", {"userId": customer_id}
-            )
-    except Exception as exc:  # noqa: BLE001 - 客户资料查询失败不应中断记忆链路
-        logger.warning("认证客户资料查询失败：%s", exc)
-        return {}
-    return _sanitize_customer(result)
+    """用户资料工具已禁用，记忆链路不再主动查询或注入客户信息。"""
+    return {}
 
 
 async def _compress(rolling_summary: str, overflow: list[dict]) -> str:
@@ -174,6 +187,52 @@ async def _compress(rolling_summary: str, overflow: list[dict]) -> str:
     if compressed is None:
         return f"{rolling_summary}\n{overflow_text}".strip()[-_SUMMARY_CHAR_THRESHOLD:]
     return compressed
+
+
+# —— 删：按客户清理长期记忆 ——
+
+
+async def _purge_customer_async(
+    customer_id: int | None,
+    customer_no: str | None,
+) -> dict:
+    """跨四层删除某客户的会话状态、消息流水、画像与长期语义记忆。"""
+    session_ids = await mysql_store.list_customer_session_ids(
+        customer_id=customer_id,
+        customer_no=customer_no,
+    )
+    # 先清 L1/L2 缓存，避免清库后旧热状态被再次回填
+    for session_id in session_ids:
+        local_cache.pop(session_id)
+        await redis_store.delete_state(session_id)
+    deleted = await mysql_store.delete_customer(
+        customer_id=customer_id,
+        customer_no=customer_no,
+    )
+    await qdrant_store.delete_customer(
+        customer_id=customer_id,
+        customer_no=customer_no,
+        session_ids=session_ids,
+    )
+    return {
+        "sessions": deleted.get("sessions", 0),
+        "messages": deleted.get("messages", 0),
+        "session_ids": session_ids,
+    }
+
+
+def purge_customer_memory(
+    customer_id: int | None = None,
+    customer_no: str | None = None,
+) -> dict:
+    """按用户身份清理其全部长期记忆（画像、会话状态、消息流水与语义记忆）。
+
+    清理范围覆盖 L1 本地缓存、L2 Redis、L3 MySQL 与 L4 Qdrant。
+    ``customer_id`` 与 ``customer_no`` 至少传一个，全空时抛 ``ValueError``。
+    """
+    if customer_id is None and not customer_no:
+        raise ValueError("必须提供 customer_id 或 customer_no")
+    return get_runtime().run(_purge_customer_async(customer_id, customer_no))
 
 
 # —— 读：回源链 + 语义召回 ——
@@ -344,43 +403,39 @@ def load_memory(ctx: AgentContext) -> None:
 
     authenticated_customer = runtime.run(_load_authenticated_customer(ctx.customer_id))
 
-    def recall_tool(query: str, top_k: int | None = None) -> list[dict]:
-        """Memory Agent 工具：由模型决定是否读取跨会话长期记忆。"""
-        return recall_cross_session_memory(
-            session_id=session_id,
-            query=query,
-            top_k=top_k,
-            customer_id=ctx.customer_id,
-            customer_no=ctx.customer_no,
-            rolling_summary=rolling_summary,
-            user_profile=user_profile,
-        )
+    recent_history = _memory_recent_history(rolling_summary, history)
 
-    # 记忆提取节点只整理本轮上下文；长期召回由其按需调用工具。
+    # 记忆提取节点首轮只接收轻量画像；当模型判断确需完整画像时，再做二次提取。
     extract_agent = _memory_agent or _memory_extract_agent
-    memory = asyncio.run(
-        extract_agent.extract(
-            {
-                "user_input": ctx.user_input,
-                "authenticated_customer": authenticated_customer,
-                "rolling_summary": rolling_summary,
-                "user_profile": user_profile,
-                "recent_history": history,
-            },
-            recall_tool=recall_tool,
+    extract_payload = {
+        "user_input": ctx.user_input,
+        "authenticated_customer": authenticated_customer,
+        "user_profile": _lightweight_profile(authenticated_customer, user_profile),
+        "recent_history": recent_history,
+        "profile_scope": "lightweight",
+    }
+    memory = asyncio.run(extract_agent.extract(extract_payload))
+    if getattr(memory, "full_profile_needed", False):
+        memory = asyncio.run(
+            extract_agent.extract(
+                {
+                    **extract_payload,
+                    "user_profile": user_profile,
+                    "profile_scope": "full",
+                }
+            )
         )
-    )
 
     ctx.session_id = session_id
     ctx.history = history
     # 持久滚动摘要保持为窗口压缩产出，不被记忆 Agent 覆盖，避免逐轮自我回写堆积
     ctx.rolling_summary = rolling_summary
-    # 本轮工作记忆与背景摘要来自记忆 Agent，仅供本轮下游使用，不落库
-    ctx.turn_focus = memory.turn_focus
+    # 本轮背景摘要来自记忆 Agent，仅供本轮下游使用，不落库
+    ctx.turn_focus = ""
     ctx.background_summary = memory.background_summary
     # 画像由输出端独立维护；输入端只读不写，直接透传已加载画像
     ctx.user_profile = user_profile
-    ctx.recalled_memories = [item.model_dump() for item in memory.long_term_memories]
+    ctx.recalled_memories = []
     ctx.current_emotion = memory.current_emotion
     # 每轮开始重置本轮派生字段
     ctx.agent_results = {}

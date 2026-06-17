@@ -4,23 +4,21 @@ from __future__ import annotations
 
 import asyncio
 import json
+import uuid
 from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
-from pydantic_ai import Agent, DeferredToolRequests, DeferredToolResults, ToolApproved, ToolDenied
-from pydantic_ai.usage import UsageLimits
+from pydantic_ai import Agent, DeferredToolRequests
 
-from agent.hooks import timed_agent_run
 from agent.llm.model import get_model
-from agent.agents.order import OrderAgent, SpecialistRunResult
+from agent.agents.order import OrderAgent, PendingApproval, SpecialistRunResult
 from agent.agents.orchestrator import OrchestratorAgent
 from agent.agents.product import ProductAgent
-from agent.agents.safety import apply as apply_safety
 from agent.agents.summarize import SummarizeAgent
 from agent.agents.tech import TechAgent
-from agent.tools.mcp_client import SpecialistDeps, toolset_for
+from agent.tools.mcp_client import ContextCustomerToolset, SpecialistDeps, get_mcp_server, toolset_for
 
 Intent = Literal["product", "tech", "order", "chat"]
 AgentName = Literal["product", "tech", "order"]
@@ -88,7 +86,6 @@ STAGE_LABELS: dict[str, str] = {
     "human_service": "人工服务",
     "awaiting_review": "待用户确认",
     "summarize": "生成回答",
-    "safety": "安全审核",
     "memory_save": "记忆保存",
 }
 
@@ -197,6 +194,24 @@ class CustomerAgent:
             raise ValueError("缺少待审批工具调用")
         args = output.pending.args
         field_config = {
+            "createOrder": {
+                "required": [
+                    "productNo",
+                    "quantity",
+                    "receiverName",
+                    "receiverPhone",
+                    "receiverAddress",
+                ],
+                "editable": [
+                    "productNo",
+                    "quantity",
+                    "spec",
+                    "receiverName",
+                    "receiverPhone",
+                    "receiverAddress",
+                ],
+                "instruction": "请核对订单信息；如有缺失请补全，确认后才会真正创建订单。",
+            },
             "createAfterSale": {
                 "required": ["orderNo", "type", "reason"],
                 "editable": ["orderNo", "type", "reason"],
@@ -204,7 +219,7 @@ class CustomerAgent:
             },
             "createHumanService": {
                 "required": ["reason"],
-                "editable": ["orderNo", "afterSaleNo", "reason"],
+                "editable": ["orderNo", "reason"],
                 "instruction": "请核对人工服务申请信息；确认后才会真正创建人工服务单。",
             },
         }
@@ -242,16 +257,6 @@ class CustomerAgent:
         }
 
     @staticmethod
-    def _recent_dialogue(ctx: AgentContext) -> str:
-        """取最近几轮原始对话，供需要上下文续接的专家使用。"""
-        if not ctx.history:
-            return ""
-        return "\n".join(
-            f"{message.get('role', '')}: {message.get('content', '')}"
-            for message in ctx.history[-4:]
-        )
-
-    @staticmethod
     def _previous_agent_results(ctx: AgentContext, allowed_agents: set[str]) -> str:
         """只暴露当前专家确实依赖的前序专家结果。"""
         return "\n".join(
@@ -284,7 +289,6 @@ class CustomerAgent:
         return specialist.build_context(
             ctx,
             query=self._task_query(task, ctx),
-            recent_dialogue=self._recent_dialogue(ctx),
             previous_results=self._dependency_results(ctx, agent_name),
         )
 
@@ -318,31 +322,16 @@ class CustomerAgent:
         )
 
     def _build_summarize_payload(self, ctx: AgentContext) -> str:
-        """汇总历史摘要、画像、Agent 结果与当前问题，序列化为 JSON 供总结 Agent 使用。"""
+        """汇总本轮背景、画像、规划和 Agent 结果，序列化为 JSON 供总结 Agent 使用。"""
         payload: dict[str, Any] = {}
-        if ctx.turn_focus:
-            payload["turn_focus"] = ctx.turn_focus
         if ctx.background_summary:
             payload["background_summary"] = ctx.background_summary
-        if ctx.rolling_summary:
-            payload["history_summary"] = ctx.rolling_summary
         if ctx.user_profile:
             payload["user_profile"] = ctx.user_profile
         if ctx.current_emotion:
             payload["current_emotion"] = ctx.current_emotion
-        recalled = [
-            memory["text"]
-            for memory in ctx.recalled_memories
-            if memory.get("text")
-        ]
-        if recalled:
-            payload["recalled_memories"] = recalled
-        recent = [
-            {"role": message.get("role", ""), "content": message.get("content", "")}
-            for message in ctx.history[-4:]
-        ]
-        if recent:
-            payload["recent_dialogue"] = recent
+        if ctx.intent:
+            payload["intent"] = ctx.intent
         agent_results = {
             name: result for name, result in ctx.agent_results.items() if result
         }
@@ -357,9 +346,7 @@ class CustomerAgent:
         yield self._event(
             "memory_load",
             {
-                "turn_focus": ctx.turn_focus,
                 "background_summary": ctx.background_summary,
-                "rolling_summary": ctx.rolling_summary,
                 "current_emotion": ctx.current_emotion,
             },
         )
@@ -455,12 +442,6 @@ class CustomerAgent:
         )
         yield self._event("summarize", {"final_answer": ctx.final_answer})
 
-        apply_safety(ctx, evidence=self._format_agent_results(ctx))
-        yield self._event(
-            "safety",
-            {"safety_passed": ctx.safety_passed, "safety_retry": ctx.safety_retry},
-        )
-
         self.memory_saver(ctx)
         yield self._event("memory_save", {})
 
@@ -520,48 +501,87 @@ class CustomerAgent:
             "orderNo": str(plan.get("orderNo", "") or "").strip(),
             "afterSaleNo": str(plan.get("afterSaleNo", "") or "").strip(),
         }
-        prompt = (
-            "请发起 createHumanService 待确认工具调用，参数必须严格使用以下 JSON；"
-            "缺失字段保留为空字符串，由用户在确认表单中补全：\n"
-            + json.dumps(payload, ensure_ascii=False, indent=2)
+        return SpecialistRunResult(
+            pending=PendingApproval(
+                tool="createHumanService",
+                call_id=f"human_{uuid.uuid4().hex}",
+                args=payload,
+            ),
+            messages={"tool": "createHumanService", "args": payload},
         )
-        agent = self._build_tool_action_agent()
-        async with agent:
-            result = await timed_agent_run(
-                agent,
-                prompt,
-                "人工服务工具",
-                deps=SpecialistDeps(customer_id=ctx.customer_id),
-                usage_limits=UsageLimits(request_limit=_TOOL_ACTION_LIMIT),
-            )
-        return self._wrap_tool_action(result)
 
     async def _resume_tool_action(
         self, ctx: AgentContext, decision: dict
     ) -> SpecialistRunResult:
         """用户确认/修改人工服务工具参数后续跑落库。"""
         approved = bool(decision.get("approved"))
+        original_args = dict((ctx.pending_review or {}).get("args") or {})
+        next_args = {**original_args, **(decision.get("args") or {})}
         if approved:
-            tool_decision = ToolApproved(override_args=decision.get("args") or None)
-        elif bool(decision.get("regenerate")):
-            feedback = decision.get("message", "") or "用户要求重新填写人工服务申请。"
-            tool_decision = ToolDenied(
-                message=f"用户要求按以下意见重新生成人工服务申请：{feedback}。请重新发起 createHumanService。"
-            )
-        else:
-            tool_decision = ToolDenied(message=decision.get("message", "") or "用户取消了人工服务申请。")
+            result = await self._call_human_service_tool(ctx, next_args)
+            return SpecialistRunResult(text=self._format_human_service_result(result))
 
-        agent = self._build_tool_action_agent()
-        async with agent:
-            result = await agent.run(
-                message_history=ctx.pending_messages,
-                deferred_tool_results=DeferredToolResults(
-                    approvals={ctx.pending_review["call_id"]: tool_decision}
+        if bool(decision.get("regenerate")):
+            feedback = str(decision.get("message", "") or "").strip()
+            if feedback:
+                next_args["reason"] = feedback
+            return SpecialistRunResult(
+                pending=PendingApproval(
+                    tool="createHumanService",
+                    call_id=f"human_{uuid.uuid4().hex}",
+                    args=next_args,
                 ),
-                deps=SpecialistDeps(customer_id=ctx.customer_id),
-                usage_limits=UsageLimits(request_limit=_TOOL_ACTION_LIMIT),
+                messages={"tool": "createHumanService", "args": next_args},
             )
-        return self._wrap_tool_action(result)
+
+        return SpecialistRunResult(text="已取消人工服务申请，未创建人工服务单。")
+
+    @staticmethod
+    async def _call_human_service_tool(ctx: AgentContext, args: dict[str, Any]) -> Any:
+        """确认后直接调用 MCP 创建人工服务单，避免人工 HITL 依赖二次 LLM 工具规划。"""
+
+        class _ToolContext:
+            deps = SpecialistDeps(customer_id=ctx.customer_id)
+
+        allowed = {"createHumanService"}
+        toolset = ContextCustomerToolset(
+            get_mcp_server().filtered(lambda _ctx, tool_def: tool_def.name in allowed),
+            agent_name="service",
+        )
+        async with toolset:
+            tools = await toolset.get_tools(_ToolContext())
+            if "createHumanService" not in tools:
+                raise RuntimeError("MCP 未暴露 createHumanService 工具，无法创建人工服务单")
+            return await toolset.call_tool(
+                "createHumanService",
+                {
+                    "reason": str(args.get("reason", "") or "").strip(),
+                    "orderNo": str(args.get("orderNo", "") or "").strip(),
+                    "afterSaleNo": str(args.get("afterSaleNo", "") or "").strip(),
+                },
+                _ToolContext(),
+                tools["createHumanService"],
+            )
+
+    @staticmethod
+    def _format_human_service_result(result: Any) -> str:
+        """把 MCP 创建结果整理为可交给总结 Agent 的简洁证据。"""
+        if not isinstance(result, dict):
+            return str(result)
+        if not result.get("created"):
+            return str(result.get("message") or "人工服务单未创建。")
+        service = result.get("humanService") or {}
+        service_no = service.get("serviceNo") or service.get("service_no") or ""
+        after_sale_no = service.get("afterSaleNo") or service.get("after_sale_no") or ""
+        order_no = service.get("orderNo") or service.get("order_no") or ""
+        parts = ["已成功创建人工服务单"]
+        if service_no:
+            parts.append(f"服务单号：{service_no}")
+        if after_sale_no:
+            parts.append(f"关联售后单：{after_sale_no}")
+        if order_no:
+            parts.append(f"关联订单：{order_no}")
+        return "，".join(parts) + "。"
 
     @staticmethod
     def _wrap_tool_action(result: Any) -> SpecialistRunResult:

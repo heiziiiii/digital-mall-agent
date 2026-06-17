@@ -104,7 +104,6 @@ def main():
         ("listOrderAfterSales",  {"userId": 1, "orderNo": "O202606010001"}),
         ("listCustomerAfterSales", {"userId": 1}),
         ("searchKnowledge",      {"query": "充电发热怎么办", "topK": 3}),
-        ("getCustomerById",      {"userId": 1}),
     ]
     if os.getenv("MCP_RUN_WRITE_TESTS") == "1":
         cases.append(("createAfterSale", {"userId": 1, "orderNo": "O202606010001", "type": 4,

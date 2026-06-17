@@ -78,7 +78,6 @@ npx @modelcontextprotocol/inspector   # Transport=SSE, URL=http://localhost:8080
 | `queryOrder` / `listCustomerOrders` / `trackLogistics` | 订单查询 / 当前用户本人订单 / 物流轨迹，需传 `userId` 鉴权 |
 | `queryAfterSale` / `listOrderAfterSales` / `listCustomerAfterSales` / `createAfterSale` / `createHumanService` | 售后查询 / 创建售后单 / 创建人工服务单，需传 `userId` 鉴权 |
 | `searchKnowledge` | 售后技术问题解决方案知识库语义检索（纯 Qdrant） |
-| `getCustomerById` | 查询当前用户本人资料，需传 `userId` 鉴权 |
 
 ## 检索说明
 `VectorSearchService` 直连原生 `QdrantClient` 封装混合检索，商品详情与售后知识**分库存储**，

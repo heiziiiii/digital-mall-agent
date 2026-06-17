@@ -36,6 +36,29 @@ logger = logging.getLogger(__name__)
 _VALID_INTENTS = ("product", "tech", "order", "chat")
 _VALID_AGENTS = ("order", "tech", "product")
 
+_RECENT_PURCHASE_HINTS = (
+    "最近买",
+    "刚买",
+    "新买",
+    "才买",
+    "买的这个",
+    "买的那个",
+)
+_PRODUCT_HINTS = (
+    "手机",
+    "电脑",
+    "平板",
+    "耳机",
+    "手表",
+    "相机",
+    "键盘",
+    "鼠标",
+    "充电器",
+    "数据线",
+    "商品",
+    "产品",
+)
+
 
 @dataclass
 class DecisionResult:
@@ -144,6 +167,58 @@ def _normalize_tasks(specs: list[TaskSpec]) -> list[Task]:
     return tasks
 
 
+def _should_resolve_recent_purchase(payload: dict[str, Any], tasks: list[Task]) -> bool:
+    """识别“最近/刚买的商品 + 技术问题”场景，需要先通过订单消解商品。"""
+    if any(task.agent == "order" for task in tasks):
+        return False
+    if not any(task.agent == "tech" for task in tasks):
+        return False
+
+    text = "\n".join(
+        str(payload.get(key, "") or "") for key in ("user_input", "background_summary")
+    )
+    if not any(hint in text for hint in _RECENT_PURCHASE_HINTS):
+        return False
+    return any(hint in text for hint in _PRODUCT_HINTS)
+
+
+def _ensure_recent_purchase_order_lookup(
+    payload: dict[str, Any],
+    tasks: list[Task],
+) -> list[Task]:
+    """LLM 漏编排订单消解时，本地补上 order -> tech 依赖。"""
+    if not _should_resolve_recent_purchase(payload, tasks):
+        return tasks
+
+    from agent.customer_agent import Task  # 惰性导入，规避运行时循环
+
+    order_task = Task(
+        agent="order",
+        priority=0,
+        query=(
+            "查询当前认证用户最近购买的相关商品订单，优先定位最近购买的手机订单；"
+            "请返回可用于后续技术排查的商品名称、型号、订单号和必要订单状态。"
+        ),
+        reason="用户以“最近买的商品”指代故障对象，需要先通过订单查询消解具体商品。",
+        confidence=0.95,
+    )
+
+    next_tasks = [order_task]
+    for task in tasks:
+        if task.agent == "tech":
+            task.priority = max(task.priority, 10)
+            task.depends_on = list(dict.fromkeys([*task.depends_on, "order"]))
+            if "订单专家" not in task.query and "前序" not in task.query:
+                task.query = (
+                    "基于订单专家返回的最近购买商品名称/型号，排查用户反馈的发烫问题；"
+                    "若订单结果仍无法唯一定位商品，再补问最关键缺失信息。"
+                )
+        next_tasks.append(task)
+
+    next_tasks.sort(key=lambda t: t.priority)
+    return next_tasks
+
+
 def _primary_intent(tasks: list[Task], human_service: dict[str, Any] | None = None) -> str:
     """保留兼容用的单一 ``intent`` 字段：取最高优先级任务的域。"""
     return tasks[0].agent if tasks else ("order" if human_service else "chat")
@@ -180,7 +255,6 @@ def _infer_human_service(payload: dict[str, Any]) -> dict[str, Any] | None:
     """从已整理上下文兜底识别人工服务诉求，避免完全依赖 LLM 填结构字段。"""
     text_parts = [
         str(payload.get("user_input", "") or ""),
-        str(payload.get("turn_focus", "") or ""),
         str(payload.get("background_summary", "") or ""),
     ]
     text = "\n".join(part for part in text_parts if part)
@@ -198,21 +272,12 @@ def _infer_human_service(payload: dict[str, Any]) -> dict[str, Any] | None:
 
     order_match = re.search(r"\bO\d{8,}\b", text)
     after_sale_match = re.search(r"\bAS\d{8,}\b", text)
-    reason = str(payload.get("turn_focus") or payload.get("user_input") or "用户需要人工进一步处理").strip()
+    reason = str(payload.get("background_summary") or payload.get("user_input") or "用户需要人工进一步处理").strip()
     return {
         "reason": reason[:200],
         "orderNo": order_match.group(0) if order_match else "",
         "afterSaleNo": after_sale_match.group(0) if after_sale_match else "",
     }
-
-
-def _compact_memories(memories: list[dict[str, Any]], limit: int = 2) -> list[str]:
-    """只暴露记忆阶段已筛选的长期记忆文本。"""
-    return [
-        str(memory.get("text", ""))
-        for memory in memories[:limit]
-        if memory.get("text")
-    ]
 
 
 def _context_payload(user_input_or_ctx: str | Any) -> tuple[str, dict[str, Any]]:
@@ -224,21 +289,13 @@ def _context_payload(user_input_or_ctx: str | Any) -> tuple[str, dict[str, Any]]
     text = str(getattr(user_input_or_ctx, "user_input", "") or "").strip()
     payload: dict[str, Any] = {"user_input": text}
 
-    turn_focus = str(getattr(user_input_or_ctx, "turn_focus", "") or "").strip()
-    if turn_focus:
-        payload["turn_focus"] = turn_focus
-
-    rolling_summary = str(getattr(user_input_or_ctx, "rolling_summary", "") or "").strip()
-    if rolling_summary:
-        payload["rolling_summary"] = rolling_summary
+    background_summary = str(getattr(user_input_or_ctx, "background_summary", "") or "").strip()
+    if background_summary:
+        payload["background_summary"] = background_summary
 
     user_profile = getattr(user_input_or_ctx, "user_profile", None)
     if user_profile:
         payload["user_profile"] = user_profile
-
-    recalled_memories = getattr(user_input_or_ctx, "recalled_memories", None)
-    if isinstance(recalled_memories, list) and recalled_memories:
-        payload["recalled_memories"] = _compact_memories(recalled_memories)
 
     current_emotion = str(getattr(user_input_or_ctx, "current_emotion", "") or "").strip()
     if current_emotion:
@@ -255,6 +312,8 @@ def _build_decision_context(user_input_or_ctx: str | Any) -> str:
             "请根据【编排上下文】进行任务编排，而不是只看当前用户输入。",
             "请结合上下文完成：问题重写、指代消解、意图识别和依赖分析。",
             "请为需要参与本轮处理的专家生成清晰、可执行、边界明确的任务。",
+            "每个专家任务的 query 是该专家唯一语义上下文，必须只包含完成该任务所需的信息。",
+            "不要把完整记忆、完整画像、完整会话摘要或无关背景原样塞进专家任务。",
             "",
             "【编排上下文】",
             json.dumps(payload, ensure_ascii=False, indent=2),
@@ -296,6 +355,7 @@ class OrchestratorAgent:
         prompt = _build_decision_context(user_input)
         result = await timed_agent_run(self._get_agent(), prompt, "任务编排")
         tasks = _normalize_tasks(result.output.tasks)
+        tasks = _ensure_recent_purchase_order_lookup(payload, tasks)
         human_service = _normalize_human_service(
             getattr(result.output, "human_service", None)
         ) or _infer_human_service(payload)

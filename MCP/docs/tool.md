@@ -171,21 +171,3 @@
 | `topK`  | Integer | 否   | 返回数量上限，默认 5                                          |
 
 **返回**：`{query, results:[{kbType, title, content, keywords}]}`。检索不可用时 `results` 为空。
-
----
-
-## 五、用户信息（[CustomerTools](../src/main/java/com/digitalcs/mcp/tools/CustomerTools.java)）
-
-数据源：MySQL `customer`（用户信息库）。自助模式下只能查询当前用户本人的资料。
-
-### `getCustomerById` — 查我的资料
-
-查询当前用户(userId)本人的客户资料（昵称、手机号、会员等级）。**自助模式：customerId 即 userId，不能查他人，也不能用手机号/昵称反查。**
-
-| 入参       | 类型 | 必填 | 说明                                       |
-| ---------- | ---- | ---- | ------------------------------------------ |
-| `userId` | Long | 是   | 当前操作用户ID(登录客户本人)，只返回其本人资料 |
-
-**返回**：`{authorized:true, found:true, customer}`；未找到 `{found:false, message}`；缺少身份 `{authorized:false, message}`。
-
----

@@ -30,6 +30,12 @@ def put(session_id: str, state: dict) -> None:
             _cache.popitem(last=False)
 
 
+def pop(session_id: str) -> None:
+    """移除指定会话的热状态；不存在时静默忽略。"""
+    with _lock:
+        _cache.pop(session_id, None)
+
+
 def clear() -> None:
     """清空缓存，主要用于测试。"""
     with _lock:

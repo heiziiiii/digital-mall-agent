@@ -11,6 +11,12 @@ type ReviewCardProps = {
 const FIELD_LABELS: Record<string, string> = {
   orderNo: '订单号',
   afterSaleNo: '售后单号',
+  productNo: '商品编号',
+  quantity: '购买数量',
+  spec: '商品规格',
+  receiverName: '收货人',
+  receiverPhone: '收货手机号',
+  receiverAddress: '收货地址',
   type: '售后类型',
   reason: '原因',
   refundAmount: '退款金额',
@@ -23,6 +29,9 @@ const TYPE_OPTIONS = [
   { value: '4', label: '维修' },
 ]
 
+const HIDDEN_FIELDS = new Set(['afterSaleNo'])
+const NUMBER_FIELDS = new Set(['refundAmount', 'type', 'quantity'])
+
 const toText = (value: unknown) => (value == null ? '' : String(value))
 
 export default function ReviewCard({ action, busy, onApprove, onCancel }: ReviewCardProps) {
@@ -31,7 +40,7 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
       ...(action.editable_fields?.length ? action.editable_fields : Object.keys(action.args)),
       ...(action.missing_fields ?? []),
       ...(action.required_fields ?? []),
-    ])),
+    ])).filter((key) => !HIDDEN_FIELDS.has(key)),
     [action],
   )
   const required = new Set(action.required_fields ?? [])
@@ -45,7 +54,7 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
     if (missing.length) return
     const args = fields.reduce<Record<string, unknown>>((acc, key) => {
       const value = values[key]?.trim()
-      acc[key] = key === 'refundAmount' || key === 'type' ? Number(value || 0) : value
+      acc[key] = NUMBER_FIELDS.has(key) ? Number(value || 0) : value
       return acc
     }, { ...action.args })
     onApprove(args)
@@ -80,7 +89,7 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
               <input
                 value={values[key] ?? ''}
                 onChange={(event) => setValues((v) => ({ ...v, [key]: event.target.value }))}
-                inputMode={key === 'refundAmount' ? 'decimal' : 'text'}
+                inputMode={key === 'refundAmount' ? 'decimal' : key === 'quantity' ? 'numeric' : 'text'}
                 disabled={busy}
               />
             )}

@@ -97,6 +97,23 @@ public class AfterSaleService {
         return Map.of("authorized", true, "created", true, "afterSale", as);
     }
 
+    /** 撤销售后单：仅「待审核」(status=0)的售后单可由本人撤销，撤销即删除该申请记录。 */
+    @Transactional
+    public Map<String, Object> cancel(String afterSaleNo, Long userId) {
+        AfterSale as = findByNo(afterSaleNo);
+        if (as == null) {
+            return Map.of("found", false, "message", "未找到售后单: " + afterSaleNo);
+        }
+        if (!authService.owns(userId, as.getCustomerId())) {
+            return authService.deny("无权撤销该售后单(售后单不属于当前用户): " + afterSaleNo);
+        }
+        if (as.getStatus() == null || as.getStatus() != 0) {
+            return Map.of("found", true, "ok", false, "message", "仅待审核的售后单可撤销，当前状态不支持撤销");
+        }
+        afterSaleMapper.deleteById(as.getId());
+        return Map.of("found", true, "ok", true);
+    }
+
     private String generateNo() {
         return "AS" + LocalDateTime.now().format(afterSaleNoFormatter);
     }

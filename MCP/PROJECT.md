@@ -57,12 +57,6 @@
 | ------------------- | ------------------------------------------------------ | ------------------------------------------------------ |
 | `searchKnowledge` | 售后技术问题解决方案知识库混合检索（sparse+dense+RRF） | `{query, results:[{kbType,title,content,keywords}]}` |
 
-### 5. 用户信息（Customer）
-
-| 工具                | 功能                                             |
-| ------------------- | ------------------------------------------------ |
-| `getCustomerById` | 查询当前用户本人资料，需传 `userId`；不能查他人 |
-
 > **降级保障**：未配置真实 DashScope key（或 key 以 `sk-dummy` 开头）时 dense 通道关闭，检索退化为纯 sparse 关键词检索（`searchProducts`/`searchKnowledge` 仍可用）；
 > Qdrant 不可用时检索返回空。两种情况其余 MySQL 查询均不受影响，服务始终可正常启动。
 
@@ -89,8 +83,7 @@ src/main/java/com/digitalcs/mcp
 │   ├── ProductTools.java
 │   ├── OrderTools.java
 │   ├── AfterSaleTools.java
-│   ├── KnowledgeTools.java
-│   └── CustomerTools.java
+│   └── KnowledgeTools.java
 ├── service/                      # 业务逻辑、跨库组装、降级策略
 │   ├── ProductService.java       # Qdrant 详情 + MySQL 库存合并
 │   ├── OrderService.java

@@ -42,16 +42,13 @@ class TechAgent:
         self,
         ctx: AgentContext,
         query: str = "",
-        recent_dialogue: str = "",
         previous_results: str = "",
     ) -> str:
-        """构造技术专家上下文，只接收故障排查所需材料。"""
+        """构造技术专家上下文，只接收规划任务和依赖结果。"""
         lines: list[str] = []
-        if recent_dialogue:
-            lines.append(f"【近期技术对话】\n{recent_dialogue}")
         if previous_results:
             lines.append(f"【前序处理结果】\n{previous_results}")
-        lines.append(f"【当前问题】{query or ctx.user_input}")
+        lines.append(f"【任务上下文】{query or ctx.user_input}")
         return "\n".join(lines)
 
     async def run(self, context: str, deps: SpecialistDeps | None = None) -> str:

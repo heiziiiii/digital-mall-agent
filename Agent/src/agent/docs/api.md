@@ -28,6 +28,7 @@ Base URL：`http://127.0.0.1:8001`
 | `/resume` | `POST` | 恢复已暂停会话 |
 | `/confirm` | `POST` | 用户确认、修改或取消待审核写操作 |
 | `/sessions/{thread_id}` | `GET` | 查询会话状态与结果 |
+| `/memory/{customer_id}` | `DELETE` | 按用户 id 清理其全部长期记忆 |
 
 ## 请求体
 
@@ -90,6 +91,22 @@ Base URL：`http://127.0.0.1:8001`
 
 `/confirm` 仅允许处理 `status=awaiting_review` 的会话。确认售后申请时，后端会校验 `orderNo`、`type`、`reason` 等待确认操作声明的必填字段；缺失时返回 `409`。
 
+`DELETE /memory/{customer_id}`：
+
+- 路径参数 `customer_id`（整数，必填）：要清理记忆的用户 id。
+- 查询参数 `customer_no`（字符串，可选）：可同时按客户编号清理。
+
+清理范围覆盖该用户的用户画像、会话状态、消息流水与长期语义记忆，并贯穿 L1 本地缓存、L2 Redis、L3 MySQL、L4 Qdrant 四层。该操作不可恢复。响应示例：
+
+```json
+{
+  "customer_id": 1001,
+  "customer_no": null,
+  "deleted_sessions": 3,
+  "deleted_messages": 42
+}
+```
+
 ## 响应字段
 
 | 字段 | 类型 | 说明 |
@@ -128,7 +145,7 @@ data: {"type":"stage","stage":"decide","label":"任务编排","update":{"intent"
 | `done` | 全部完成，返回 `thread_id`、`session_id`、`status`、`final_answer` |
 | `error` | 执行出错 |
 
-常见阶段标签：记忆提取、任务编排、产品咨询、技术支持、订单售后、待用户确认、生成回答、安全审核、记忆保存。其中 `decide` 的 `update.tasks` 给出本轮带优先级/依赖的任务计划，专家任务按依赖分波、波内并发产出。
+常见阶段标签：记忆提取、任务编排、产品咨询、技术支持、订单售后、待用户确认、生成回答、记忆保存。其中 `decide` 的 `update.tasks` 给出本轮带优先级/依赖的任务计划，专家任务按依赖分波、波内并发产出。
 
 当流式执行进入高风险写操作审核时，会发送 `stage=awaiting_review` 事件并结束本次 SSE 响应。前端应展示 `update.pending_action`，调用 `/confirm` 后再通过 `/sessions/{thread_id}` 轮询后续结果。
 
@@ -173,5 +190,5 @@ POST /stream -> 接收 start/stage/done
 | `/api/agent/resume` | `POST /resume` |
 | `/api/agent/confirm` | `POST /confirm` |
 | `/api/agent/sessions/{thread_id}` | `GET /sessions/{thread_id}` |
+| `/api/agent/memory/{customer_id}` | `DELETE /memory/{customer_id}` |
 | `/api/agent/health` | `GET /health` |
-

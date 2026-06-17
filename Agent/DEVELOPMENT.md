@@ -1,7 +1,5 @@
 # 智能数码商城客服 Agent 系统
 
-始终用中文回复我。
-
 ## 项目定位
 
 本仓库包含面向智能数码商城的客服 Agent，核心 Python 工程位于 `src/agent/`，用于处理产品推荐、技术/FAQ 咨询、订单物流、售后查询与售后创建等场景。
@@ -34,7 +32,6 @@ pip install -r requirements.txt
 → LLM 任务编排
 → 按依赖/优先级分波执行专家 Agent（同波并发）
 → 总结生成最终回答
-→ 本地安全审核
 → 记忆保存
 ```
 
@@ -44,7 +41,7 @@ pip install -r requirements.txt
 - 执行上下文为 `AgentContext`，任务类型为 `Task`，均定义在 `agent/customer_agent.py`。
 - 专家 Agent 位于 `agent/agents/`，目前包括 `ProductAgent`、`TechAgent`、`OrderAgent`，分别只提供商品推荐、技术/知识库、订单/售后能力。
 - 专家任务按 `depends_on` 和 `priority` 分波；同一波用 `asyncio.gather` 并发执行。
-- 安全审核位于 `agent/agents/safety.py`，是本地规则审核，不应无故改回 LLM 审核。
+- 安全审核位于 `agent/agents/safety.py`，当前不接入主 Agent 流程；如需恢复，优先继续使用本地规则审核。
 - 不再保留 `agent/agents/executor.py` 主流程入口；不要在 `agents/` 下新增执行器或调度器。
 - 不再使用旧的 `agent/workflow/` 模块；不要新增或引用 `WorkflowContext`。
 
@@ -54,7 +51,7 @@ pip install -r requirements.txt
 - `src/agent/agent/config.py`：集中配置，包含模型、MCP、Redis、MySQL、Qdrant、Embedding、记忆参数。
 - `src/agent/agent/llm/model.py`：PydanticAI 模型初始化与获取。
 - `src/agent/agent/customer_agent.py`：客服主 Agent，负责完整流程编排与执行。
-- `src/agent/agent/agents/`：子 Agent 能力模块，包括编排、产品、技术、订单、总结、安全审核、记忆提取等。
+- `src/agent/agent/agents/`：子 Agent 能力模块，包括编排、产品、技术、订单、总结、记忆提取等；安全审核模块保留但当前不接入主流程。
 - `src/agent/agent/api/`：FastAPI 应用、路由、请求/响应模型、运行管理器。
 - `src/agent/agent/memory/`：多层记忆后端与运行时。
 - `src/agent/agent/tools/mcp_client.py`：MCP 工具集、专家工具隔离、认证客户 ID 注入。

@@ -34,7 +34,17 @@
 | `/api/agent/resume` | `POST /resume` | 恢复会话 |
 | `/api/agent/confirm` | `POST /confirm` | 高风险写操作人工审核确认（HITL） |
 | `/api/agent/sessions/{id}` | `GET /sessions/{id}` | 查询会话状态 |
+| `/api/agent/memory/{customerId}` | `DELETE /memory/{customerId}` | 按用户 id 清理长期记忆 |
 | `/api/agent/health` | `GET /health` | 后端健康检查 |
+
+`/api/customer/**` 直连 MCP 服务端 REST（路径保持不剥离前缀），后端地址由 `MCP_SERVICE_URI` 配置，默认 `http://127.0.0.1:8081`。供前端「我的订单 / 我的售后」页面拉取结构化数据，身份只信任网关注入的 `X-Customer-Id`（自助模式：只能查本人）。
+
+| 网关路径 | 后端接口 | 说明 |
+| --- | --- | --- |
+| `/api/customer/orders` | `GET /api/customer/orders` | 当前用户订单列表（按创建时间倒序） |
+| `/api/customer/orders/{orderNo}` | `GET /api/customer/orders/{orderNo}` | 订单详情（明细、物流、收货信息） |
+| `/api/customer/aftersales` | `GET /api/customer/aftersales` | 当前用户售后列表（按创建时间倒序） |
+| `/api/customer/aftersales/{afterSaleNo}` | `GET /api/customer/aftersales/{afterSaleNo}` | 售后单详情 |
 
 ## 鉴权
 
@@ -59,8 +69,9 @@
 | --- | --- | --- |
 | `/api/auth/history` | `GET` | 当前用户的历史客服会话列表（按更新时间倒序，最多 100 条） |
 | `/api/auth/history/{sessionId}` | `GET` | 指定会话的完整对话消息（按轮次/序号排序） |
+| `/api/auth/history/{sessionId}` | `DELETE` | 删除当前用户的指定历史会话（会话状态 + 消息流水），先校验归属，越权或不存在返回 404 |
 
-> 历史会话数据来自 Python Agent 落库的记忆表 `agent_memory_sessions` / `agent_memory_messages`，网关只读。
+> 历史会话数据来自 Python Agent 落库的记忆表 `agent_memory_sessions` / `agent_memory_messages`，列表/详情网关只读，删除会清理这两张表。
 
 ## 配置
 
@@ -69,6 +80,7 @@
 | 变量 | 说明 | 默认值 |
 | --- | --- | --- |
 | `AGENT_SERVICE_URI` | Python Agent 地址 | `http://127.0.0.1:8001` |
+| `MCP_SERVICE_URI` | MCP 服务端地址（订单/售后 REST） | `http://127.0.0.1:8081` |
 | `MYSQL_R2DBC_URL` | MySQL R2DBC 地址 | 见 `application.yml` |
 | `MYSQL_USERNAME` / `MYSQL_PASSWORD` | MySQL 账号密码 | `root` / `root` |
 | `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Redis 连接信息 | `localhost` / `6379` / 空 |

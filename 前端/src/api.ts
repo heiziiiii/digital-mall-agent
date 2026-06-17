@@ -4,6 +4,7 @@
 const BASE_URL = (import.meta.env.VITE_API_BASE as string | undefined) ?? ''
 const AGENT_PREFIX = '/api/agent'
 const AUTH_PREFIX = '/api/auth'
+const CUSTOMER_PREFIX = '/api/customer'
 const AUTH_TOKEN_KEY = 'token'
 
 function getAuthToken(): string {
@@ -49,6 +50,8 @@ export type LoginResponse = {
 export type HistorySession = {
   sessionId: string
   rollingSummary?: string
+  lastUserMessage?: string
+  lastAssistantMessage?: string
   updatedAt?: string
 }
 
@@ -72,6 +75,69 @@ export type CurrentUserResponse = {
   customerNo: string
   nickname: string
   memberLevel: number
+}
+
+/* ----------------------------- 订单 / 售后 ----------------------------- */
+
+// 订单商品明细（对应后端 Orders.Item）
+export type OrderItem = {
+  productNo: string
+  productName: string
+  spec?: string
+  price: string | number
+  quantity: number
+}
+
+// 物流轨迹节点（对应后端 Orders.Trace）
+export type LogisticsTrace = {
+  time: string
+  location?: string
+  description: string
+}
+
+// 物流概况（对应后端 Orders.Logistics）
+export type Logistics = {
+  company?: string
+  trackingNo?: string
+  // 0待发 1已发 2运输中 3已签收 4异常
+  status: number
+  traces?: LogisticsTrace[]
+}
+
+// 订单（对应后端 Orders 实体）
+export type Order = {
+  id: number
+  orderNo: string
+  customerId: number
+  totalAmount: string | number
+  payAmount: string | number
+  // 0待付款 1待发货 2待收货 3已完成 4已取消
+  orderStatus: number
+  // 0未付 1已付 2已退款
+  payStatus: number
+  receiverName?: string
+  receiverPhone?: string
+  receiverAddress?: string
+  items?: OrderItem[]
+  logistics?: Logistics | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+// 售后单（对应后端 AfterSale 实体）
+export type AfterSale = {
+  id: number
+  afterSaleNo: string
+  orderNo: string
+  customerId: number
+  // 1退货退款 2换货 3仅退款 4维修
+  type: number
+  reason?: string
+  // 0待审 1已通过 2已拒绝 3处理中 4已完成
+  status: number
+  remark?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 // 统一响应结构（除 /health 外）
@@ -223,12 +289,89 @@ export function getHistoryConversation(sessionId: string): Promise<HistoryConver
   return requestEnvelope<HistoryConversation>(`${AUTH_PREFIX}/history/${encodeURIComponent(sessionId)}`)
 }
 
+export function deleteHistoryConversation(sessionId: string): Promise<boolean> {
+  return requestEnvelope<boolean>(`${AUTH_PREFIX}/history/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+  })
+}
+
 export async function logout(): Promise<void> {
   try {
     await requestEnvelope<null>(`${AUTH_PREFIX}/logout`, { method: 'POST' })
   } finally {
     clearAuthToken()
   }
+}
+
+/* ----------------------------- 订单 / 售后接口 ----------------------------- */
+
+// 我的订单列表（身份由网关注入的 X-Customer-Id 决定，只返回本人订单）
+export async function getMyOrders(): Promise<Order[]> {
+  const data = await requestEnvelope<Order[] | null>(`${CUSTOMER_PREFIX}/orders`)
+  return data ?? []
+}
+
+// 单个订单详情
+export function getOrderDetail(orderNo: string): Promise<Order> {
+  return requestEnvelope<Order>(`${CUSTOMER_PREFIX}/orders/${encodeURIComponent(orderNo)}`)
+}
+
+// 下单入参：收货信息可选，数量缺省为 1
+export type CreateOrderInput = {
+  productNo: string
+  quantity?: number
+  spec?: string
+  receiverName?: string
+  receiverPhone?: string
+  receiverAddress?: string
+}
+
+// 立即下单：创建一笔「待付款」订单，返回新建订单
+export function createOrder(input: CreateOrderInput): Promise<Order> {
+  return requestEnvelope<Order>(`${CUSTOMER_PREFIX}/orders`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export function appendAgentMemory(input: {
+  sessionId?: string
+  userMessage: string
+  assistantMessage: string
+}): Promise<SessionResponse> {
+  return request<SessionResponse>(`${AGENT_PREFIX}/memory/append`, {
+    method: 'POST',
+    body: JSON.stringify({
+      session_id: input.sessionId,
+      user_message: input.userMessage,
+      assistant_message: input.assistantMessage,
+    }),
+  })
+}
+
+// 撤销订单（仅「待付款」订单可撤销，撤销后返回已取消的订单）
+export function cancelOrder(orderNo: string): Promise<Order> {
+  return requestEnvelope<Order>(`${CUSTOMER_PREFIX}/orders/${encodeURIComponent(orderNo)}/cancel`, {
+    method: 'POST',
+  })
+}
+
+// 我的售后列表
+export async function getMyAfterSales(): Promise<AfterSale[]> {
+  const data = await requestEnvelope<AfterSale[] | null>(`${CUSTOMER_PREFIX}/aftersales`)
+  return data ?? []
+}
+
+// 单个售后单详情
+export function getAfterSaleDetail(afterSaleNo: string): Promise<AfterSale> {
+  return requestEnvelope<AfterSale>(`${CUSTOMER_PREFIX}/aftersales/${encodeURIComponent(afterSaleNo)}`)
+}
+
+// 撤销售后申请（仅「待审核」售后单可撤销，撤销即删除该申请）
+export function cancelAfterSale(afterSaleNo: string): Promise<null> {
+  return requestEnvelope<null>(`${CUSTOMER_PREFIX}/aftersales/${encodeURIComponent(afterSaleNo)}/cancel`, {
+    method: 'POST',
+  })
 }
 
 function chatPayload(message: string, sessionId?: string, newSession = false) {
@@ -253,7 +396,7 @@ export function runChat(
 // 1b. 发送问题（SSE 流式生成）
 // 服务端按 LangGraph 节点级粒度边执行边推送，无需轮询。
 
-// 节点中文标签：记忆提取 / 意图识别 / 产品咨询 / 技术支持 / 订单售后 / 生成回答 / 安全审核 / 记忆保存
+// 节点中文标签：记忆提取 / 意图识别 / 产品咨询 / 技术支持 / 订单售后 / 生成回答 / 记忆保存
 export type StreamEvent =
   | { type: 'start'; thread_id: string; session_id?: string }
   | { type: 'stage'; stage: string; label: string; update: Record<string, unknown> }

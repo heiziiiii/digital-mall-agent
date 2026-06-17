@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import java.time.format.DateTimeFormatter;
 
 import com.digitalcs.mcp.tools.AfterSaleTools;
-import com.digitalcs.mcp.tools.CustomerTools;
 import com.digitalcs.mcp.tools.HumanServiceTools;
 import com.digitalcs.mcp.tools.KnowledgeTools;
 import com.digitalcs.mcp.tools.OrderTools;
@@ -37,10 +36,9 @@ public class McpServerApplication {
             OrderTools orderTools,
             AfterSaleTools afterSaleTools,
             HumanServiceTools humanServiceTools,
-            KnowledgeTools knowledgeTools,
-            CustomerTools customerTools) {
+            KnowledgeTools knowledgeTools) {
         return MethodToolCallbackProvider.builder()
-                .toolObjects(productTools, orderTools, afterSaleTools, humanServiceTools, knowledgeTools, customerTools)
+                .toolObjects(productTools, orderTools, afterSaleTools, humanServiceTools, knowledgeTools)
                 .build();
     }
 

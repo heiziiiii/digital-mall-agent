@@ -33,4 +33,23 @@ public class OrderTools {
             @ToolParam(description = "订单号(order_no)") String orderNo) {
         return orderService.trackLogistics(orderNo, userId);
     }
+
+    @Tool(description = "为当前客户创建一笔待付款订单。仅在客户明确决定购买某个商品时使用；调用前必须确认商品编号、购买数量、收货人、手机号和收货地址。该写操作需要用户先核对确认，确认后才会真正扣减库存并生成订单。")
+    public Map<String, Object> createOrder(
+            @ToolParam(description = "当前会话客户ID") Long userId,
+            @ToolParam(description = "商品编号(product_no)") String productNo,
+            @ToolParam(description = "购买数量，必须大于0") Integer quantity,
+            @ToolParam(description = "商品规格，例如颜色/内存；没有则传空字符串") String spec,
+            @ToolParam(description = "收货人姓名") String receiverName,
+            @ToolParam(description = "收货手机号") String receiverPhone,
+            @ToolParam(description = "收货地址") String receiverAddress) {
+        return orderService.createOrder(
+                userId,
+                productNo,
+                quantity,
+                spec,
+                receiverName,
+                receiverPhone,
+                receiverAddress);
+    }
 }

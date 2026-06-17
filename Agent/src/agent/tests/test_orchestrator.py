@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import pytest
 
 import agent.agents.orchestrator as orchestrator_module
-from agent.agents.orchestrator import OrchestratorAgent, TaskSpec
+from agent.agents.orchestrator import HumanServiceSpec, OrchestratorAgent, TaskSpec
 from agent.customer_agent import AgentContext
 from agent.prompts.loader import render_skill
 
@@ -24,6 +24,22 @@ class FakeOrchestratorAgent:
     async def run(self, prompt: str, **_kwargs):
         self.prompts.append(prompt)
         return SimpleNamespace(output=SimpleNamespace(tasks=self.tasks))
+
+
+class FakeHumanServiceOrchestratorAgent(FakeOrchestratorAgent):
+    """伪编排 Agent：在任务之外额外吐回 LLM 标注的人工服务结构。"""
+
+    def __init__(
+        self, tasks: list[TaskSpec], human_service: HumanServiceSpec | None
+    ) -> None:
+        super().__init__(tasks)
+        self.human_service = human_service
+
+    async def run(self, prompt: str, **_kwargs):
+        self.prompts.append(prompt)
+        return SimpleNamespace(
+            output=SimpleNamespace(tasks=self.tasks, human_service=self.human_service)
+        )
 
 
 @pytest.fixture(autouse=True)
@@ -81,7 +97,7 @@ def test_decide_prompt_includes_memory_context(monkeypatch) -> None:
     monkeypatch.setattr(agent, "_get_agent", lambda: fake)
     ctx = AgentContext(
         user_input="小米",
-        rolling_summary=(
+        background_summary=(
             "王先生提出退货需求，当前对话聚焦于确认退货订单；"
             "O202606060001含小米14 Pro。"
         ),
@@ -90,7 +106,6 @@ def test_decide_prompt_includes_memory_context(monkeypatch) -> None:
             {"role": "user", "content": "我要退货"},
             {"role": "assistant", "content": "请问您要为哪一单办理退货？"},
         ],
-        recalled_memories=[{"text": "用户关注退货流程效率。"}],
     )
 
     result = asyncio.run(agent.decide(ctx))
@@ -101,7 +116,10 @@ def test_decide_prompt_includes_memory_context(monkeypatch) -> None:
     assert '"user_input": "小米"' in prompt
     assert "当前对话聚焦于确认退货订单" in prompt
     assert "请问您要为哪一单办理退货" not in prompt
-    assert "用户关注退货流程效率" in prompt
+    assert "用户关注退货流程效率" not in prompt
+    assert "rolling_summary" not in prompt
+    assert "recalled_memories" not in prompt
+    assert "recent_history" not in prompt
     assert "完整原始记忆" not in prompt
     assert "完整历史" not in prompt
     assert "不要重新抽取原始对话记忆" not in prompt
@@ -123,6 +141,10 @@ def test_after_sale_hitl_constraints_are_in_skills() -> None:
     assert "`order` 改写方向" in orchestrate_prompt
     assert "`product` 改写方向" in orchestrate_prompt
     assert "`tech` 改写方向" in orchestrate_prompt
+    assert "避免重复完整追问" in orchestrate_prompt
+    assert "本轮 `query` 应明确" in orchestrate_prompt
+    assert "应先规划 `order` 查询最近购买订单以消解商品名称/型号" in orchestrate_prompt
+    assert "`tech` 依赖订单方向" in orchestrate_prompt
     assert "人工服务不是专家任务" in orchestrate_prompt
     assert "human_service" not in orchestrate_prompt
     assert "工具动作" not in orchestrate_prompt
@@ -148,7 +170,10 @@ def test_after_sale_hitl_constraints_are_in_skills() -> None:
     assert "建议人工客服进一步核实" in summarize_prompt
     assert "已创建服务记录" in summarize_prompt
     assert "不要编造售后审核、退款到账、物流拦截等时效" in summarize_prompt
-    assert "提炼本轮工作记忆" in memory_prompt
+    assert "不要在结尾新增专家未提出的查询、匹配、转办、检测、创建记录等服务承诺或反问" in summarize_prompt
+    assert "若 `background_summary` 显示此前已经追问过同一批缺失信息" in summarize_prompt
+    assert "禁止自行追加“需要我帮您查/匹配/提交/转接吗”等能力暗示" in summarize_prompt
+    assert "背景摘要生成" in memory_prompt
     assert "省略表达" in memory_prompt
     assert "回答上一轮未决问题" in memory_prompt
     # 双节点新增能力：背景补充与情绪提炼
@@ -176,6 +201,34 @@ def test_multi_task_keeps_priority_and_dependency(monkeypatch) -> None:
     ]
 
 
+def test_recent_purchase_tech_issue_inserts_order_lookup(monkeypatch) -> None:
+    """“最近买的手机发烫”应先查最近订单消解机型，再把订单结果交给技术专家。"""
+    fake = FakeOrchestratorAgent(
+        [
+            TaskSpec(
+                agent="tech",
+                query="排查用户最近买的手机发烫问题。",
+                reason="用户反馈技术故障。",
+                confidence=0.9,
+                priority=10,
+            )
+        ]
+    )
+    agent = OrchestratorAgent()
+    monkeypatch.setattr(agent, "_get_agent", lambda: fake)
+    ctx = AgentContext(user_input="我最近买的手机发烫", customer_id=5)
+
+    result = asyncio.run(agent.decide(ctx))
+
+    assert result.intent == "order"
+    assert [(task.agent, task.depends_on) for task in result.tasks] == [
+        ("order", []),
+        ("tech", ["order"]),
+    ]
+    assert "最近购买的手机订单" in result.tasks[0].query
+    assert "基于订单专家返回" in result.tasks[1].query
+
+
 def test_human_service_is_inferred_from_complaint_context(monkeypatch) -> None:
     fake = FakeOrchestratorAgent(
         [
@@ -190,7 +243,7 @@ def test_human_service_is_inferred_from_complaint_context(monkeypatch) -> None:
     monkeypatch.setattr(agent, "_get_agent", lambda: fake)
     ctx = AgentContext(
         user_input="我非常不满意，换货取消不了太离谱了，我要投诉并转人工处理，关联售后单 AS202606030001",
-        turn_focus="用户强烈不满，明确要求投诉并转人工处理。",
+        background_summary="用户强烈不满，明确要求投诉并转人工处理。",
         current_emotion="愤怒/不满",
     )
 
@@ -199,6 +252,45 @@ def test_human_service_is_inferred_from_complaint_context(monkeypatch) -> None:
     assert result.human_service is not None
     assert result.human_service["afterSaleNo"] == "AS202606030001"
     assert "转人工" in result.human_service["reason"]
+
+
+def test_explicit_human_request_plans_human_service(monkeypatch) -> None:
+    """用户直接要求转人工：即便 LLM 未填 human_service 结构，也应从上下文兜底规划为人工服务动作。"""
+    fake = FakeOrchestratorAgent([])  # 无专家任务
+    agent = OrchestratorAgent()
+    monkeypatch.setattr(agent, "_get_agent", lambda: fake)
+
+    result = asyncio.run(agent.decide("我不想自助了，直接帮我转人工客服处理"))
+
+    # 规划直接把诉求识别为人工服务动作，而不是丢给某个专家任务
+    assert result.human_service is not None
+    assert result.tasks == []
+    assert "人工" in result.human_service["reason"]
+    # 无专家任务但有人工服务时，主意图归到 order 域（人工服务由订单域承载）
+    assert result.intent == "order"
+
+
+def test_llm_marked_human_service_is_planned(monkeypatch) -> None:
+    """LLM 已显式标注 human_service.needed=True 时，规划应原样产出该人工服务计划。"""
+    fake = FakeHumanServiceOrchestratorAgent(
+        tasks=[],
+        human_service=HumanServiceSpec(
+            needed=True,
+            reason="用户要求人工核实退款进度",
+            orderNo="O202606060001",
+        ),
+    )
+    agent = OrchestratorAgent()
+    monkeypatch.setattr(agent, "_get_agent", lambda: fake)
+
+    result = asyncio.run(agent.decide("帮我查下退款，顺便转人工"))
+
+    assert result.human_service == {
+        "reason": "用户要求人工核实退款进度",
+        "orderNo": "O202606060001",
+        "afterSaleNo": "",
+    }
+    assert result.intent == "order"
 
 
 def test_dedup_keeps_highest_priority_and_drops_invalid_deps(monkeypatch) -> None:

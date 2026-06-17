@@ -2,12 +2,13 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ProductCard from './ProductCard'
 import ReviewCard from './ReviewCard'
-import type { Message, UserInfo } from '../App'
+import type { Message, ProductData, UserInfo } from '../App'
 
 type MessageBubbleProps = {
   msg: Message
   user: UserInfo
   reviewBusy?: boolean
+  onOrderProduct?: (data: ProductData) => void
   onApproveReview?: (messageId: number, args: Record<string, unknown>) => void
   onCancelReview?: (messageId: number, message: string, regenerate?: boolean) => void
 }
@@ -17,6 +18,7 @@ export default function MessageBubble({
   msg,
   user,
   reviewBusy,
+  onOrderProduct,
   onApproveReview,
   onCancelReview,
 }: MessageBubbleProps) {
@@ -41,7 +43,9 @@ export default function MessageBubble({
             )
           }
 
-          if (block.type === 'product') return <ProductCard key={index} data={block.value} />
+          if (block.type === 'product') {
+            return <ProductCard key={index} data={block.value} onOrder={onOrderProduct} />
+          }
 
           if (block.type === 'review') {
             return (

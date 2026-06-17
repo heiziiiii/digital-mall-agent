@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import type { ProductData } from '../App'
 
 type ProductCardProps = {
   data: ProductData
+  onOrder?: (data: ProductData) => Promise<void> | void
 }
 
 // 库存紧张/无货时高亮提示
@@ -14,9 +16,22 @@ const formatPrice = (price: string): string | null => {
 }
 
 // 内嵌商品卡：名称 / 卖点 / 实时价格 / 库存 / 推荐理由（数据均来自后端产品 Agent）
-export default function ProductCard({ data }: ProductCardProps) {
+export default function ProductCard({ data, onOrder }: ProductCardProps) {
   const price = formatPrice(data.price)
   const low = isLowStock(data.stockStatus)
+  const [ordering, setOrdering] = useState(false)
+  const [placed, setPlaced] = useState(false)
+
+  const handleOrder = () => {
+    if (!data.productNo || !onOrder || ordering || placed) return
+    setOrdering(true)
+    Promise.resolve(onOrder(data))
+      .then(() => setPlaced(true))
+      .catch(() => {
+        /* 失败反馈由上层以聊天消息展示。 */
+      })
+      .finally(() => setOrdering(false))
+  }
 
   return (
     <div className="product-card">
@@ -56,7 +71,9 @@ export default function ProductCard({ data }: ProductCardProps) {
         </div>
 
         <div className="product-actions">
-          <button className="btn btn-primary">立即下单</button>
+          <button className="btn btn-primary" onClick={handleOrder} disabled={!data.productNo || !onOrder || ordering || placed}>
+            {ordering ? '下单中...' : placed ? '已下单' : '立即下单'}
+          </button>
           <button className="btn btn-outline">查看详情</button>
         </div>
       </div>

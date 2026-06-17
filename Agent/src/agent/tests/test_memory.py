@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import agent.memory.store as store
 import agent.memory.qdrant_store as qdrant_store
 from agent.customer_agent import AgentContext
-from agent.agents.memory_extract import LongTermMemory, MemoryExtraction
+from agent.agents.memory_extract import MemoryExtraction
 from agent.agents.memory_summary import LongTermMemoryDraft, ProfileUpdate, UserProfile
 
 
@@ -84,7 +84,6 @@ def test_load_falls_back_to_mysql_and_refills_cache(monkeypatch) -> None:
         captured["memory_payload"] = payload
         captured["recall_tool"] = recall_tool
         return MemoryExtraction(
-            turn_focus="本轮：用户打招呼",
             background_summary="",
             current_emotion="中性",
         )
@@ -115,22 +114,79 @@ def test_load_falls_back_to_mysql_and_refills_cache(monkeypatch) -> None:
         "nickname": "小明",
         "member_level": "VIP",
     }
-    # 提取 payload 携带四维画像
-    assert captured["memory_payload"]["user_profile"] == UserProfile(price_range="中端").model_dump()
+    # 首轮记忆提取只携带轻量画像，不直接塞完整用户画像
+    assert captured["memory_payload"]["profile_scope"] == "lightweight"
+    assert captured["memory_payload"]["user_profile"] == {
+        "authenticated_customer": {"nickname": "小明", "member_level": "VIP"},
+        "has_stored_profile": True,
+    }
     # 持久滚动摘要保持为加载到的历史摘要，不被记忆 Agent 输出覆盖
     assert ctx.rolling_summary == "老摘要"
-    # 本轮工作记忆与背景摘要来自记忆 Agent
-    assert ctx.turn_focus == "本轮：用户打招呼"
+    assert captured["memory_payload"]["recent_history"] == [
+        {"role": "summary", "content": "压缩早期会话记忆：老摘要"},
+        {"role": "user", "content": "早些的问题"},
+    ]
+    assert "rolling_summary" not in captured["memory_payload"]
+    # 本轮背景摘要来自记忆 Agent
+    assert ctx.turn_focus == ""
     assert ctx.background_summary == ""
     # 画像由输入端只读透传：四维结构，不再混入认证资料
     assert ctx.user_profile == UserProfile(price_range="中端").model_dump()
     assert ctx.history == [{"role": "user", "content": "早些的问题"}]
     assert ctx.recalled_memories == []
     assert ctx.current_emotion == "中性"
-    assert callable(captured["recall_tool"])
+    assert captured["recall_tool"] is None
     # 回源后 L1 与 L2 都被回填
     assert store.local_cache.get("sX") is not None
     assert captured["refilled"]["rolling_summary"] == "老摘要"
+
+
+def test_load_reruns_memory_extract_with_full_profile_when_requested(monkeypatch) -> None:
+    store.local_cache.clear()
+    captured: dict = {"payloads": []}
+    full_profile = UserProfile(
+        brand_preferences=["小米"],
+        historical_issues=["小米14 Pro 摄像头无法对焦"],
+    ).model_dump()
+
+    async def fake_get_state(_sid):
+        return {
+            "history": [],
+            "rolling_summary": "",
+            "user_profile": full_profile,
+            "turns": 2,
+        }
+
+    async def fake_extract(payload, recall_tool=None):
+        captured["payloads"].append(payload)
+        if len(captured["payloads"]) == 1:
+            return MemoryExtraction(
+                current_emotion="中性",
+                full_profile_needed=True,
+            )
+        return MemoryExtraction(
+            background_summary="用户历史关注小米14 Pro 摄像头问题。",
+            current_emotion="中性",
+            full_profile_needed=False,
+        )
+
+    async def fake_load_customer(_customer_id):
+        return {"nickname": "小明"}
+
+    monkeypatch.setattr(store.redis_store, "get_state", fake_get_state)
+    monkeypatch.setattr(store, "_memory_agent", SimpleNamespace(extract=fake_extract))
+    monkeypatch.setattr(store, "_load_authenticated_customer", fake_load_customer)
+    monkeypatch.setattr(store, "get_runtime", lambda: _FakeRuntime())
+
+    ctx = AgentContext(user_input="按我的历史问题继续处理", session_id="s-full")
+    store.load_memory(ctx)
+
+    assert len(captured["payloads"]) == 2
+    assert captured["payloads"][0]["profile_scope"] == "lightweight"
+    assert captured["payloads"][0]["user_profile"]["has_stored_profile"] is True
+    assert captured["payloads"][1]["profile_scope"] == "full"
+    assert captured["payloads"][1]["user_profile"] == full_profile
+    assert ctx.background_summary == "用户历史关注小米14 Pro 摄像头问题。"
 
 
 def test_load_new_session_inherits_latest_customer_profile(monkeypatch) -> None:
@@ -164,7 +220,6 @@ def test_load_new_session_inherits_latest_customer_profile(monkeypatch) -> None:
         captured["payload"] = payload
         captured["recall_tool"] = recall_tool
         return MemoryExtraction(
-            turn_focus="本轮：用户询问记忆内容",
             current_emotion="中性",
         )
 
@@ -192,13 +247,15 @@ def test_load_new_session_inherits_latest_customer_profile(monkeypatch) -> None:
 
     assert captured["identity"] == {"customer_id": 3, "customer_no": "C100003"}
     assert captured["refilled"]["rolling_summary"] == "最近售后摘要"
-    assert captured["payload"]["recent_history"] == []
-    assert callable(captured["recall_tool"])
+    assert captured["payload"]["recent_history"] == [
+        {"role": "summary", "content": "压缩早期会话记忆：最近售后摘要"}
+    ]
+    assert captured["recall_tool"] is None
     assert ctx.rolling_summary == "最近售后摘要"
     assert ctx.user_profile == legacy_profile
 
 
-def test_memory_inspection_uses_expanded_qdrant_query(monkeypatch) -> None:
+def test_memory_extract_does_not_receive_or_call_long_term_recall(monkeypatch) -> None:
     store.local_cache.clear()
     store.local_cache.put(
         "s-memory-recall",
@@ -212,8 +269,7 @@ def test_memory_inspection_uses_expanded_qdrant_query(monkeypatch) -> None:
     captured: dict = {}
 
     async def fake_embed(text):
-        captured["embedding_query"] = text
-        return [0.1, 0.2]
+        raise AssertionError("记忆提取阶段不应执行长期语义召回")
 
     async def fake_search(_sid, _vector, _top_k, **_kwargs):
         return [
@@ -227,12 +283,9 @@ def test_memory_inspection_uses_expanded_qdrant_query(monkeypatch) -> None:
 
     async def fake_extract(payload, recall_tool=None):
         captured["payload"] = payload
-        assert callable(recall_tool)
-        recalled = await asyncio.to_thread(recall_tool, payload["user_input"], 2)
+        captured["recall_tool"] = recall_tool
         return MemoryExtraction(
-            turn_focus="本轮：用户询问记忆内容",
             background_summary="用户长期关注高端旗舰手机与售后规则。",
-            long_term_memories=[LongTermMemory(**item) for item in recalled],
             current_emotion="中性",
         )
 
@@ -253,21 +306,15 @@ def test_memory_inspection_uses_expanded_qdrant_query(monkeypatch) -> None:
     ctx = AgentContext(user_input="现在你对我的记忆有什么", session_id="s-memory-recall")
     store.load_memory(ctx)
 
-    assert "用户长期记忆" in captured["embedding_query"]
-    assert "偏好高端旗舰" in captured["embedding_query"]
-    assert "AS202606030001" in captured["embedding_query"]
-    assert ctx.background_summary == "用户长期关注高端旗舰手机与售后规则。"
-    assert ctx.recalled_memories == [
-        {
-            "text": "用户关注高端旗舰手机和售后规则。",
-            "role": "turn",
-            "turn": 1,
-            "score": 0.91,
-        }
+    assert captured["payload"]["recent_history"] == [
+        {"role": "summary", "content": "压缩早期会话记忆：用户当前有进行中的换货流程 AS202606030001"}
     ]
+    assert captured["recall_tool"] is None
+    assert ctx.background_summary == "用户长期关注高端旗舰手机与售后规则。"
+    assert ctx.recalled_memories == []
 
 
-def test_load_hits_local_cache_and_exposes_recall_tool_without_auto_call(monkeypatch) -> None:
+def test_load_hits_local_cache_without_exposing_recall_tool(monkeypatch) -> None:
     store.local_cache.clear()
     store.local_cache.put(
         "sR",
@@ -302,7 +349,6 @@ def test_load_hits_local_cache_and_exposes_recall_tool_without_auto_call(monkeyp
         captured["payload"] = payload
         captured["recall_tool"] = recall_tool
         return MemoryExtraction(
-            turn_focus="本轮：用户着急想要推荐",
             current_emotion="焦急",
         )
 
@@ -318,7 +364,7 @@ def test_load_hits_local_cache_and_exposes_recall_tool_without_auto_call(monkeyp
 
     assert ctx.recalled_memories == []
     assert ctx.background_summary == ""
-    assert callable(captured["recall_tool"])
+    assert captured["recall_tool"] is None
     assert ctx.current_emotion == "焦急"
 
 
@@ -351,7 +397,7 @@ def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> N
 
     async def fake_extract(payload, recall_tool=None):
         captured["payload"] = payload
-        return MemoryExtraction(turn_focus="本轮：用户继续", current_emotion="中性")
+        return MemoryExtraction(current_emotion="中性")
 
     async def fake_set_state(_sid, state):
         captured["state"] = state
@@ -377,9 +423,9 @@ def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> N
 
     # 最早一轮被压缩进滚动摘要
     assert "旧问题1" in captured["compress_prompt"]
-    assert captured["payload"]["rolling_summary"] == "已有摘要 + 旧对话摘要"
     # 窗口保留最近 3 轮共 6 条
     assert captured["payload"]["recent_history"] == [
+        {"role": "summary", "content": "压缩早期会话记忆：已有摘要 + 旧对话摘要"},
         {"role": "user", "content": "问题2"},
         {"role": "assistant", "content": "回答2"},
         {"role": "user", "content": "问题3"},
@@ -387,7 +433,7 @@ def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> N
         {"role": "user", "content": "最近问题"},
         {"role": "assistant", "content": "最近补充"},
     ]
-    assert ctx.history == captured["payload"]["recent_history"]
+    assert ctx.history == captured["payload"]["recent_history"][1:]
 
 
 # —— 输出端：记忆总结节点 ——
@@ -766,6 +812,57 @@ def test_qdrant_upsert_memory_writes_customer_identity(monkeypatch) -> None:
     assert point.payload["customer_no"] == "C007"
 
 
+# —— 按用户清理长期记忆 ——
+
+
+def test_purge_customer_memory_clears_all_layers(monkeypatch) -> None:
+    store.local_cache.clear()
+    store.local_cache.put("sA", {"history": [], "turns": 1})
+    store.local_cache.put("sB", {"history": [], "turns": 2})
+    captured: dict = {}
+
+    async def fake_list_session_ids(customer_id=None, customer_no=None):
+        captured["list_identity"] = (customer_id, customer_no)
+        return ["sA", "sB"]
+
+    async def fake_delete_state(session_id):
+        captured.setdefault("redis_deleted", []).append(session_id)
+
+    async def fake_delete_customer(customer_id=None, customer_no=None):
+        captured["mysql_identity"] = (customer_id, customer_no)
+        return {"sessions": 2, "messages": 7}
+
+    async def fake_qdrant_delete(customer_id=None, customer_no=None, session_ids=None):
+        captured["qdrant"] = (customer_id, customer_no, session_ids)
+
+    monkeypatch.setattr(store.mysql_store, "list_customer_session_ids", fake_list_session_ids)
+    monkeypatch.setattr(store.redis_store, "delete_state", fake_delete_state)
+    monkeypatch.setattr(store.mysql_store, "delete_customer", fake_delete_customer)
+    monkeypatch.setattr(store.qdrant_store, "delete_customer", fake_qdrant_delete)
+    monkeypatch.setattr(store, "get_runtime", lambda: _FakeRuntime())
+
+    result = store.purge_customer_memory(customer_id=7, customer_no="C007")
+
+    # L1 热状态已清空
+    assert store.local_cache.get("sA") is None
+    assert store.local_cache.get("sB") is None
+    # L2 按会话逐个删除
+    assert captured["redis_deleted"] == ["sA", "sB"]
+    # L3 / L4 按身份删除，消息快照按会话 id 清理
+    assert captured["mysql_identity"] == (7, "C007")
+    assert captured["qdrant"] == (7, "C007", ["sA", "sB"])
+    assert result["sessions"] == 2
+    assert result["messages"] == 7
+    assert result["session_ids"] == ["sA", "sB"]
+
+
+def test_purge_customer_memory_requires_identity() -> None:
+    import pytest
+
+    with pytest.raises(ValueError):
+        store.purge_customer_memory()
+
+
 # —— 认证资料脱敏 ——
 
 
@@ -787,26 +884,8 @@ def test_customer_profile_is_sanitized_before_memory_agent() -> None:
     assert result == {"display_name": "张*", "member_level": "VIP"}
 
 
-def test_authenticated_customer_direct_call_opens_mcp_session(monkeypatch) -> None:
-    """认证资料直连 MCP 时也必须进入会话，避免工具清单未初始化。"""
-
-    events: list[str] = []
-
-    class _FakeMcpServer:
-        async def __aenter__(self):
-            events.append("enter")
-            return self
-
-        async def __aexit__(self, *_exc_info):
-            events.append("exit")
-
-        async def direct_call_tool(self, name, args):
-            events.append(f"call:{name}:{args['userId']}")
-            return {"customer": {"realName": "张三", "memberLevel": "VIP"}}
-
-    monkeypatch.setattr(store, "get_mcp_server", lambda: _FakeMcpServer())
-
+def test_authenticated_customer_loader_is_disabled() -> None:
+    """用户资料工具禁用后，记忆链路不再直连 MCP 查询客户资料。"""
     result = asyncio.run(store._load_authenticated_customer(7))
 
-    assert events == ["enter", "call:getCustomerById:7", "exit"]
-    assert result == {"display_name": "张*", "member_level": "VIP"}
+    assert result == {}

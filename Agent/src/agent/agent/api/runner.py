@@ -312,7 +312,7 @@ class RunManager:
         """确认执行前校验前端已补齐必填字段，避免空原因等参数真正落库。"""
         if not pending_review:
             return
-        if pending_review.get("tool") not in {"createAfterSale", "createHumanService"}:
+        if pending_review.get("tool") not in {"createOrder", "createAfterSale", "createHumanService"}:
             return
         merged_args = {**pending_review.get("args", {}), **(args or {})}
         missing = []

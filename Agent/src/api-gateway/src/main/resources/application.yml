@@ -60,6 +60,18 @@ spring:
                 redis-rate-limiter.burstCapacity: 40
                 redis-rate-limiter.requestedTokens: 1
                 key-resolver: "#{@userKeyResolver}"
+        # 客户自助接口（我的订单 / 我的售后），直连 MCP 服务端 REST，路径保持 /api/customer 不剥离前缀
+        - id: customer-service
+          uri: ${MCP_SERVICE_URI:http://127.0.0.1:8081}
+          predicates:
+            - Path=/api/customer/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: "#{@userKeyResolver}"
       # 后端 SSE 长连接：放大超时，避免流式响应被网关提前掐断
       httpclient:
         connect-timeout: 5000
