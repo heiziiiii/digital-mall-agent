@@ -22,9 +22,6 @@ class _FakeRuntime:
         return asyncio.run(coro)
 
 
-# —— 输出端：四维画像结构与合并语义 ——
-
-
 def test_user_profile_merge_keeps_unchanged_dimensions() -> None:
     current = UserProfile(
         brand_preferences=["Apple"],
@@ -32,7 +29,6 @@ def test_user_profile_merge_keeps_unchanged_dimensions() -> None:
         historical_issues=["iPhone 14 屏幕进灰"],
         tone_preference="简洁直接",
     )
-    # 只更新品牌与历史问题，其余维度返回 None 表示保持原状
     update = ProfileUpdate(
         has_update=True,
         brand_preferences=["Apple", "华为"],
@@ -43,18 +39,13 @@ def test_user_profile_merge_keeps_unchanged_dimensions() -> None:
 
     assert merged.brand_preferences == ["Apple", "华为"]
     assert merged.historical_issues == ["iPhone 14 屏幕进灰", "Mate60 充电异常"]
-    # 未变化维度保持原值
     assert merged.price_range == "高端旗舰"
     assert merged.tone_preference == "简洁直接"
 
 
 def test_coerce_profile_drops_legacy_free_text_format() -> None:
-    # 旧版自由文本画像（{"summary": ...}）的多余键被忽略，退化为空的四维画像
     coerced = store._coerce_profile({"summary": "偏好高端旗舰"})
     assert coerced == UserProfile()
-
-
-# —— 输入端：回源链 + 提取 + 背景摘要 + 情绪 ——
 
 
 def test_load_falls_back_to_mysql_and_refills_cache(monkeypatch) -> None:
@@ -107,36 +98,30 @@ def test_load_falls_back_to_mysql_and_refills_cache(monkeypatch) -> None:
     ctx = AgentContext(user_input="你好", session_id="sX", customer_no="C001", customer_id=1)
     store.load_memory(ctx)
 
-    # 身份字段不进入记忆提取 payload
     assert "customer_no" not in captured["memory_payload"]
     assert "customer_id" not in captured["memory_payload"]
     assert captured["memory_payload"]["authenticated_customer"] == {
         "nickname": "小明",
         "member_level": "VIP",
     }
-    # 首轮记忆提取只携带轻量画像，不直接塞完整用户画像
     assert captured["memory_payload"]["profile_scope"] == "lightweight"
     assert captured["memory_payload"]["user_profile"] == {
         "authenticated_customer": {"nickname": "小明", "member_level": "VIP"},
         "has_stored_profile": True,
     }
-    # 持久滚动摘要保持为加载到的历史摘要，不被记忆 Agent 输出覆盖
     assert ctx.rolling_summary == "老摘要"
     assert captured["memory_payload"]["recent_history"] == [
         {"role": "summary", "content": "压缩早期会话记忆：老摘要"},
         {"role": "user", "content": "早些的问题"},
     ]
     assert "rolling_summary" not in captured["memory_payload"]
-    # 本轮背景摘要来自记忆 Agent
     assert ctx.turn_focus == ""
     assert ctx.background_summary == ""
-    # 画像由输入端只读透传：四维结构，不再混入认证资料
     assert ctx.user_profile == UserProfile(price_range="中端").model_dump()
     assert ctx.history == [{"role": "user", "content": "早些的问题"}]
     assert ctx.recalled_memories == []
     assert ctx.current_emotion == "中性"
     assert captured["recall_tool"] is None
-    # 回源后 L1 与 L2 都被回填
     assert store.local_cache.get("sX") is not None
     assert captured["refilled"]["rolling_summary"] == "老摘要"
 
@@ -373,7 +358,6 @@ def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> N
     store.local_cache.put(
         "s-window",
         {
-            # 8 条消息 = 4 轮；窗口保留最近 3 轮（6 条），最早 1 轮（2 条）溢出压缩
             "history": [
                 {"role": "user", "content": "旧问题1"},
                 {"role": "assistant", "content": "旧回答1"},
@@ -421,9 +405,7 @@ def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> N
     ctx = AgentContext(user_input="继续", session_id="s-window")
     store.load_memory(ctx)
 
-    # 最早一轮被压缩进滚动摘要
     assert "旧问题1" in captured["compress_prompt"]
-    # 窗口保留最近 3 轮共 6 条
     assert captured["payload"]["recent_history"] == [
         {"role": "summary", "content": "压缩早期会话记忆：已有摘要 + 旧对话摘要"},
         {"role": "user", "content": "问题2"},
@@ -434,9 +416,6 @@ def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> N
         {"role": "assistant", "content": "最近补充"},
     ]
     assert ctx.history == captured["payload"]["recent_history"][1:]
-
-
-# —— 输出端：记忆总结节点 ——
 
 
 def test_save_memory_uses_unified_durable_summary_thread(monkeypatch) -> None:
@@ -507,12 +486,10 @@ def test_profile_update_merges_and_persists_when_valuable(monkeypatch) -> None:
 
     store._async_profile_update("s-profile", "我也喜欢华为，预算 3000-5000", "好的")
 
-    # 输入端把已有画像作为 UserProfile 传入
     assert captured["current"] == UserProfile(brand_preferences=["Apple"])
     merged = store.local_cache.get("s-profile")["user_profile"]
     assert merged["brand_preferences"] == ["Apple", "华为"]
     assert merged["price_range"] == "3000-5000 中端"
-    # 未变化维度保持原状（空）
     assert merged["historical_issues"] == []
     assert merged["tone_preference"] == ""
     assert captured["persisted"]["user_profile"] == merged
@@ -540,7 +517,6 @@ def test_profile_update_skips_when_no_valuable_info(monkeypatch) -> None:
 
     store._async_profile_update("s-noise", "今天天气不错", "是呀")
 
-    # 画像保持原状，未触发写库
     assert store.local_cache.get("s-noise")["user_profile"] == original
 
 
@@ -588,9 +564,6 @@ def test_memory_inspection_does_not_write_long_term_or_profile(monkeypatch) -> N
     store.save_memory(ctx)
 
     assert captured == {"long_term": 0, "profile_llm": 0}
-
-
-# —— 后端：语义召回 / 长期记忆入库 ——
 
 
 def test_recall_searches_by_authenticated_customer(monkeypatch) -> None:
@@ -662,7 +635,6 @@ def test_persist_long_term_memory_skips_when_not_worth_saving(monkeypatch) -> No
     monkeypatch.setattr(store, "_index_async", _boom_index)
     monkeypatch.setattr(store, "get_runtime", lambda: _FakeRuntime())
 
-    # 不抛异常即视为正确跳过
     store._persist_long_term_memory("s1", "你好", "你好", 1)
 
 
@@ -812,9 +784,6 @@ def test_qdrant_upsert_memory_writes_customer_identity(monkeypatch) -> None:
     assert point.payload["customer_no"] == "C007"
 
 
-# —— 按用户清理长期记忆 ——
-
-
 def test_purge_customer_memory_clears_all_layers(monkeypatch) -> None:
     store.local_cache.clear()
     store.local_cache.put("sA", {"history": [], "turns": 1})
@@ -843,12 +812,9 @@ def test_purge_customer_memory_clears_all_layers(monkeypatch) -> None:
 
     result = store.purge_customer_memory(customer_id=7, customer_no="C007")
 
-    # L1 热状态已清空
     assert store.local_cache.get("sA") is None
     assert store.local_cache.get("sB") is None
-    # L2 按会话逐个删除
     assert captured["redis_deleted"] == ["sA", "sB"]
-    # L3 / L4 按身份删除，消息快照按会话 id 清理
     assert captured["mysql_identity"] == (7, "C007")
     assert captured["qdrant"] == (7, "C007", ["sA", "sB"])
     assert result["sessions"] == 2
@@ -861,9 +827,6 @@ def test_purge_customer_memory_requires_identity() -> None:
 
     with pytest.raises(ValueError):
         store.purge_customer_memory()
-
-
-# —— 认证资料脱敏 ——
 
 
 def test_customer_profile_is_sanitized_before_memory_agent() -> None:

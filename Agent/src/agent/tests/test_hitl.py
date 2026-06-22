@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from agent.agents.hitl_guide import HitlGuideOutput
 from agent.agents.order import OrderAgent, PendingApproval, SpecialistRunResult
 from agent.agents.orchestrator import DecisionResult
 from agent.customer_agent import AgentContext, CustomerAgent, Task
@@ -24,6 +25,31 @@ class _FakeSummarize:
 
     async def run(self, _payload: str) -> str:
         return self.answer
+
+
+class _FakeHitlGuide:
+    async def run(
+        self,
+        *,
+        tool,
+        user_input,
+        args,
+        required_fields,
+        missing_fields,
+        default_instruction,
+    ) -> HitlGuideOutput:
+        reason = str(args.get("reason") or "")
+        if reason.startswith("用户"):
+            reason = reason.replace("用户", "我", 1)
+        elif reason and not reason.startswith("我"):
+            reason = f"我想反馈：{reason}"
+        if "reason" in missing_fields:
+            reason = ""
+        return HitlGuideOutput(
+            reason=reason,
+            guide_message=f"{tool} 表单引导",
+            instruction=f"{tool} 表单说明",
+        )
 
 
 class _FakeOrder(OrderAgent):
@@ -115,6 +141,7 @@ def _build_agent(order: _FakeOrder, answer: str = "最终回答") -> CustomerAge
         orchestrator=_FakeOrchestrator(decision),
         order_agent=order,
         summarize_agent=_FakeSummarize(answer),
+        hitl_guide_agent=_FakeHitlGuide(),
         memory_loader=lambda ctx: None,
         memory_saver=lambda ctx: None,
     )
@@ -141,8 +168,11 @@ def test_after_sale_suspends_with_pending_action() -> None:
     assert pending["kind"] == "tool_approval"
     assert pending["state"] == "awaiting_review"
     assert pending["args"]["orderNo"] == "O1"
+    assert pending["args"]["reason"] == "我想反馈：屏幕碎裂"
     assert pending["known_fields"]["orderNo"] == "O1"
+    assert pending["known_fields"]["reason"] == "我想反馈：屏幕碎裂"
     assert pending["required_fields"] == ["orderNo", "type", "reason"]
+    assert pending["guide_message"] == "createAfterSale 表单引导"
     # 挂起期间尚未续跑、尚未生成最终答复
     assert order.resume_calls == []
     assert ctx.pending_review is not None
@@ -158,6 +188,7 @@ def test_human_service_suspends_with_pending_action() -> None:
     agent = CustomerAgent(
         orchestrator=_FakeOrchestrator(decision),
         summarize_agent=_FakeSummarize("最终回答"),
+        hitl_guide_agent=_FakeHitlGuide(),
         memory_loader=lambda ctx: None,
         memory_saver=lambda ctx: None,
     )
@@ -183,8 +214,9 @@ def test_human_service_suspends_with_pending_action() -> None:
     assert pending["call_id"] == "call_human"
     assert pending["required_fields"] == ["reason"]
     assert pending["editable_fields"] == ["orderNo", "reason"]
-    assert pending["known_fields"]["reason"] == "用户要求人工处理"
-    assert "人工服务申请" in pending["instruction"]
+    assert pending["known_fields"]["reason"] == "我要求人工处理"
+    assert pending["guide_message"] == "createHumanService 表单引导"
+    assert pending["instruction"] == "createHumanService 表单说明"
 
 
 def test_human_request_directly_invokes_human_service_action() -> None:
@@ -205,6 +237,7 @@ def test_human_request_directly_invokes_human_service_action() -> None:
     agent = CustomerAgent(
         orchestrator=_FakeOrchestrator(decision),
         summarize_agent=_FakeSummarize("已为你转接人工客服"),
+        hitl_guide_agent=_FakeHitlGuide(),
         memory_loader=lambda ctx: None,
         memory_saver=lambda ctx: None,
     )
@@ -217,10 +250,11 @@ def test_human_request_directly_invokes_human_service_action() -> None:
     assert pending["tool"] == "createHumanService"
     assert pending["agent"] == "tool"
     assert pending["state"] == "awaiting_review"
-    assert pending["args"]["reason"] == "用户要求转人工处理退款"
+    assert pending["args"]["reason"] == "我要求转人工处理退款"
     assert pending["args"]["orderNo"] == "O1"
     assert pending["required_fields"] == ["reason"]
     assert pending["editable_fields"] == ["orderNo", "reason"]
+    assert pending["guide_message"] == "createHumanService 表单引导"
     # 直达人工服务动作：挂起待确认，且未跑任何专家任务
     assert ctx.pending_review is not None
     assert ctx.agent_results == {}

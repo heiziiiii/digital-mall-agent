@@ -1,6 +1,3 @@
-// 后端接口客户端（对接 docs/frontend-api.md）
-// 开发环境通过 vite 代理转发到 API 网关，避免跨域；
-// 也可用 VITE_API_BASE 指定绝对地址，例如 http://localhost:8002。
 const BASE_URL = (import.meta.env.VITE_API_BASE as string | undefined) ?? ''
 const AGENT_PREFIX = '/api/agent'
 const AUTH_PREFIX = '/api/auth'
@@ -79,9 +76,6 @@ export type CurrentUserResponse = {
   memberLevel: number
 }
 
-/* ----------------------------- 订单 / 售后 ----------------------------- */
-
-// 订单商品明细（对应后端 Orders.Item）
 export type OrderItem = {
   productNo: string
   productName: string
@@ -90,32 +84,26 @@ export type OrderItem = {
   quantity: number
 }
 
-// 物流轨迹节点（对应后端 Orders.Trace）
 export type LogisticsTrace = {
   time: string
   location?: string
   description: string
 }
 
-// 物流概况（对应后端 Orders.Logistics）
 export type Logistics = {
   company?: string
   trackingNo?: string
-  // 0待发 1已发 2运输中 3已签收 4异常
   status: number
   traces?: LogisticsTrace[]
 }
 
-// 订单（对应后端 Orders 实体）
 export type Order = {
   id: number
   orderNo: string
   customerId: number
   totalAmount: string | number
   payAmount: string | number
-  // 0待付款 1待发货 2待收货 3已完成 4已取消
   orderStatus: number
-  // 0未付 1已付 2已退款
   payStatus: number
   receiverName?: string
   receiverPhone?: string
@@ -126,26 +114,21 @@ export type Order = {
   updatedAt?: string
 }
 
-// 售后单（对应后端 AfterSale 实体）
 export type AfterSale = {
   id: number
   afterSaleNo: string
   orderNo: string
   customerId: number
-  // 1退货退款 2换货 3仅退款 4维修
   type: number
   reason?: string
-  // 0待审 1已通过 2已拒绝 3处理中 4已完成
   status: number
   remark?: string
   createdAt?: string
   updatedAt?: string
 }
 
-// 统一响应结构（除 /health 外）
 export type SessionResponse = {
   thread_id: string
-  // 记忆会话 ID：多轮对话复用，前端应保存并在同一聊天窗口的后续请求里回传
   session_id?: string
   status: SessionStatus
   final_answer: string
@@ -165,14 +148,13 @@ export type PendingAction = {
   required_fields?: string[]
   editable_fields?: string[]
   instruction?: string
+  guide_message?: string
 }
 
 export type ConfirmPayload =
   | { thread_id: string; approved: true; args?: Record<string, unknown> }
   | { thread_id: string; approved: false; regenerate?: boolean; message?: string }
 
-// 产品 Agent 的结构化推荐条目（来自 product_agent 节点 update.agent_results.product）。
-// 字段对应后端 src/prompts/skills/product/SKILL.md 约定的 JSON 输出。
 export type ProductRecommendation = {
   productNo: string
   name: string
@@ -182,7 +164,6 @@ export type ProductRecommendation = {
   reason: string
 }
 
-// 流式会话的最终结果：统一响应 + 本轮捕获到的结构化产品推荐
 export type StreamResult = SessionResponse & { products: ProductRecommendation[] }
 
 // 从可能带 ```json 围栏或前后杂字的文本里提取首个 JSON 对象
@@ -222,7 +203,7 @@ function parseProductRecommendations(update: Record<string, unknown>): ProductRe
       highlights: Array.isArray(r.highlights) ? r.highlights.map(String) : [],
       reason: String(r.reason ?? ''),
     }))
-    .filter((r) => r.name) // 名称为空的条目无法展示，丢弃
+    .filter((r) => r.name)
 }
 
 class ApiError extends Error {
@@ -315,20 +296,15 @@ export async function logout(): Promise<void> {
   }
 }
 
-/* ----------------------------- 订单 / 售后接口 ----------------------------- */
-
-// 我的订单列表（身份由网关注入的 X-Customer-Id 决定，只返回本人订单）
 export async function getMyOrders(): Promise<Order[]> {
   const data = await requestEnvelope<Order[] | null>(`${CUSTOMER_PREFIX}/orders`)
   return data ?? []
 }
 
-// 单个订单详情
 export function getOrderDetail(orderNo: string): Promise<Order> {
   return requestEnvelope<Order>(`${CUSTOMER_PREFIX}/orders/${encodeURIComponent(orderNo)}`)
 }
 
-// 下单入参：收货信息可选，数量缺省为 1
 export type CreateOrderInput = {
   productNo: string
   quantity?: number
@@ -338,7 +314,6 @@ export type CreateOrderInput = {
   receiverAddress?: string
 }
 
-// 立即下单：创建一笔「待付款」订单，返回新建订单
 export function createOrder(input: CreateOrderInput): Promise<Order> {
   return requestEnvelope<Order>(`${CUSTOMER_PREFIX}/orders`, {
     method: 'POST',
@@ -361,25 +336,21 @@ export function appendAgentMemory(input: {
   })
 }
 
-// 撤销订单（仅「待付款」订单可撤销，撤销后返回已取消的订单）
 export function cancelOrder(orderNo: string): Promise<Order> {
   return requestEnvelope<Order>(`${CUSTOMER_PREFIX}/orders/${encodeURIComponent(orderNo)}/cancel`, {
     method: 'POST',
   })
 }
 
-// 我的售后列表
 export async function getMyAfterSales(): Promise<AfterSale[]> {
   const data = await requestEnvelope<AfterSale[] | null>(`${CUSTOMER_PREFIX}/aftersales`)
   return data ?? []
 }
 
-// 单个售后单详情
 export function getAfterSaleDetail(afterSaleNo: string): Promise<AfterSale> {
   return requestEnvelope<AfterSale>(`${CUSTOMER_PREFIX}/aftersales/${encodeURIComponent(afterSaleNo)}`)
 }
 
-// 撤销售后申请（仅「待审核」售后单可撤销，撤销即删除该申请）
 export function cancelAfterSale(afterSaleNo: string): Promise<null> {
   return requestEnvelope<null>(`${CUSTOMER_PREFIX}/aftersales/${encodeURIComponent(afterSaleNo)}/cancel`, {
     method: 'POST',
@@ -394,7 +365,6 @@ function chatPayload(message: string, sessionId?: string, newSession = false) {
   }
 }
 
-// 1. 发送问题（开启新会话）
 export function runChat(
   message: string,
   options: { userId?: string; sessionId?: string; newSession?: boolean } = {},
@@ -405,10 +375,6 @@ export function runChat(
   })
 }
 
-// 1b. 发送问题（SSE 流式生成）
-// 服务端按 LangGraph 节点级粒度边执行边推送，无需轮询。
-
-// 节点中文标签：记忆提取 / 意图识别 / 产品咨询 / 技术支持 / 订单售后 / 生成回答 / 记忆保存
 export type StreamEvent =
   | { type: 'start'; thread_id: string; session_id?: string }
   | { type: 'stage'; stage: string; label: string; update: Record<string, unknown> }
@@ -430,8 +396,6 @@ function isPendingAction(value: unknown): value is PendingAction {
   return !!value && typeof value === 'object' && (value as PendingAction).state === 'awaiting_review'
 }
 
-// 返回 StreamResult（统一响应 + 捕获到的结构化产品推荐），可 await 拿到最终结果；
-// 过程中的节点进度通过 handlers 回调实时推送。传入 signal 可中断流。
 export async function streamChat(
   message: string,
   handlers: StreamHandlers = {},
@@ -508,7 +472,6 @@ export async function streamChat(
           break
         case 'node':
           handlers.onNode?.(evt.node, evt.label, evt.update)
-          // 捕获产品咨询节点返回的结构化商品推荐
           if (evt.node === 'product_agent') {
             const parsed = parseProductRecommendations(evt.update)
             if (parsed.length) {
@@ -537,7 +500,6 @@ export async function streamChat(
     }
   }
 
-  // 流正常结束但缺少 done/error 事件时兜底
   const base = result ?? {
     thread_id: threadId,
     session_id: memorySessionId,
@@ -548,7 +510,6 @@ export async function streamChat(
   return { ...base, products }
 }
 
-// 2. 暂停生成
 export function pauseChat(threadId: string): Promise<SessionResponse> {
   return request<SessionResponse>(`${AGENT_PREFIX}/pause`, {
     method: 'POST',
@@ -556,7 +517,6 @@ export function pauseChat(threadId: string): Promise<SessionResponse> {
   })
 }
 
-// 3. 恢复生成
 export function resumeChat(threadId: string): Promise<SessionResponse> {
   return request<SessionResponse>(`${AGENT_PREFIX}/resume`, {
     method: 'POST',
@@ -564,7 +524,6 @@ export function resumeChat(threadId: string): Promise<SessionResponse> {
   })
 }
 
-// 3b. 确认 / 取消 / 要求重新生成高风险写操作
 export function confirmAction(payload: ConfirmPayload): Promise<SessionResponse> {
   return request<SessionResponse>(`${AGENT_PREFIX}/confirm`, {
     method: 'POST',
@@ -572,12 +531,10 @@ export function confirmAction(payload: ConfirmPayload): Promise<SessionResponse>
   })
 }
 
-// 4. 查询会话状态 / 结果
 export function getSession(threadId: string): Promise<SessionResponse> {
   return request<SessionResponse>(`${AGENT_PREFIX}/sessions/${encodeURIComponent(threadId)}`)
 }
 
-// 5. 健康检查
 export function checkHealth(): Promise<{ status: string }> {
   return request<{ status: string }>(`${AGENT_PREFIX}/health`)
 }

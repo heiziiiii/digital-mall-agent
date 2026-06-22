@@ -1,89 +1,148 @@
-# 智能数码商城客服 Agent（PydanticAI 构建）
+# Python Agent 服务
 
-一个面向数码商城的多 Agent 客服系统，覆盖**产品推荐 / 订单查询 / 售后服务 / 常见问题解答**。
-基于 **PydanticAI** 多 Agent 协作，工具能力通过 **MCP（SSE）** 接入。
+这是智能客服系统的智能层，基于 PydanticAI 和 FastAPI 构建。它不直接保存商品、订单、售后等业务权威数据，而是通过 MCP 工具服务访问这些能力。
 
-本目录是一个**自包含的 Python 工程**：包代码在 [`agent/`](agent/)，入口为 [`main.py`](main.py)。
+## 核心能力
 
-## 多 Agent 运行链路
+- 接收前端或 Gateway 转发的客服请求。
+- 从历史会话和长期记忆中提取上下文。
+- 使用编排 Agent 生成专家任务计划。
+- 并发调用产品、技术、订单售后等专家 Agent。
+- 通过 MCP SSE 调用业务工具。
+- 对写操作返回待确认动作，等待用户确认后执行。
+- 将最终回答、会话状态和消息流水保存到记忆存储。
 
+## Agent 内部架构
+
+```mermaid
+graph TB
+    API[FastAPI<br/>/run /stream /pause /resume /confirm] --> CA[CustomerAgent]
+    CA --> MEM[Memory Extract Agent]
+    MEM --> ORCH[Orchestrator Agent]
+    ORCH --> TASKS[专家任务计划]
+
+    TASKS --> PROD[Product Agent]
+    TASKS --> TECH[Tech Agent]
+    TASKS --> ORDER[Order Agent]
+
+    PROD --> TOOLS[MCP Client]
+    TECH --> TOOLS
+    ORDER --> TOOLS
+
+    TOOLS --> MCP[MCP SSE Server]
+
+    PROD --> SUM[Summarize Agent]
+    TECH --> SUM
+    ORDER --> SUM
+
+    SUM --> REVIEW{待确认操作}
+    REVIEW -->|无| FINAL[最终回答]
+    REVIEW -->|有| PENDING[awaiting_review]
+
+    FINAL --> STORE[Memory Store]
+    PENDING --> API
 ```
-记忆提取 → 任务规划（LLM 产出带优先级/依赖的专家任务）
-        →（按依赖分波、波内并发执行专家 Agent：产品 / 技术 / 订单售后）
-        → 生成回答 → 记忆保存
-```
 
-采用「规划—并行执行」模式：编排 Agent（[`agent/agents/orchestrator.py`](agent/agents/orchestrator.py)）把输入分解为带
-`priority`（越小越优先）与 `depends_on` 的任务；客服主 Agent（[`agent/customer_agent.py`](agent/customer_agent.py)）按依赖
-分波，波内同优先级且互不依赖的任务用 `asyncio.gather` 并发执行。整体是一个**可流式、可在阶段/波次边界暂停/恢复**
-的同步生成器（[`agent/customer_agent.py`](agent/customer_agent.py)）；每完成一个阶段或专家任务即产出一条进度事件。
-
-## 目录说明
+## 运行链路
 
 ```text
-agent/
-├── config.py            # 配置（pydantic-settings，从 .env 读取）
-├── customer_agent.py    # 客服主 Agent：初始化子 Agent、编排、分波执行、汇总
-├── llm/model.py         # PydanticAI 模型工厂（OpenAI 兼容接口）
-├── tools/mcp_client.py  # MCP 工具集 + 按 Agent 过滤
-├── prompts/             # 提示词（SKILL.md）与加载器
-├── agents/              # PydanticAI 子 Agent 能力模块
-└── api/                 # FastAPI：/run /stream /pause /resume /confirm /sessions
+1. 接收用户消息
+2. 读取近期上下文与长期记忆
+3. 编排 Agent 生成任务计划
+4. 按 priority 和 depends_on 分波执行专家 Agent
+5. 每个专家 Agent 只能访问自己领域的 MCP 工具
+6. 汇总专家结果并生成最终回复
+7. 如需执行写操作，先返回 pending_action 等待用户确认
+8. 保存会话状态、消息流水和长期记忆
 ```
 
-## 快速开始
+## 主要模块
 
-> 以下命令均在本目录（`src/agent/`）下执行；`.env` 也位于本目录。
+| 路径 | 说明 |
+| --- | --- |
+| `main.py` | CLI 和 API 服务入口。 |
+| `agent/customer_agent.py` | 主客服 Agent，负责初始化子 Agent、任务分波、并发执行和汇总。 |
+| `agent/agents/orchestrator.py` | 编排 Agent，将用户诉求拆成专家任务。 |
+| `agent/agents/product.py` | 产品咨询和商品推荐 Agent。 |
+| `agent/agents/order.py` | 订单、物流、售后相关 Agent。 |
+| `agent/agents/tech.py` | 技术支持和知识库问答 Agent。 |
+| `agent/agents/memory_extract.py` | 会话记忆提取。 |
+| `agent/agents/summarize.py` | 多专家结果汇总。 |
+| `agent/tools/mcp_client.py` | MCP SSE 客户端和工具过滤。 |
+| `agent/api/` | FastAPI 路由、请求响应模型和后台运行器。 |
+| `agent/memory/` | 本地缓存、Redis、Qdrant、MySQL 记忆存储。 |
+| `agent/prompts/` | 各 Agent 的提示词和技能说明。 |
+| `tests/` | Agent 单元测试和运行时测试。 |
 
-依赖统一在 conda 环境 `ai` 中安装：
+## 配置
+
+在本目录创建 `.env`：
+
+```env
+OPENAI_API_KEY=sk-your-key
+OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
+OPENAI_MODEL=qwen-plus
+OPENAI_EXPERT_MODEL=qwen-turbo
+OPENAI_MEMORY_MODEL=qwen-turbo
+
+MCP_SERVER_URL=http://localhost:8080/sse
+
+REDIS_URL=redis://localhost:6379/0
+MYSQL_DSN=mysql+aiomysql://root:root@localhost:3307/digital_cs?charset=utf8mb4
+QDRANT_URL=http://localhost:6333
+QDRANT_COLLECTION=agent_memory
+
+AGENT_MAX_WORKERS=8
+AGENT_QUEUE_SIZE=32
+RUN_SESSION_TTL_SECONDS=1800
+RUN_REVIEW_TTL_SECONDS=900
+RUN_CLEANUP_INTERVAL_SECONDS=60
+```
+
+说明：
+
+- `OPENAI_MODEL` 用于主要回答和规划。
+- `OPENAI_EXPERT_MODEL` 可用于专家 Agent，适合配置更快的模型。
+- `OPENAI_MEMORY_MODEL` 可用于记忆提取和摘要。
+- `MCP_SERVER_URL` 必须指向 MCP 服务的 SSE 地址。
+- `MYSQL_DSN` 如果使用 MCP 的 compose，宿主机端口通常是 `3307`。
+
+## 运行
+
+安装依赖：
 
 ```bash
 conda activate ai
 pip install -r requirements.txt
 ```
 
-配置 `.env`（关键项）：
-
-```env
-OPENAI_API_KEY=...
-OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-OPENAI_MODEL=qwen-plus
-# 可选：高频节点使用更快/更便宜的轻量模型；不填则沿用 OPENAI_MODEL
-OPENAI_EXPERT_MODEL=qwen-turbo
-OPENAI_MEMORY_MODEL=qwen-turbo
-MCP_SERVER_URL=http://localhost:8081/sse
-# 后台执行池：限制 /run、/confirm、/resume 同时运行，避免高并发时无限创建线程
-AGENT_MAX_WORKERS=8
-AGENT_QUEUE_SIZE=32
-# 运行态清理：完成/错误会话保留 30 分钟，待确认操作 15 分钟超时
-RUN_SESSION_TTL_SECONDS=1800
-RUN_REVIEW_TTL_SECONDS=900
-RUN_CLEANUP_INTERVAL_SECONDS=60
-```
-
-运行 CLI：
-
-```bash
-python main.py --once "推荐一款拍照好的手机"   # 单次问答
-python main.py --chat                          # 多轮对话窗口（记忆跨轮累积）
-python main.py --stream "查一下我的订单"        # 单次，逐阶段流式打印
-```
-
 启动 API 服务：
 
 ```bash
-python main.py --serve            # 默认 127.0.0.1:8001
+python main.py --serve
 ```
 
-接口文档见 [`docs/api.md`](docs/api.md)，工具清单见 [`docs/tool.md`](docs/tool.md)。
-生产环境建议通过同级的 [`../api-gateway/`](../api-gateway/) 统一入口对外暴露。
+CLI 调试：
 
-## 设计说明
+```bash
+python main.py --once "推荐一款拍照好的手机"
+python main.py --stream "查一下我的订单物流"
+python main.py --chat
+```
 
-- **流程精简**：主 Agent 当前不接入安全审核阶段，生成回答后直接进入记忆保存。
-- **工具隔离**：每个专家 Agent 仅能看到自己领域的 MCP 工具（定义层面过滤）。
-- **防幻觉**：产品推荐会对照工具原始返回做事实校验，剔除无据可依的条目。
-- **记忆**：本地缓存保存热数据，Redis 保存温数据（近期历史、滚动摘要、当前任务状态等），Qdrant 保存可回源的会话/消息快照与长期语义记忆，MySQL 保存最终会话状态与消息流水；写入先更新缓存，再异步落 Qdrant/MySQL。
+## API
+
+| 接口 | 说明 |
+| --- | --- |
+| `POST /run` | 单次非流式问答。 |
+| `POST /stream` | SSE 流式问答。 |
+| `POST /pause` | 暂停会话。 |
+| `POST /resume` | 恢复会话。 |
+| `POST /confirm` | 确认或拒绝待执行动作。 |
+| `GET /sessions/{thread_id}` | 查询运行状态。 |
+| `GET /health` | 健康检查。 |
+
+更详细的接口字段见 [`docs/api.md`](docs/api.md)。
 
 ## 测试
 

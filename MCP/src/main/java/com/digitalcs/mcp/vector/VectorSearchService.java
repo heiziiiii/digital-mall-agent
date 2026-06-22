@@ -52,28 +52,22 @@ import static io.qdrant.client.WithPayloadSelectorFactory.enable;
 @RequiredArgsConstructor
 public class VectorSearchService {
 
-    /** metadata 字段：标记数据类型（商品详情 / 售后知识），随 payload 写入仅作溯源，检索分区已由集合承担 */
     public static final String TYPE = "type";
-    /** metadata 字段：业务主键（商品=productNo，知识=自增序号） */
     public static final String BIZ_ID = "bizId";
     public static final String TYPE_PRODUCT = "product";
     public static final String TYPE_KNOWLEDGE = "knowledge";
 
-    /** 命名向量：dense=DashScope 语义向量，sparse=jieba 词频关键词向量 */
     private static final String DENSE = "dense";
     private static final String SPARSE = "sparse";
-    /** DashScope text-embedding-v3 维度 */
     private static final long DENSE_DIM = 1024L;
 
     private final QdrantClient qdrantClient;
     private final EmbeddingModel embeddingModel;
     private final SparseVectorizer sparseVectorizer;
 
-    /** 商品详情集合名 */
     @org.springframework.beans.factory.annotation.Value("${app.qdrant.product-collection:digital_cs_products}")
     private final String productCollection;
 
-    /** 售后知识集合名 */
     @org.springframework.beans.factory.annotation.Value("${app.qdrant.knowledge-collection:digital_cs_knowledge}")
     private final String knowledgeCollection;
 
@@ -81,7 +75,6 @@ public class VectorSearchService {
     @org.springframework.beans.factory.annotation.Value("${spring.ai.dashscope.api-key:}")
     private final String dashScopeApiKey;
 
-    /** type → 对应集合：商品与知识各自独立 collection，集合即分区，不再共用、不再靠 payload.type 过滤。 */
     private String collectionOf(String type) {
         return TYPE_KNOWLEDGE.equals(type) ? knowledgeCollection : productCollection;
     }
@@ -91,13 +84,11 @@ public class VectorSearchService {
         return StringUtils.hasText(dashScopeApiKey) && !dashScopeApiKey.startsWith("sk-dummy");
     }
 
-    /** 商品 + 知识两个集合均按需创建（不存在才建）。供灌库前调用，失败仅记日志。 */
     public void ensureCollections() {
         ensureCollection(productCollection);
         ensureCollection(knowledgeCollection);
     }
 
-    /** 单个集合不存在则创建：dense(1024/COSINE) + sparse(IDF) 双命名向量。失败仅记日志。 */
     private void ensureCollection(String collectionName) {
         try {
             if (Boolean.TRUE.equals(qdrantClient.collectionExistsAsync(collectionName).get())) {
@@ -122,13 +113,11 @@ public class VectorSearchService {
         }
     }
 
-    /** 删除商品 + 知识两个集合(连同全部点)；用于重置，重灌前由 ensureCollections 重建。失败仅记日志。 */
     public void deleteCollections() {
         deleteCollection(productCollection);
         deleteCollection(knowledgeCollection);
     }
 
-    /** 删除单个集合(连同全部点)；集合不存在或不可用时仅记日志，不抛错。 */
     private void deleteCollection(String collectionName) {
         try {
             if (Boolean.TRUE.equals(qdrantClient.collectionExistsAsync(collectionName).get())) {
@@ -141,12 +130,10 @@ public class VectorSearchService {
         }
     }
 
-    /** 统计某类型(product/knowledge)所在集合的向量点数；Qdrant 不可用时抛出由调用方处理。供启动自动灌库判断是否已加载。 */
     public long count(String type) throws Exception {
         return qdrantClient.countAsync(collectionOf(type)).get();
     }
 
-    /** 按类型混合检索，返回命中的 Document（含 payload metadata），按 RRF 融合分排序；不可用时返回空。 */
     public List<Document> search(String type, String query, int topK) {
         return search(type, query, topK, null);
     }
@@ -157,7 +144,6 @@ public class VectorSearchService {
      */
     public List<Document> search(String type, String query, int topK, Map<String, String> equalsFilters) {
         String collectionName = collectionOf(type);
-        // 集合即分区，无需 type 过滤；仅按业务等值条件下推
         Filter.Builder fb = Filter.newBuilder();
         if (equalsFilters != null) {
             equalsFilters.forEach((k, v) -> {
@@ -168,7 +154,6 @@ public class VectorSearchService {
         }
         Filter filter = fb.build();
 
-        // query 为空：仅按类目/品牌等过滤浏览（无向量打分）
         if (!StringUtils.hasText(query)) {
             return filterOnly(collectionName, filter, topK);
         }
@@ -180,7 +165,6 @@ public class VectorSearchService {
                 .setWithPayload(enable(true));
 
         boolean hasSignal = false;
-        // sparse 关键词通道：query 切词非空即下发（嵌入不可用时这是唯一通道 → 纯关键词检索）
         SparseVectorizer.Sparse sp = sparseVectorizer.toSparse(query);
         if (!sp.isEmpty()) {
             qb.addPrefetch(PrefetchQuery.newBuilder()
@@ -188,7 +172,6 @@ public class VectorSearchService {
                     .setUsing(SPARSE).setFilter(filter).setLimit(topK * 4L).build());
             hasSignal = true;
         }
-        // dense 语义通道：仅在嵌入模型可用时下发
         if (embeddingEnabled()) {
             qb.addPrefetch(PrefetchQuery.newBuilder()
                     .setQuery(nearest(toFloatList(embeddingModel.embed(query))))
@@ -208,7 +191,6 @@ public class VectorSearchService {
         }
     }
 
-    /** 纯过滤浏览：无向量查询，仅按 filter 返回最多 topK 条（用于 query 为空、仅按类目/品牌筛选）。 */
     private List<Document> filterOnly(String collectionName, Filter filter, int topK) {
         try {
             List<ScoredPoint> points = qdrantClient.queryAsync(QueryPoints.newBuilder()
@@ -225,13 +207,11 @@ public class VectorSearchService {
         }
     }
 
-    /** 按业务主键取单条 Document（用于按 productNo 取商品详情）；未命中或不可用时返回 null。 */
     public Document fetchByBizId(String type, String bizId) {
         if (!StringUtils.hasText(bizId)) {
             return null;
         }
         try {
-            // 纯 payload 过滤（无向量查询）取首条；集合已按类型分区，仅需匹配 bizId
             List<ScoredPoint> points = qdrantClient.queryAsync(QueryPoints.newBuilder()
                     .setCollectionName(collectionOf(type))
                     .setFilter(Filter.newBuilder()
@@ -293,7 +273,6 @@ public class VectorSearchService {
         }
     }
 
-    /** ScoredPoint 的 payload(Map<String,Value>) → Document（text 取标题/名称占位，业务字段进 metadata）。 */
     private Document toDocument(Map<String, Value> payloadMap) {
         Map<String, Object> metadata = new LinkedHashMap<>();
         payloadMap.forEach((k, v) -> metadata.put(k, fromValue(v)));
@@ -304,7 +283,6 @@ public class VectorSearchService {
                 .build();
     }
 
-    /** Qdrant Value → Java 对象（payload 全部以字符串写入，少量数值/布尔做兜底）。 */
     private Object fromValue(Value v) {
         return switch (v.getKindCase()) {
             case STRING_VALUE -> v.getStringValue();
@@ -315,7 +293,6 @@ public class VectorSearchService {
         };
     }
 
-    /** type:bizId 派生稳定 UUID 作为 point id，保证重灌库覆盖同一条而非新增。 */
     private UUID stableUuid(String type, String bizId) {
         return UUID.nameUUIDFromBytes((type + ":" + bizId).getBytes(StandardCharsets.UTF_8));
     }
@@ -328,7 +305,6 @@ public class VectorSearchService {
         return list;
     }
 
-    /** 一条待写入向量库的记录。 */
     public record Record(String bizId, String text, Map<String, Object> payload) {
     }
 }

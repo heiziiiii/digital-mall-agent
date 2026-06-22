@@ -27,13 +27,11 @@ public class CustomerSelfController {
     private final OrderService orderService;
     private final AfterSaleService afterSaleService;
 
-    /** 当前用户的订单列表（按创建时间倒序）。 */
     @GetMapping("/orders")
     public ApiResponse<Object> myOrders(@RequestHeader(value = "X-Customer-Id", required = false) Long userId) {
         return list(orderService.listMyOrders(userId), "orders");
     }
 
-    /** 当前用户某一订单的详情（含明细、物流、收货信息）。 */
     @GetMapping("/orders/{orderNo}")
     public ApiResponse<Object> orderDetail(
             @RequestHeader(value = "X-Customer-Id", required = false) Long userId,
@@ -41,13 +39,11 @@ public class CustomerSelfController {
         return detail(orderService.queryByOrderNo(orderNo, userId), "order");
     }
 
-    /** 当前用户的售后列表（按创建时间倒序）。 */
     @GetMapping("/aftersales")
     public ApiResponse<Object> myAfterSales(@RequestHeader(value = "X-Customer-Id", required = false) Long userId) {
         return list(afterSaleService.listMyAfterSales(userId), "afterSales");
     }
 
-    /** 当前用户某一售后单的详情。 */
     @GetMapping("/aftersales/{afterSaleNo}")
     public ApiResponse<Object> afterSaleDetail(
             @RequestHeader(value = "X-Customer-Id", required = false) Long userId,
@@ -55,7 +51,6 @@ public class CustomerSelfController {
         return detail(afterSaleService.queryByNo(afterSaleNo, userId), "afterSale");
     }
 
-    /** 下单：创建一笔「待付款」订单（数量缺省为 1），扣减库存后写入。 */
     @PostMapping("/orders")
     public ApiResponse<Object> createOrder(
             @RequestHeader(value = "X-Customer-Id", required = false) Long userId,
@@ -66,7 +61,6 @@ public class CustomerSelfController {
                 req.receiverName(), req.receiverPhone(), req.receiverAddress()), "order");
     }
 
-    /** 撤销订单：仅「待付款」订单可撤销，撤销后置为已取消。 */
     @PostMapping("/orders/{orderNo}/cancel")
     public ApiResponse<Object> cancelOrder(
             @RequestHeader(value = "X-Customer-Id", required = false) Long userId,
@@ -74,7 +68,6 @@ public class CustomerSelfController {
         return action(orderService.cancelOrder(orderNo, userId), "order");
     }
 
-    /** 撤销售后：仅「待审核」售后单可撤销，撤销即删除该申请。 */
     @PostMapping("/aftersales/{afterSaleNo}/cancel")
     public ApiResponse<Object> cancelAfterSale(
             @RequestHeader(value = "X-Customer-Id", required = false) Long userId,
@@ -82,7 +75,6 @@ public class CustomerSelfController {
         return action(afterSaleService.cancel(afterSaleNo, userId), null);
     }
 
-    /** 列表类结果：Service 已鉴权，authorized=true 时取出列表，否则按无权访问返回。 */
     private ApiResponse<Object> list(Map<String, Object> result, String dataKey) {
         if (Boolean.TRUE.equals(result.get("authorized"))) {
             return ApiResponse.ok(result.get(dataKey));
@@ -90,7 +82,6 @@ public class CustomerSelfController {
         return ApiResponse.error(403, message(result, "无权访问"));
     }
 
-    /** 详情类结果：found=true 取出数据；未找到或越权按 404 返回（不区分以免泄露归属）。 */
     private ApiResponse<Object> detail(Map<String, Object> result, String dataKey) {
         if (Boolean.TRUE.equals(result.get("found"))) {
             return ApiResponse.ok(result.get(dataKey));
@@ -120,7 +111,6 @@ public class CustomerSelfController {
         return message == null ? fallback : String.valueOf(message);
     }
 
-    /** 下单请求体：收货信息可选，缺省按空字符串处理。 */
     public record CreateOrderRequest(
             String productNo,
             Integer quantity,

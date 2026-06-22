@@ -143,7 +143,8 @@ def test_after_sale_hitl_constraints_are_in_skills() -> None:
     assert "`tech` 改写方向" in orchestrate_prompt
     assert "避免重复完整追问" in orchestrate_prompt
     assert "本轮 `query` 应明确" in orchestrate_prompt
-    assert "应先规划 `order` 查询最近购买订单以消解商品名称/型号" in orchestrate_prompt
+    assert "有明确信息时直接获取实体" in orchestrate_prompt
+    assert "不要仅因“最近买的商品”这类模糊表达就强行查询最近订单" in orchestrate_prompt
     assert "`tech` 依赖订单方向" in orchestrate_prompt
     assert "人工服务不是专家任务" in orchestrate_prompt
     assert "human_service" not in orchestrate_prompt
@@ -201,8 +202,8 @@ def test_multi_task_keeps_priority_and_dependency(monkeypatch) -> None:
     ]
 
 
-def test_recent_purchase_tech_issue_inserts_order_lookup(monkeypatch) -> None:
-    """“最近买的手机发烫”应先查最近订单消解机型，再把订单结果交给技术专家。"""
+def test_recent_purchase_tech_issue_does_not_invent_order_lookup(monkeypatch) -> None:
+    """“最近买的手机发烫”不应由本地规则强制插入订单查询。"""
     fake = FakeOrchestratorAgent(
         [
             TaskSpec(
@@ -220,13 +221,9 @@ def test_recent_purchase_tech_issue_inserts_order_lookup(monkeypatch) -> None:
 
     result = asyncio.run(agent.decide(ctx))
 
-    assert result.intent == "order"
-    assert [(task.agent, task.depends_on) for task in result.tasks] == [
-        ("order", []),
-        ("tech", ["order"]),
-    ]
-    assert "最近购买的手机订单" in result.tasks[0].query
-    assert "基于订单专家返回" in result.tasks[1].query
+    assert result.intent == "tech"
+    assert [(task.agent, task.depends_on) for task in result.tasks] == [("tech", [])]
+    assert result.tasks[0].query == "排查用户最近买的手机发烫问题。"
 
 
 def test_human_service_is_inferred_from_complaint_context(monkeypatch) -> None:
@@ -271,7 +268,7 @@ def test_explicit_human_request_plans_human_service(monkeypatch) -> None:
 
 
 def test_llm_marked_human_service_is_planned(monkeypatch) -> None:
-    """LLM 已显式标注 human_service.needed=True 时，规划应原样产出该人工服务计划。"""
+    """LLM 已显式标注 human_service.needed=True 时，编排器只产出原始人工服务计划。"""
     fake = FakeHumanServiceOrchestratorAgent(
         tasks=[],
         human_service=HumanServiceSpec(

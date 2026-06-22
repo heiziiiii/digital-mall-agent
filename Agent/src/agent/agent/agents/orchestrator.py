@@ -36,30 +36,6 @@ logger = logging.getLogger(__name__)
 _VALID_INTENTS = ("product", "tech", "order", "chat")
 _VALID_AGENTS = ("order", "tech", "product")
 
-_RECENT_PURCHASE_HINTS = (
-    "最近买",
-    "刚买",
-    "新买",
-    "才买",
-    "买的这个",
-    "买的那个",
-)
-_PRODUCT_HINTS = (
-    "手机",
-    "电脑",
-    "平板",
-    "耳机",
-    "手表",
-    "相机",
-    "键盘",
-    "鼠标",
-    "充电器",
-    "数据线",
-    "商品",
-    "产品",
-)
-
-
 @dataclass
 class DecisionResult:
     """编排结果：主意图 + 任务计划（带优先级/依赖）+ 规划模式。"""
@@ -166,58 +142,6 @@ def _normalize_tasks(specs: list[TaskSpec]) -> list[Task]:
     return tasks
 
 
-def _should_resolve_recent_purchase(payload: dict[str, Any], tasks: list[Task]) -> bool:
-    """识别“最近/刚买的商品 + 技术问题”场景，需要先通过订单消解商品。"""
-    if any(task.agent == "order" for task in tasks):
-        return False
-    if not any(task.agent == "tech" for task in tasks):
-        return False
-
-    text = "\n".join(
-        str(payload.get(key, "") or "") for key in ("user_input", "background_summary")
-    )
-    if not any(hint in text for hint in _RECENT_PURCHASE_HINTS):
-        return False
-    return any(hint in text for hint in _PRODUCT_HINTS)
-
-
-def _ensure_recent_purchase_order_lookup(
-    payload: dict[str, Any],
-    tasks: list[Task],
-) -> list[Task]:
-    """LLM 漏编排订单消解时，本地补上 order -> tech 依赖。"""
-    if not _should_resolve_recent_purchase(payload, tasks):
-        return tasks
-
-    from agent.customer_agent import Task  # 惰性导入，规避运行时循环
-
-    order_task = Task(
-        agent="order",
-        priority=0,
-        query=(
-            "查询当前认证用户最近购买的相关商品订单，优先定位最近购买的手机订单；"
-            "请返回可用于后续技术排查的商品名称、型号、订单号和必要订单状态。"
-        ),
-        reason="用户以“最近买的商品”指代故障对象，需要先通过订单查询消解具体商品。",
-        confidence=0.95,
-    )
-
-    next_tasks = [order_task]
-    for task in tasks:
-        if task.agent == "tech":
-            task.priority = max(task.priority, 10)
-            task.depends_on = list(dict.fromkeys([*task.depends_on, "order"]))
-            if "订单专家" not in task.query and "前序" not in task.query:
-                task.query = (
-                    "基于订单专家返回的最近购买商品名称/型号，排查用户反馈的发烫问题；"
-                    "若订单结果仍无法唯一定位商品，再补问最关键缺失信息。"
-                )
-        next_tasks.append(task)
-
-    next_tasks.sort(key=lambda t: t.priority)
-    return next_tasks
-
-
 def _primary_intent(tasks: list[Task], human_service: dict[str, Any] | None = None) -> str:
     """保留兼容用的单一 ``intent`` 字段：取最高优先级任务的域。"""
     return tasks[0].agent if tasks else ("order" if human_service else "chat")
@@ -269,7 +193,11 @@ def _infer_human_service(payload: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     order_match = re.search(r"\bO\d{8,}\b", text)
-    reason = str(payload.get("background_summary") or payload.get("user_input") or "用户需要人工进一步处理").strip()
+    reason = str(
+        payload.get("background_summary")
+        or payload.get("user_input")
+        or "用户需要人工进一步处理"
+    ).strip()
     return {
         "reason": reason[:200],
         "orderNo": order_match.group(0) if order_match else "",
@@ -351,7 +279,6 @@ class OrchestratorAgent:
         prompt = _build_decision_context(user_input)
         result = await timed_agent_run(self._get_agent(), prompt, "任务编排")
         tasks = _normalize_tasks(result.output.tasks)
-        tasks = _ensure_recent_purchase_order_lookup(payload, tasks)
         human_service = _normalize_human_service(
             getattr(result.output, "human_service", None)
         ) or _infer_human_service(payload)

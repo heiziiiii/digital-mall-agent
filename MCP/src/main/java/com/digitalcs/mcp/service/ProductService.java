@@ -38,10 +38,8 @@ public class ProductService {
     public List<Map<String, Object>> search(String query, String category, String brand,
                                              BigDecimal minPrice, BigDecimal maxPrice,
                                              ProductSortBy sortBy, int limit) {
-        // 未指定排序时：有关键词按相关度，无关键词(纯浏览)按发布时间最近优先。
         ProductSortBy sort = sortBy != null ? sortBy
                 : (StringUtils.hasText(query) ? ProductSortBy.relevance : ProductSortBy.newest);
-        // 价格过滤与排序在内存完成，需多召回候选；数据集小，给足上限即可。
         int pool = Math.max(limit * 4, 20);
         Map<String, String> filters = new LinkedHashMap<>();
         if (StringUtils.hasText(category)) {
@@ -71,7 +69,6 @@ public class ProductService {
         return merged.size() > limit ? merged.subList(0, limit) : merged;
     }
 
-    /** 价格区间判断；未指定区间则全通过，指定了区间但无价格数据则排除。 */
     private boolean priceInRange(BigDecimal price, BigDecimal min, BigDecimal max) {
         if (min == null && max == null) {
             return true;
@@ -85,7 +82,6 @@ public class ProductService {
         return max == null || price.compareTo(max) <= 0;
     }
 
-    /** 按排序方式就地排序；relevance 保持 Qdrant 融合相关度顺序，无价格/库存数据排最后。 */
     private void sortInPlace(List<Map<String, Object>> items, ProductSortBy sort) {
         switch (sort) {
             case price_asc -> items.sort(Comparator.comparing(
@@ -94,14 +90,12 @@ public class ProductService {
                     m -> (BigDecimal) m.get("price"), Comparator.nullsLast(Comparator.reverseOrder())));
             case stock_desc -> items.sort(Comparator.comparing(
                     m -> (Integer) m.get("stock"), Comparator.nullsLast(Comparator.reverseOrder())));
-            // publishedAt 为 ISO 日期串，字典序即时间序，倒序 = 最近优先
             case newest -> items.sort(Comparator.comparing(
                     m -> (String) m.get("publishedAt"), Comparator.nullsLast(Comparator.reverseOrder())));
             case relevance -> { /* 保持召回相关度顺序 */ }
         }
     }
 
-    /** 按商品编号查询详情：Qdrant 详情/价格 + MySQL 库存合并；未找到返回 found=false。 */
     public Map<String, Object> getDetail(String productNo) {
         Product stock = findByNo(productNo);
         Document detail = vectorSearchService.fetchByBizId(TYPE_PRODUCT, productNo);
@@ -142,7 +136,6 @@ public class ProductService {
         return m;
     }
 
-    /** Qdrant payload 中的价格字符串 → BigDecimal；空或非法返回 null。 */
     private static BigDecimal parsePrice(Object v) {
         if (v == null) {
             return null;

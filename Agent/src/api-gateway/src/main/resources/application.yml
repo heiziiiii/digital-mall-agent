@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: api-gateway
-  # 响应式 MySQL（R2DBC）：登录校验 customer 表。连接参数默认取 docs/server.md
   r2dbc:
     url: ${MYSQL_R2DBC_URL:r2dbc:mysql://localhost:3307/digital_cs?useServerPrepareStatement=true}
     username: ${MYSQL_USERNAME:}
@@ -12,16 +11,13 @@ spring:
     pool:
       initial-size: 2
       max-size: 10
-  # 响应式 Redis：存储登录会话 token
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
-      # server.md 中 Redis 无密码；如有密码用环境变量 REDIS_PASSWORD 注入
       password: ${REDIS_PASSWORD:}
   cloud:
     gateway:
-      # 全局跨域配置：开发环境放行所有来源，生产请收敛到具体域名
       globalcors:
         cors-configurations:
           '[/**]':
@@ -32,9 +28,7 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
             maxAge: 3600
-      # 路由规则：把 /api/agent/** 转发到后端 Python Agent 服务
       routes:
-        # 流式接口（SSE）：放前面优先匹配；按用户 ID 限流后剥离前缀转发
         - id: agent-stream
           uri: ${AGENT_SERVICE_URI:http://127.0.0.1:8001}
           predicates:
@@ -43,13 +37,10 @@ spring:
             - StripPrefix=2
             - name: RequestRateLimiter
               args:
-                # Spring Cloud Gateway 自带的 Redis 令牌桶限流器
                 redis-rate-limiter.replenishRate: 20
                 redis-rate-limiter.burstCapacity: 40
                 redis-rate-limiter.requestedTokens: 1
-                # 限流粒度 = 用户 ID（JWT 认证后的 principal），见 userKeyResolver
                 key-resolver: "#{@userKeyResolver}"
-        # 客服业务接口（/run /pause /resume /confirm /sessions 等），剥离 /api/agent 前缀后转发
         - id: agent-service
           uri: ${AGENT_SERVICE_URI:http://127.0.0.1:8001}
           predicates:
@@ -62,7 +53,6 @@ spring:
                 redis-rate-limiter.burstCapacity: 40
                 redis-rate-limiter.requestedTokens: 1
                 key-resolver: "#{@userKeyResolver}"
-        # 客户自助接口（我的订单 / 我的售后），直连 MCP 服务端 REST，路径保持 /api/customer 不剥离前缀
         - id: customer-service
           uri: ${MCP_SERVICE_URI:http://127.0.0.1:8081}
           predicates:
@@ -74,29 +64,21 @@ spring:
                 redis-rate-limiter.burstCapacity: 40
                 redis-rate-limiter.requestedTokens: 1
                 key-resolver: "#{@userKeyResolver}"
-      # 后端 SSE 长连接：放大超时，避免流式响应被网关提前掐断
       httpclient:
         connect-timeout: 5000
         response-timeout: 300s
 
-# JWT 配置（由 JwtService / SecurityConfig 读取）
 gateway:
   jwt:
     # HS256 签名密钥，长度需 >= 32 字节；默认不提供，启动时校验必须由环境变量 JWT_SECRET 注入
     secret: ${JWT_SECRET:}
-    # token 有效期，支持 Duration 写法：2h / 30m / 1d
     ttl: 2h
-    # 签发者标识
     issuer: api-gateway
   memory:
     # Agent 记忆最终记录使用 spring.r2dbc 指向的 MySQL；
     # Qdrant 由 Python Agent 侧用于记忆快照和长期语义召回。
   security:
-    # 默认强校验 JWT_SECRET 必须来自环境变量；测试可显式关闭
     require-env-jwt-secret: ${REQUIRE_ENV_JWT_SECRET:true}
-
-# 说明：限流已改用 Spring Cloud Gateway 自带的 RequestRateLimiter + RedisRateLimiter，
-# 配置在上面各路由的 filters 中；限流粒度为用户 ID（见 userKeyResolver）。
 
 management:
   endpoints:

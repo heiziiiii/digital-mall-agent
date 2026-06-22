@@ -5,6 +5,7 @@
 
 from agent.agents.memory_extract import MemoryExtractAgent
 from agent.agents.memory_summary import MemorySummaryAgent
+from agent.agents.hitl_guide import HitlGuideAgent
 from agent.agents.orchestrator import OrchestratorAgent
 from agent.agents.order import OrderAgent
 from agent.agents.product import ProductAgent
@@ -14,6 +15,7 @@ from agent.agents.tech import TechAgent
 __all__ = [
     "MemoryExtractAgent",
     "MemorySummaryAgent",
+    "HitlGuideAgent",
     "OrchestratorAgent",
     "OrderAgent",
     "ProductAgent",

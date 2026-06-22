@@ -42,11 +42,6 @@ public class AuthService {
         this.loginLogService = loginLogService;
     }
 
-    /**
-     * 登录：校验手机号 + 密码，成功则签发 JWT。
-     *
-     * @return 成功返回 {@link LoginResponse}；手机号不存在或密码错误返回 {@link Mono#empty()}
-     */
     public Mono<LoginResponse> login(String phone, String password, String ipAddress, String userAgent) {
         String account = phone == null ? null : phone.trim();
         if (account == null || account.isBlank() || password == null) {
@@ -90,10 +85,6 @@ public class AuthService {
                         account, customer, ipAddress, userAgent, issued.jti()).thenReturn(response));
     }
 
-    /**
-     * 登出：把 token 的 jti 加入黑名单（TTL=距过期剩余时间）。
-     * token 已过期或无效则无需拉黑，直接返回 false。
-     */
     public Mono<Boolean> logout(String token) {
         if (token == null || token.isBlank()) {
             return Mono.just(false);

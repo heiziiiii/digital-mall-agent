@@ -315,6 +315,7 @@ def test_product_recommendation_always_uses_summarize(monkeypatch) -> None:
     assert stages == ["memory_load", "decide", "product_agent", "summarize", "memory_save"]
     assert seen_payloads
     assert '"current_emotion": "焦急"' in seen_payloads[0]
+    assert '"response_style": "先给结论和可立即执行的下一步，表达简短直接，避免长篇铺垫。"' in seen_payloads[0]
     assert '\\"match_score\\":92' in seen_payloads[0]
     assert "苹果 iPhone 15 Pro" in ctx.final_answer
     assert "契合度 92%" in ctx.final_answer

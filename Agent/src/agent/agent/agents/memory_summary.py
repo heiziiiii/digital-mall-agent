@@ -219,16 +219,3 @@ class MemorySummaryAgent:
         """兼容旧调用：从统一记忆总结中取长期记忆部分。"""
         summary = await self.summarize_turn(UserProfile(), user_input, final_answer)
         return summary.long_term_memory
-
-
-__all__ = [
-    "ExtractedEntity",
-    "LongTermMemoryDraft",
-    "MemorySummary",
-    "MemorySummaryAgent",
-    "ProfileUpdate",
-    "TextGenerationOutput",
-    "UserAttitude",
-    "UserEntityRelation",
-    "UserProfile",
-]

@@ -9,6 +9,7 @@ from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from agent.agents.hitl_guide import HitlGuideAgent
 from agent.agents.order import OrderAgent, PendingApproval, SpecialistRunResult
 from agent.agents.orchestrator import OrchestratorAgent
 from agent.agents.product import ProductAgent
@@ -85,6 +86,19 @@ STAGE_LABELS: dict[str, str] = {
     "memory_save": "记忆保存",
 }
 
+
+_EMOTION_RESPONSE_STYLE: dict[str, str] = {
+    "焦急": "先给结论和可立即执行的下一步，表达简短直接，避免长篇铺垫。",
+    "困惑": "降低信息密度，分步骤解释关键原因和下一步，避免术语堆叠。",
+    "愤怒/不满": "先承认不便和诉求，再给处理路径；语气克制，不辩解、不推责。",
+    "满意/感谢": "简短回应感谢并自然收束，不追加销售、查询或办理暗示。",
+}
+
+
+def _response_style_for_emotion(emotion: str) -> str:
+    return _EMOTION_RESPONSE_STYLE.get(emotion.strip(), "")
+
+
 def _default_load_memory(ctx: AgentContext) -> None:
     """惰性导入记忆模块，避免只使用调度能力时加载存储后端依赖。"""
     from agent.memory import load_memory
@@ -109,6 +123,7 @@ class CustomerAgent:
         tech_agent: TechAgent | None = None,
         order_agent: OrderAgent | None = None,
         summarize_agent: SummarizeAgent | None = None,
+        hitl_guide_agent: HitlGuideAgent | None = None,
         memory_loader: Callable[[AgentContext], None] | None = None,
         memory_saver: Callable[[AgentContext], None] | None = None,
     ) -> None:
@@ -119,6 +134,7 @@ class CustomerAgent:
             "order": order_agent or OrderAgent(),
         }
         self.summarize_agent = summarize_agent or SummarizeAgent()
+        self.hitl_guide_agent = hitl_guide_agent or HitlGuideAgent()
         self.memory_loader = memory_loader or _default_load_memory
         self.memory_saver = memory_saver or _default_save_memory
 
@@ -170,12 +186,16 @@ class CustomerAgent:
             "update": update,
         }
 
-    @staticmethod
-    def _pending_action(agent_name: str, output: SpecialistRunResult) -> dict[str, Any]:
+    async def _pending_action(
+        self,
+        agent_name: str,
+        output: SpecialistRunResult,
+        ctx: AgentContext,
+    ) -> dict[str, Any]:
         """把模型发起的待审批工具调用转成前端可编辑的 HITL JSON。"""
         if output.pending is None:
             raise ValueError("缺少待审批工具调用")
-        args = output.pending.args
+        args = dict(output.pending.args)
         field_config = {
             "createOrder": {
                 "required": [
@@ -198,12 +218,12 @@ class CustomerAgent:
             "createAfterSale": {
                 "required": ["orderNo", "type", "reason"],
                 "editable": ["orderNo", "type", "reason"],
-                "instruction": "请核对售后申请信息；如有缺失请补全，确认后才会真正提交。",
+                "instruction": "请填写并核对售后申请表，确认后才会提交售后申请。",
             },
             "createHumanService": {
                 "required": ["reason"],
                 "editable": ["orderNo", "reason"],
-                "instruction": "请核对人工服务申请信息；确认后才会真正创建人工服务单。",
+                "instruction": "请填写并核对人工服务表，确认后才会创建人工服务单。",
             },
         }
         config = field_config.get(
@@ -221,6 +241,16 @@ class CustomerAgent:
             if args.get(field_name) is None
             or (isinstance(args.get(field_name), str) and not args.get(field_name).strip())
         ]
+        guide = await self.hitl_guide_agent.run(
+            tool=output.pending.tool,
+            user_input=ctx.user_input,
+            args=args,
+            required_fields=required_fields,
+            missing_fields=missing_fields,
+            default_instruction=config["instruction"],
+        )
+        if "reason" in args and guide.reason:
+            args["reason"] = guide.reason
         return {
             "state": "awaiting_review",
             "kind": "tool_approval",
@@ -236,7 +266,8 @@ class CustomerAgent:
             "missing_fields": missing_fields,
             "required_fields": required_fields,
             "editable_fields": config["editable"],
-            "instruction": config["instruction"],
+            "instruction": guide.instruction,
+            "guide_message": guide.guide_message,
         }
 
     @staticmethod
@@ -313,6 +344,9 @@ class CustomerAgent:
             payload["user_profile"] = ctx.user_profile
         if ctx.current_emotion:
             payload["current_emotion"] = ctx.current_emotion
+            response_style = _response_style_for_emotion(ctx.current_emotion)
+            if response_style:
+                payload["response_style"] = response_style
         if ctx.intent:
             payload["intent"] = ctx.intent
         agent_results = {
@@ -370,7 +404,7 @@ class CustomerAgent:
                         )
                         output = asyncio.run(self._resume_task(task, ctx, user_decision or {}))
                         if isinstance(output, SpecialistRunResult) and output.awaiting_review:
-                            ctx.pending_review = self._pending_action(task.agent, output)
+                            ctx.pending_review = asyncio.run(self._pending_action(task.agent, output, ctx))
                             ctx.pending_messages = output.messages
                             continue
                         task.result = output.text if isinstance(output, SpecialistRunResult) else output
@@ -389,7 +423,7 @@ class CustomerAgent:
         if plan.human_service:
             output = asyncio.run(self._start_human_service_action(ctx, plan.human_service))
             if isinstance(output, SpecialistRunResult) and output.awaiting_review:
-                ctx.pending_review = self._pending_action("tool", output)
+                ctx.pending_review = asyncio.run(self._pending_action("tool", output, ctx))
                 ctx.pending_messages = output.messages
                 while ctx.pending_review and ctx.pending_review["agent"] == "tool":
                     user_decision = yield self._event(
@@ -399,7 +433,7 @@ class CustomerAgent:
                         self._resume_tool_action(ctx, user_decision or {})
                     )
                     if isinstance(output, SpecialistRunResult) and output.awaiting_review:
-                        ctx.pending_review = self._pending_action("tool", output)
+                        ctx.pending_review = asyncio.run(self._pending_action("tool", output, ctx))
                         ctx.pending_messages = output.messages
                         continue
                     result_text = output.text if isinstance(output, SpecialistRunResult) else output
@@ -441,9 +475,7 @@ class CustomerAgent:
         )
         if isinstance(output, SpecialistRunResult):
             if output.awaiting_review and output.pending is not None:
-                ctx.pending_review = {
-                    **self._pending_action(task.agent, output),
-                }
+                ctx.pending_review = await self._pending_action(task.agent, output, ctx)
                 ctx.pending_messages = output.messages
                 return ""
             return output.text

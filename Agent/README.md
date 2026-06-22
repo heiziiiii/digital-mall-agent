@@ -1,50 +1,89 @@
-# 智能数码商城客服系统
+# 智能客服后端
 
-面向数码商城的多 Agent 客服系统，覆盖**产品推荐 / 订单查询 / 售后服务 / 常见问题解答**。
-采用 **Python Agent 服务 + Java API 网关** 的分层架构。
+本目录包含智能客服后端的两个核心工程：
 
-## 仓库结构
+- [`src/agent/`](src/agent/)：Python 多 Agent 服务，负责理解用户问题、规划专家任务、调用 MCP 工具、生成回复和保存记忆。
+- [`src/api-gateway/`](src/api-gateway/)：Java API Gateway，负责登录鉴权、路由转发、身份透传和前端接口入口。
 
-```text
-src/
-├── agent/         # Python Agent 工程（PydanticAI 编排，自包含可独立运行）
-└── api-gateway/   # Java API 网关工程（Spring Cloud Gateway，统一入口）
-```
+MCP 工具服务位于仓库根目录的 [`../MCP/`](../MCP/)，前端位于 [`../前端/`](../前端/)。
 
-- [`src/agent/`](src/agent/)：核心客服 Agent，基于 **PydanticAI** 编排、**MCP（SSE）** 接入工具，
-  对外提供 FastAPI 接口（`/run` `/stream` `/pause` `/resume` `/confirm` `/sessions`）。详见
-  [`src/agent/README.md`](src/agent/README.md)。
-- [`src/api-gateway/`](src/api-gateway/)：基于 **Spring Boot 3 + Spring Cloud Gateway** 的统一入口，
-  负责路由转发、跨域、限流与访问日志。详见 [`src/api-gateway/README.md`](src/api-gateway/README.md)。
-
-## 整体调用链路
+## 后端分层
 
 ```text
-客户端 → API 网关(:8002, /api/agent/**) → Python Agent 服务(:8001) → MCP 工具服务(:8081)
+前端请求
+  -> API Gateway :8002
+       -> /api/auth/**       登录、登出、当前用户、历史会话
+       -> /api/agent/**      转发到 Python Agent
+       -> /api/customer/**   转发到 MCP REST 接口
+  -> Python Agent :8001
+       -> MCP SSE :8080/sse
+  -> MCP Server :8080
+       -> MySQL / Redis / Qdrant
 ```
 
-## 快速开始
+## 模块职责
 
-1. 启动后端 Agent 服务：
+| 模块 | 主要职责 | 文档 |
+| --- | --- | --- |
+| Python Agent | 多 Agent 编排、流式响应、暂停恢复、人工确认、记忆管理 | [src/agent/README.md](src/agent/README.md) |
+| API Gateway | JWT 鉴权、路由转发、身份透传、历史会话接口、订单售后 REST 聚合 | [src/api-gateway/README.md](src/api-gateway/README.md) |
 
-   ```bash
-   cd src/agent
-   conda activate ai
-   pip install -r requirements.txt
-   python main.py --serve            # 默认 127.0.0.1:8001
-   ```
+## 启动顺序
 
-2. 启动 API 网关：
+先启动根目录的 MCP 服务，再启动 Agent 和 Gateway。
 
-   ```bash
-   cd src/api-gateway
-   mvn spring-boot:run               # 默认 :8002
-   ```
+```bash
+# 1. MCP 服务
+cd ../MCP
+docker compose up -d
+curl -X POST http://localhost:8080/admin/reindex
 
-3. 验证：
+# 2. Python Agent
+cd ../Agent/src/agent
+conda activate ai
+pip install -r requirements.txt
+python main.py --serve
 
-   ```bash
-   curl http://localhost:8002/api/agent/health
-   ```
+# 3. API Gateway
+cd ../api-gateway
+mvn spring-boot:run
+```
 
-各子工程的详细说明、配置与测试方式，请参阅各自目录下的 README。
+Gateway 启动前建议显式配置：
+
+```powershell
+$env:JWT_SECRET = "replace-with-at-least-32-bytes-secret"
+$env:MYSQL_USERNAME = "root"
+$env:MYSQL_PASSWORD = "root"
+$env:AGENT_SERVICE_URI = "http://127.0.0.1:8001"
+$env:MCP_SERVICE_URI = "http://127.0.0.1:8080"
+```
+
+## 验证
+
+```bash
+curl http://localhost:8002/actuator/health
+curl http://localhost:8002/api/agent/health
+```
+
+## 测试
+
+```bash
+# Python Agent
+cd src/agent
+pytest
+
+# API Gateway
+cd ../api-gateway
+mvn test
+```
+
+## 目录结构
+
+```text
+Agent/
+├── README.md
+└── src/
+    ├── agent/         # Python Agent 工程
+    └── api-gateway/   # Java API Gateway 工程
+```

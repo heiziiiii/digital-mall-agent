@@ -19,7 +19,8 @@ const mocks = vi.hoisted(() => {
     missing_fields: [],
     required_fields: ['orderNo', 'type', 'reason'],
     editable_fields: ['orderNo', 'type', 'reason', 'refundAmount'],
-    instruction: '请核对售后申请信息；如有缺失请补全，确认后才会真正提交。',
+    instruction: '请填写并核对售后申请表，确认后才会提交售后申请。',
+    guide_message: 'HITL 引导 Agent：请填写售后申请表并核对原因。',
   }
   const reviewSession = {
     thread_id: 't1',
@@ -113,8 +114,9 @@ describe('用户要求售后 → 前端生成对应反馈', () => {
     expect(mocks.runChat.mock.calls[0][0]).toBe('我要退货')
 
     // 前端把 pending_action 渲染为确认卡片
+    expect((await screen.findAllByText(/HITL 引导 Agent：请填写售后申请表并核对原因。/)).length).toBeGreaterThan(0)
     expect(
-      await screen.findByText('请核对售后申请信息；如有缺失请补全，确认后才会真正提交。'),
+      await screen.findByText('请填写并核对售后申请表，确认后才会提交售后申请。'),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '确认提交' })).toBeInTheDocument()
     expect(screen.getByDisplayValue('O100')).toBeInTheDocument()

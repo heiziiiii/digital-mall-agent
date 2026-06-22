@@ -24,15 +24,12 @@ OUT_PRODUCTS = os.path.join(os.path.dirname(__file__),
 OUT_MYSQL    = os.path.join(os.path.dirname(__file__),
                             "../src/main/resources/seed/mysql.sql")
 
-# 目标品牌（顺序即结果顺序）
 TARGET_BRANDS = [
     "苹果", "三星", "华为", "小米", "vivo", "OPPO",
     "荣耀", "红米", "真我", "一加", "索尼",
     "联想", "努比亚", "HTC", "Moto",
 ]
 MAX_PER_BRAND = 8
-
-# ---------- 解析辅助函数 ----------
 
 def clean_cpu(raw: str) -> str:
     """从 'CPU型号高通 骁龙8 Gen1' → '高通 骁龙8 Gen1'"""
@@ -44,10 +41,8 @@ def clean_cpu(raw: str) -> str:
 def clean_memory(raw: str) -> str:
     """从 '12GB 256GB ' → '12GB+256GB'"""
     s = raw.strip()
-    # 去掉多余前缀
     s = re.sub(r"^(后置摄像头\d+|前置摄像头\d+|ROM容量)\s*", "", s)
     s = re.sub(r"\s+", " ", s).strip()
-    # 规范化成 xGB+xGB 格式
     m = re.findall(r"\d+GB|\d+MB|\d+TB", s)
     if m:
         return "+".join(m[:2])
@@ -59,7 +54,6 @@ def clean_battery(raw: str) -> str:
     if m:
         return f"{m.group(1)}mAh"
     s = raw.strip()
-    # "空" 或无效值
     if not s or s in ("空", "无", "N/A"):
         return ""
     return s[:20]
@@ -72,11 +66,9 @@ def clean_os(raw: str) -> str:
 
 def extract_main_camera(raw: str) -> str:
     """从长摄像头描述提取主摄像素，如 '6400万像素'"""
-    # 先找后置主摄像素
     m = re.search(r"后置主摄[^：]*：\s*(\d+)万像素", raw)
     if m:
         return f"{m.group(1)}万像素"
-    # 退化：找第一个 Xxx万像素
     m = re.search(r"(\d+)万像素", raw)
     if m:
         return f"{m.group(1)}万像素"
@@ -100,14 +92,11 @@ def clean_rating(raw: str) -> float:
 
 def clean_colors(raw: str) -> list:
     s = raw.strip().strip('"')
-    # 去掉"机身颜色"前缀
     s = re.sub(r"^机身颜色\s*", "", s)
-    # 分隔符：，, 、 / 中文逗号等
     parts = re.split(r"[，,、/\s]{1,2}", s)
     result = []
     for p in parts:
         p = p.strip()
-        # 过滤掉空串和过长（通常是描述性文字）
         if p and 1 < len(p) <= 10:
             result.append(p)
     return result[:4]
@@ -158,8 +147,6 @@ def make_subtitle(cpu, memory, battery) -> str:
         parts.append(battery)
     return " / ".join(parts) if parts else ""
 
-# ---------- 读取 CSV ----------
-
 def read_csv():
     rows = []
     with open(CSV_PATH, encoding="utf-8") as f:
@@ -179,7 +166,6 @@ def read_csv():
             camera_raw = row[8]
             rating_raw = row[9]
 
-            # 只要有价格
             if not price_raw or "暂无" in price_raw or not price_raw.replace(".", "").isdigit():
                 try:
                     price = float(re.search(r"[\d.]+", price_raw).group())
@@ -192,7 +178,6 @@ def read_csv():
                 continue
 
             os_str = clean_os(os_raw)
-            # 苹果手机 OS 必须是 iOS 系列
             if brand == "苹果" and "iOS" not in os_str:
                 os_str = "iOS"
 
@@ -211,8 +196,6 @@ def read_csv():
             })
     return rows
 
-# ---------- 采样 ----------
-
 def sample_products(rows):
     by_brand = {}
     for r in rows:
@@ -221,12 +204,9 @@ def sample_products(rows):
     selected = []
     for brand in TARGET_BRANDS:
         items = by_brand.get(brand, [])
-        # 按价格降序取前 MAX_PER_BRAND
         items_sorted = sorted(items, key=lambda x: -x["price"])
         selected.extend(items_sorted[:MAX_PER_BRAND])
     return selected
-
-# ---------- 生成 products.json ----------
 
 def make_products_json(selected):
     products = []
@@ -236,7 +216,7 @@ def make_products_json(selected):
         tags = (price_tags(r["price"])
                 + battery_tag(r["battery"])
                 + ram_tag(r["memory"]))
-        tags = list(dict.fromkeys(tags))[:5]  # dedup, max 5
+        tags = list(dict.fromkeys(tags))[:5]
 
         subtitle = make_subtitle(r["cpu"], r["memory"], r["battery"])
         description = make_description(
@@ -278,8 +258,6 @@ def make_products_json(selected):
         })
     return products
 
-# ---------- 生成 mysql.sql ----------
-
 MYSQL_HEADER = """\
 -- MySQL 种子数据 (权威库): 商品库存由 phone.csv 自动生成, 库存随机。
 -- 其余 customer / orders / after_sale / human_service 保持不变。
@@ -315,7 +293,6 @@ def make_mysql_sql(selected):
         rows_sql.append(f" ({i}, '{product_no}', '{name}', {stock}, 1)")
     lines.append(",\n".join(rows_sql) + ";")
 
-    # 订单引用前 8 个商品
     p = [f"P{10001 + i}" for i in range(8)]
     names = [selected[i]["model"].replace("'", "\\'") for i in range(8)]
     prices = [selected[i]["price"] for i in range(8)]
@@ -400,8 +377,6 @@ VALUES
 
     return "\n".join(lines)
 
-# ---------- 主流程 ----------
-
 if __name__ == "__main__":
     print("Reading CSV...")
     rows = read_csv()
@@ -410,7 +385,6 @@ if __name__ == "__main__":
     selected = sample_products(rows)
     print(f"Selected products: {len(selected)}")
 
-    # 打印品牌分布
     from collections import Counter
     dist = Counter(r["brand"] for r in selected)
     for b, c in dist.most_common():

@@ -39,7 +39,6 @@ public class SecurityConfig {
             JwtReactiveAuthenticationManager authenticationManager,
             JwtAuthenticationConverter authenticationConverter) {
 
-        // 组装 JWT 认证过滤器
         AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(authenticationManager);
         jwtFilter.setServerAuthenticationConverter(authenticationConverter);
         // 关键：携带无效/过期 token 时认证失败，由 AuthenticationWebFilter 自身的失败处理器处理，
@@ -49,24 +48,18 @@ public class SecurityConfig {
                 writeError(webFilterExchange.getExchange(), HttpStatus.UNAUTHORIZED, "未登录或登录凭证无效"));
 
         return http
-                // 网关无表单/会话，禁用一系列默认机制；CORS 由网关 globalcors 负责
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(ServerHttpSecurity.CorsSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .logout(ServerHttpSecurity.LogoutSpec::disable)
-                // 无状态：不保存 SecurityContext
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(ex -> ex
-                        // 放行 CORS 预检
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                        // 登录接口与健康检查免认证
                         .pathMatchers("/api/auth/login").permitAll()
                         .pathMatchers("/actuator/health").permitAll()
-                        // 其余全部需要认证（/api/agent/**、/api/auth/me、/api/auth/logout 等）
                         .anyExchange().authenticated())
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                // 统一以 JSON 返回 401/403，而非默认的 WWW-Authenticate 弹窗
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((exchange, ex) ->
                                 writeError(exchange, HttpStatus.UNAUTHORIZED, "未登录或登录凭证无效"))
@@ -75,7 +68,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    /** 写出统一格式的错误 JSON 响应。 */
     private Mono<Void> writeError(ServerWebExchange exchange, HttpStatus status, String message) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(status);

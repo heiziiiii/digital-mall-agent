@@ -18,8 +18,19 @@ const FIELD_LABELS: Record<string, string> = {
   receiverPhone: '收货手机号',
   receiverAddress: '收货地址',
   type: '售后类型',
-  reason: '原因',
+  reason: '我的诉求/原因',
   refundAmount: '退款金额',
+}
+
+const FIELD_PLACEHOLDERS: Record<string, string> = {
+  orderNo: '请输入关联订单号',
+  reason: '请用“我……”描述你的诉求，例如：我收到的商品屏幕碎裂，想申请退货退款',
+}
+
+const ACTION_TITLES: Record<string, string> = {
+  createAfterSale: '售后申请表',
+  createHumanService: '人工服务表',
+  createOrder: '订单确认表',
 }
 
 const TYPE_OPTIONS = [
@@ -49,6 +60,7 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
   )
   const [message, setMessage] = useState('')
   const missing = fields.filter((key) => required.has(key) && !values[key]?.trim())
+  const title = ACTION_TITLES[action.tool] ?? '信息确认表'
 
   const approve = () => {
     if (missing.length) return
@@ -63,13 +75,13 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
   return (
     <div className="review-card">
       <div className="review-head">
-        <span className="review-kicker">需要确认</span>
+        <span className="review-kicker">{title}</span>
         <strong>{action.instruction || '请核对信息后再提交'}</strong>
       </div>
 
       <div className="review-grid">
         {fields.map((key) => (
-          <label key={key} className="review-field">
+          <label key={key} className={`review-field ${key === 'reason' ? 'review-field-wide' : ''}`}>
             <span>
               {FIELD_LABELS[key] ?? key}
               {required.has(key) && <b>*</b>}
@@ -85,11 +97,20 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
                   <option key={item.value} value={item.value}>{item.label}</option>
                 ))}
               </select>
+            ) : key === 'reason' ? (
+              <textarea
+                className="review-input-note"
+                value={values[key] ?? ''}
+                onChange={(event) => setValues((v) => ({ ...v, [key]: event.target.value }))}
+                placeholder={FIELD_PLACEHOLDERS[key]}
+                disabled={busy}
+              />
             ) : (
               <input
                 value={values[key] ?? ''}
                 onChange={(event) => setValues((v) => ({ ...v, [key]: event.target.value }))}
                 inputMode={key === 'refundAmount' ? 'decimal' : key === 'quantity' ? 'numeric' : 'text'}
+                placeholder={FIELD_PLACEHOLDERS[key]}
                 disabled={busy}
               />
             )}

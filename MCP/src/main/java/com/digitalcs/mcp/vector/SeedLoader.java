@@ -39,7 +39,6 @@ public class SeedLoader implements ApplicationRunner {
     private final ObjectMapper objectMapper;
     private final DataSource dataSource;
 
-    /** 启动自动灌库：对应类型尚无数据时才灌入，避免重复加载；Qdrant/嵌入不可用时仅记日志不阻断启动。 */
     @Override
     public void run(ApplicationArguments args) {
         try {
@@ -83,7 +82,6 @@ public class SeedLoader implements ApplicationRunner {
         }
     }
 
-    /** 兼容已初始化过的旧库：schema.sql 不会自动重跑，reset 前补齐登录密码列。 */
     private void ensureCustomerPasswordColumn(Connection conn) throws Exception {
         try (ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), null, "customer", "password")) {
             if (rs.next()) {
@@ -98,7 +96,6 @@ public class SeedLoader implements ApplicationRunner {
         }
     }
 
-    /** 全量重灌（覆盖）：商品详情 + 售后知识，返回各自写入条数。供 /admin/reindex 调用。 */
     public Map<String, Object> reindex() throws IOException {
         vectorSearchService.ensureCollections();
         Map<String, Object> result = new LinkedHashMap<>();
@@ -136,7 +133,6 @@ public class SeedLoader implements ApplicationRunner {
         return records;
     }
 
-    /** 售后知识：bizId 用序号，嵌入文本=标题+正文，payload 保留 kbType/title/content/keywords。 */
     private List<Record> loadKnowledge() throws IOException {
         List<Record> records = new ArrayList<>();
         List<Map<String, Object>> items = readArray("seed/knowledge.json");

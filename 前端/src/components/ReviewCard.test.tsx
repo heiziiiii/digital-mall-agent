@@ -1,5 +1,5 @@
 // 场景 1（局部）：用户要求售后时，前端是否把待确认的写操作渲染成「对应反馈」——
-// 即一张可编辑的售后确认卡片（订单号 / 售后类型 / 原因 / 退款金额 + 确认/取消/重写）。
+// 即一张可编辑的售后申请表（订单号 / 售后类型 / 我的诉求/原因 / 退款金额 + 确认/取消/重写）。
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -19,7 +19,7 @@ function afterSaleAction(overrides: Partial<PendingAction> = {}): PendingAction 
     missing_fields: [],
     required_fields: ['orderNo', 'type', 'reason'],
     editable_fields: ['orderNo', 'type', 'reason', 'refundAmount'],
-    instruction: '请核对售后申请信息；如有缺失请补全，确认后才会真正提交。',
+    instruction: '请填写并核对售后申请表，确认后才会提交售后申请。',
     ...overrides,
   }
 }
@@ -31,10 +31,11 @@ describe('ReviewCard 售后确认反馈', () => {
     )
 
     // 指引文案 + 四个业务字段标签
-    expect(screen.getByText('请核对售后申请信息；如有缺失请补全，确认后才会真正提交。')).toBeInTheDocument()
+    expect(screen.getByText('售后申请表')).toBeInTheDocument()
+    expect(screen.getByText('请填写并核对售后申请表，确认后才会提交售后申请。')).toBeInTheDocument()
     expect(screen.getByText('订单号')).toBeInTheDocument()
     expect(screen.getByText('售后类型')).toBeInTheDocument()
-    expect(screen.getByText('原因')).toBeInTheDocument()
+    expect(screen.getByText('我的诉求/原因')).toBeInTheDocument()
     expect(screen.getByText('退款金额')).toBeInTheDocument()
 
     // 三个操作入口
@@ -75,7 +76,7 @@ describe('ReviewCard 售后确认反馈', () => {
     expect(submit).toBeDisabled()
 
     // 用户补齐原因后，确认按钮恢复可用并能提交
-    await userEvent.type(screen.getByLabelText(/原因/), '无法开机')
+    await userEvent.type(screen.getByLabelText(/我的诉求\/原因/), '无法开机')
     expect(submit).toBeEnabled()
     await userEvent.click(submit)
     expect(onApprove).toHaveBeenCalledTimes(1)

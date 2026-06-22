@@ -32,12 +32,9 @@ import {
   type SessionResponse,
 } from './api'
 
-/* ----------------------------- 类型定义 ----------------------------- */
-
 type MessageRole = 'user' | 'bot'
 type AuthStatus = 'checking' | 'authenticated' | 'anonymous'
 
-// 主内容区当前视图：聊天 / 我的订单 / 我的售后
 export type View = 'chat' | 'orders' | 'aftersales'
 
 type TextBlock = { type: 'text'; value: string }
@@ -52,7 +49,6 @@ export type Message = {
   blocks: MessageBlock[]
 }
 
-// 商品卡数据直接复用后端产品 Agent 的结构化推荐结果
 export type ProductData = ProductRecommendation
 
 export type Conversation = {
@@ -75,8 +71,6 @@ export type UserInfo = {
   vipLevel: string
   vipTag: string
 }
-
-/* ----------------------------- 用户信息转换 ----------------------------- */
 
 const getAvatarText = (name: string, customerNo: string) => {
   const source = name.trim() || customerNo.trim() || '用户'
@@ -104,6 +98,20 @@ const GREETING_TEXT =
 const REVIEW_FLOW_RE = /售后|退款|退货|换货|维修|退换|取消订单|申请|下单|购买|买这|就要|帮我买/
 const SESSION_ID_KEY = 'agent_session_id'
 const HISTORY_CACHE_PREFIX = 'agent_history_sessions'
+
+const reviewIntro = (action: PendingAction) => {
+  if (action.guide_message?.trim()) return action.guide_message.trim()
+  if (action.tool === 'createAfterSale') {
+    return '可以，我先把售后申请表整理好了。请补充或核对下面的信息，尤其是“我的诉求/原因”，确认后我再帮你提交。'
+  }
+  if (action.tool === 'createHumanService') {
+    return '可以，我先把人工服务表整理好了。请用你的口吻补充或核对诉求原因，确认后我再帮你创建人工服务单。'
+  }
+  if (action.tool === 'createOrder') {
+    return '可以，我先把订单确认表整理好了。请核对信息，确认后我再帮你创建订单。'
+  }
+  return '这一步需要你确认表单信息，确认后我再继续处理。'
+}
 
 // 计数器挂在 globalThis 上，避免热更新（HMR）时模块重载导致 id 从 0 重置，
 // 与仍被 React 保留的旧 state 中的 id 冲突（出现重复 key 警告）。
@@ -241,8 +249,6 @@ const toChatMessage = (message: HistoryMessage): Message => ({
   blocks: [{ type: 'text', value: message.content || '（空消息）' }],
 })
 
-/* ----------------------------- 初始会话 ----------------------------- */
-
 // 一条全新的空白会话：仅有欢迎语、没有 sessionId，
 // 在用户发送第一条消息前不会与后端发生任何交互（惰性新建）。
 const newConversationItem = (): Conversation => ({
@@ -256,8 +262,6 @@ const newConversationItem = (): Conversation => ({
 // 每次进入/登录都从一条全新空白会话开始；历史会话只在侧边栏按需加载，
 // 不再自动恢复“上次对话”，避免拿到失效 sessionId 反复请求后端。
 const seedConversations = (): Conversation[] => [newConversationItem()]
-
-/* ----------------------------- 主组件 ----------------------------- */
 
 export default function App() {
   const [conversations, setConversations] = useState<Conversation[]>(seedConversations)
@@ -318,7 +322,6 @@ export default function App() {
     if (el) el.scrollTop = el.scrollHeight
   }, [messages, typing])
 
-  // 更新当前会话的局部状态
   const patchConversation = (conversationId: number, updater: (c: Conversation) => Conversation) =>
     setConversations((list) => list.map((c) => (c.id === conversationId ? updater(c) : c)))
 
@@ -453,7 +456,6 @@ export default function App() {
     })
   }, [authStatus, conversations])
 
-  // 打字机：逐字渲染文本，完成后把卡片块追加到同一条消息
   const typeOut = (text: string, extras: MessageBlock[], conversationId = activeId) =>
     new Promise<void>((resolve) => {
       const id = newId()
@@ -507,7 +509,7 @@ export default function App() {
     setConversationSession(conversationId, result.session_id, result.thread_id)
 
     if (result.status === 'awaiting_review' && result.pending_action) {
-      const answer = result.final_answer || '这一步会执行需要确认的业务操作，请先核对。'
+      const answer = result.final_answer || reviewIntro(result.pending_action)
       appendMessage({
         id: newId(),
         role: 'bot',
@@ -652,7 +654,6 @@ export default function App() {
 
   const newConversation = () => {
     setView('chat')
-    // 当前会话没有任何用户输入时，直接复用，不重复新建
     if (!active.messages.some((m) => m.role === 'user')) {
       setSidebarOpen(false)
       return
@@ -684,7 +685,6 @@ export default function App() {
     if (!target) return
     if (!window.confirm('确定删除这段对话吗？删除后无法恢复。')) return
 
-    // 已落库的历史会话需先请求后端删除；本地未发起过的新会话只在前端移除。
     if (target.sessionId) {
       try {
         await deleteHistoryConversation(target.sessionId)
@@ -692,7 +692,6 @@ export default function App() {
         window.alert('删除失败，请稍后再试。')
         return
       }
-      // 同步清理本地历史缓存
       const cached = loadHistoryCache(user?.customerNo)
       saveHistoryCache(user?.customerNo, cached.filter((s) => s.sessionId !== target.sessionId))
     }
@@ -701,7 +700,6 @@ export default function App() {
     const nextList = remaining.length ? remaining : seedConversations()
     setConversations(nextList)
 
-    // 删除的是当前激活会话时，切换到剩余的第一条并同步 session 存储
     if (activeId === id) {
       const next = nextList[0]
       setActiveId(next.id)
