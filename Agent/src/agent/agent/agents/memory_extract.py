@@ -9,6 +9,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent
+from pydantic_ai.tools import RunContext
 
 from agent.hooks import timed_agent_run
 from agent.llm.model import get_memory_model
@@ -25,6 +26,7 @@ class LongTermMemory(BaseModel):
     role: str = Field(default="", description="长期记忆来源角色或类别")
     score: float = Field(default=0.0, ge=0.0, le=1.0)
     turn: int | None = Field(default=None, ge=0)
+    created_at: str = Field(default="", description="长期记忆写入时间，ISO 格式")
 
 
 class MemoryExtraction(BaseModel):
@@ -40,7 +42,7 @@ class MemoryExtraction(BaseModel):
 
 @dataclass
 class RecallDeps:
-    """兼容旧调用签名；记忆提取节点不再执行长期召回。"""
+    """记忆提取依赖；长期召回由模型按需调用。"""
 
     recall: RecallFn | None = None
 
@@ -66,6 +68,25 @@ class MemoryExtractAgent:
                 system_prompt=render_skill("memory"),
                 output_type=MemoryExtraction,
             )
+
+            @agent.tool
+            async def recall_long_term_memory(
+                ctx: RunContext[RecallDeps],
+                query: str,
+                top_k: int | None = None,
+            ) -> list[LongTermMemory]:
+                """按需检索跨会话长期记忆。
+
+                仅当轻量画像和近期对话不足以理解本轮指代、历史偏好、未决事项或用户明确询问
+                系统记住了什么时调用。返回结果已按后端最低相似度阈值过滤；每条包含记忆时间
+                `created_at` 和相似度 `score`，低于阈值的记忆不会返回。
+                """
+                if ctx.deps.recall is None:
+                    return []
+                return [
+                    LongTermMemory.model_validate(item)
+                    for item in ctx.deps.recall(query, top_k)
+                ]
 
             self._agent = agent
         return self._agent

@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS orders (
   PRIMARY KEY (id),
   UNIQUE KEY uk_order_no (order_no),
   KEY idx_customer (customer_id),
-  KEY idx_status (order_status)
+  KEY idx_status (order_status),
+  CONSTRAINT chk_order_single_item CHECK (items IS NULL OR JSON_LENGTH(items) = 1)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单库';
 
 -- ------------------------- 4. 售后记录库 -------------------------

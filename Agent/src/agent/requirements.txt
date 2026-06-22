@@ -5,6 +5,8 @@ pydantic-settings>=2.6.1
 python-dotenv>=1.0.1
 pytest>=8.3.4
 pytest-asyncio>=0.24.0
+ragas>=0.2.10,<0.3
+datasets>=3.0.0
 uvicorn>=0.30.6
 # 多层记忆存储：Redis(L2) / MySQL(L3, SQLAlchemy 异步 + aiomysql 纯 Python 驱动) / Qdrant(L4 向量库)
 redis>=5.0

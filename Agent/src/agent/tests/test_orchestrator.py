@@ -146,6 +146,13 @@ def test_after_sale_hitl_constraints_are_in_skills() -> None:
     assert "有明确信息时直接获取实体" in orchestrate_prompt
     assert "不要仅因“最近买的商品”这类模糊表达就强行查询最近订单" in orchestrate_prompt
     assert "`tech` 依赖订单方向" in orchestrate_prompt
+    assert "depends_on 仅用于后序任务必须依赖前序专家" in orchestrate_prompt
+    assert "不要用 `depends_on` 伪装用户补充信息" in orchestrate_prompt
+    assert "不要让 `product` 直接做精准对比，也不要简单依赖 `tech`" in orchestrate_prompt
+    assert "并行规划 `product` 做基于已知品类、预算、场景的泛化推荐" in orchestrate_prompt
+    assert "不要输出 `product` 做“比它更好”的精准对比" in orchestrate_prompt
+    assert "同时规划 `product` 任务基于“9000以内、手机、游戏场景/性能稳定”检索候选替代机型" in orchestrate_prompt
+    assert "当前手机型号已明确，可同时规划 `tech` 排查发热问题和 `product`" in orchestrate_prompt
     assert "人工服务不是专家任务" in orchestrate_prompt
     assert "human_service" not in orchestrate_prompt
     assert "工具动作" not in orchestrate_prompt
@@ -249,6 +256,40 @@ def test_human_service_is_inferred_from_complaint_context(monkeypatch) -> None:
     assert result.human_service is not None
     assert "afterSaleNo" not in result.human_service
     assert "转人工" in result.human_service["reason"]
+
+
+def test_negative_emotion_keeps_business_task_and_plain_human_reason(monkeypatch) -> None:
+    fake = FakeHumanServiceOrchestratorAgent(
+        tasks=[
+            TaskSpec(
+                agent="order",
+                query="处理订单O202606040002的退货申请。",
+                priority=10,
+            )
+        ],
+        human_service=HumanServiceSpec(
+            needed=True,
+            reason="用户情绪为愤怒/不满，且此前已就同一订单发起投诉，需人工介入协同处理退货与历史投诉。",
+            orderNo="O202606040002",
+        ),
+    )
+    agent = OrchestratorAgent()
+    monkeypatch.setattr(agent, "_get_agent", lambda: fake)
+    ctx = AgentContext(
+        user_input="我要退货",
+        background_summary="用户刚投诉过订单号O202606040002，本轮提出退货需求。",
+        current_emotion="愤怒/不满",
+    )
+
+    result = asyncio.run(agent.decide(ctx))
+
+    assert [(task.agent, task.query) for task in result.tasks] == [
+        ("order", "处理订单O202606040002的退货申请。")
+    ]
+    assert result.human_service == {
+        "reason": "我要退货",
+        "orderNo": "O202606040002",
+    }
 
 
 def test_explicit_human_request_plans_human_service(monkeypatch) -> None:

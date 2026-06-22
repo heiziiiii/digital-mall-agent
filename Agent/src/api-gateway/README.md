@@ -76,7 +76,8 @@ graph LR
 
 | 变量 | 说明 | 建议值 |
 | --- | --- | --- |
-| `JWT_SECRET` | JWT 签名密钥，至少 32 字节 | 必填 |
+| `JWT_SECRET` | JWT 签名密钥，至少 32 字节；本地开发未设置时使用默认开发密钥 | 生产必填 |
+| `REQUIRE_ENV_JWT_SECRET` | 是否强制要求 `JWT_SECRET` 来自环境变量 | 生产建议 `true` |
 | `MYSQL_USERNAME` | MySQL 用户名 | `root` |
 | `MYSQL_PASSWORD` | MySQL 密码 | `root` |
 | `AGENT_SERVICE_URI` | Python Agent 地址 | `http://127.0.0.1:8001` |
@@ -89,10 +90,11 @@ graph LR
 
 ## 运行
 
-先确保 MCP 和 Python Agent 已启动，然后运行 Gateway：
+先确保 MCP 和 Python Agent 已启动，然后运行 Gateway。本地开发可直接启动；生产或共享环境请显式配置：
 
 ```powershell
 $env:JWT_SECRET = "replace-with-at-least-32-bytes-secret"
+$env:REQUIRE_ENV_JWT_SECRET = "true"
 $env:MYSQL_USERNAME = "root"
 $env:MYSQL_PASSWORD = "root"
 $env:AGENT_SERVICE_URI = "http://127.0.0.1:8001"

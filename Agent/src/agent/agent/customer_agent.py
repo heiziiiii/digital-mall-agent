@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import uuid
 from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass, field
@@ -248,8 +249,11 @@ class CustomerAgent:
             required_fields=required_fields,
             missing_fields=missing_fields,
             default_instruction=config["instruction"],
+            context=self._build_hitl_context(ctx),
         )
-        if "reason" in args and guide.reason:
+        if "reason" in missing_fields:
+            args["reason"] = ""
+        elif "reason" in args and guide.reason:
             args["reason"] = guide.reason
         return {
             "state": "awaiting_review",
@@ -334,6 +338,153 @@ class CustomerAgent:
         return "\n".join(
             f"[{name}]\n{result}" for name, result in ctx.agent_results.items() if result
         )
+
+    @staticmethod
+    def _build_hitl_context(ctx: AgentContext) -> dict[str, Any]:
+        """给 HITL 引导提供本轮可用事实，避免只看原始输入造成诉求过于空泛。"""
+        payload: dict[str, Any] = {}
+        if ctx.background_summary:
+            payload["background_summary"] = ctx.background_summary
+        if ctx.current_emotion:
+            payload["current_emotion"] = ctx.current_emotion
+        if ctx.tasks:
+            payload["tasks"] = [
+                {
+                    "agent": task.agent,
+                    "query": task.query,
+                    "reason": task.reason,
+                }
+                for task in ctx.tasks
+                if task.query or task.reason
+            ]
+        if ctx.agent_results:
+            payload["agent_results"] = {
+                name: result for name, result in ctx.agent_results.items() if result
+            }
+        return payload
+
+    @staticmethod
+    def _first_order_no_from_text(text: str) -> str:
+        """从专家结果或上下文中提取首个订单号。"""
+        match = re.search(r"\bO\d{8,}\b", text)
+        return match.group(0) if match else ""
+
+    @classmethod
+    def _infer_human_service_order_no(cls, ctx: AgentContext, plan_order_no: str) -> str:
+        """人工服务计划未带订单号时，从本轮专家结果和背景中补全可验证订单号。"""
+        if plan_order_no.strip():
+            return plan_order_no.strip()
+        text = "\n".join(
+            part
+            for part in [
+                ctx.agent_results.get("order", ""),
+                ctx.background_summary,
+                ctx.user_input,
+            ]
+            if part
+        )
+        return cls._first_order_no_from_text(text)
+
+    @classmethod
+    def _infer_human_service_reason(
+        cls,
+        ctx: AgentContext,
+        plan_reason: str,
+        order_no: str,
+    ) -> str:
+        """基于本轮上下文整理人工服务诉求，保留事实边界并交给用户最终确认。"""
+        user_text = ctx.user_input.strip()
+        order_result = str(ctx.agent_results.get("order", "") or "").strip()
+        subject = f"订单{order_no}" if order_no else "最近一笔订单"
+        sanitized_plan_reason = cls._sanitize_human_service_reason(plan_reason)
+        user_only_requests_human = any(
+            keyword in user_text for keyword in ("人工", "客服", "真人", "专员", "主管")
+        ) and not any(
+            keyword in user_text for keyword in ("退货", "退款", "仅退款", "投诉", "申诉", "换货", "维修")
+        )
+        if user_only_requests_human and sanitized_plan_reason:
+            return sanitized_plan_reason
+
+        base_reason = cls._business_reason_from_user_text(user_text, subject, order_result)
+        if base_reason:
+            return base_reason
+
+        if sanitized_plan_reason:
+            return sanitized_plan_reason
+
+        return f"用户需要人工进一步处理{subject}的问题"
+
+    @staticmethod
+    def _sanitize_human_service_reason(reason: str) -> str:
+        """丢弃情绪、内部判断和历史归因，只保留可作为用户诉求的内容。"""
+        text = str(reason or "").strip()
+        blocked_markers = (
+            "情绪",
+            "愤怒",
+            "不满",
+            "焦急",
+            "此前",
+            "历史",
+            "协同",
+            "升级流程",
+            "人工介入",
+            "需人工",
+            "需要人工",
+        )
+        if not text or any(marker in text for marker in blocked_markers):
+            return ""
+        return text
+
+    @classmethod
+    def _business_reason_from_user_text(
+        cls,
+        user_text: str,
+        subject: str,
+        order_result: str,
+    ) -> str:
+        """把用户本轮真实业务诉求转成可提交的第一人称原因。"""
+        wants_complaint = any(keyword in user_text for keyword in ("投诉", "申诉", "不满意"))
+        wants_human = any(keyword in user_text for keyword in ("人工", "客服", "真人", "专员", "主管"))
+        wants_return = "退货" in user_text
+        wants_refund = "退款" in user_text or "仅退款" in user_text
+        wants_exchange = "换货" in user_text
+        wants_repair = "维修" in user_text
+
+        if wants_complaint:
+            core = f"我想投诉{subject}的问题"
+        elif wants_return and "仅退款" in order_result:
+            core = f"我想处理{subject}的退货/仅退款问题"
+        elif wants_return:
+            core = f"我想为{subject}办理退货"
+        elif wants_refund:
+            core = f"我想为{subject}办理退款"
+        elif wants_exchange:
+            core = f"我想为{subject}办理换货"
+        elif wants_repair:
+            core = f"我想为{subject}处理维修问题"
+        elif wants_human:
+            core = f"我想让人工客服处理{subject}的问题"
+        else:
+            return ""
+
+        facts = cls._human_service_fact_summary(order_result)
+        if facts:
+            return f"{core}；当前情况：{facts}"
+        return core
+
+    @staticmethod
+    def _human_service_fact_summary(order_result: str) -> str:
+        """提取与当前人工诉求直接相关的订单事实，避免把历史投诉整段塞进原因。"""
+        if not order_result:
+            return ""
+        lines = [line.strip() for line in order_result.splitlines() if line.strip()]
+        selected: list[str] = []
+        for line in lines:
+            if any(keyword in line for keyword in ("订单状态", "物流", "未签收", "仅退款", "不支持退货")):
+                selected.append(line)
+            if len(selected) >= 2:
+                break
+        return "；".join(selected)[:160]
 
     def _build_summarize_payload(self, ctx: AgentContext) -> str:
         """汇总本轮背景、画像、规划和 Agent 结果，序列化为 JSON 供总结 Agent 使用。"""
@@ -498,9 +649,17 @@ class CustomerAgent:
         self, ctx: AgentContext, plan: dict[str, Any]
     ) -> SpecialistRunResult:
         """根据编排器的人工服务计划，生成 createHumanService 待确认工具调用。"""
+        order_no = self._infer_human_service_order_no(
+            ctx,
+            str(plan.get("orderNo", "") or ""),
+        )
         payload = {
-            "reason": str(plan.get("reason", "") or "").strip(),
-            "orderNo": str(plan.get("orderNo", "") or "").strip(),
+            "reason": self._infer_human_service_reason(
+                ctx,
+                str(plan.get("reason", "") or ""),
+                order_no,
+            ),
+            "orderNo": order_no,
         }
         return SpecialistRunResult(
             pending=PendingApproval(

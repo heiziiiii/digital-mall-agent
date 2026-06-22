@@ -19,6 +19,7 @@ from pydantic_ai import (
     ToolApproved,
     ToolDenied,
 )
+from pydantic_ai.messages import ToolReturnPart
 from pydantic_ai.usage import UsageLimits
 
 from agent.hooks import timed_agent_run
@@ -186,5 +187,68 @@ class OrderAgent:
                 messages=result.all_messages(),
             )
         if isinstance(output, OrderServiceOutput):
+            created_after_sale = _created_after_sale_text(result)
+            if created_after_sale:
+                return SpecialistRunResult(text=created_after_sale)
             return SpecialistRunResult(text=output.answer.strip())
         return SpecialistRunResult(text=str(output))
+
+
+_AFTER_SALE_TYPE_LABELS = {
+    1: "退货退款",
+    2: "换货",
+    3: "仅退款",
+    4: "维修",
+}
+
+_AFTER_SALE_STATUS_LABELS = {
+    0: "待审核",
+    1: "已通过",
+    2: "已拒绝",
+    3: "处理中",
+    4: "已完成",
+}
+
+
+def _created_after_sale_text(result: Any) -> str:
+    """确认后以真实工具返回为准，避免模型把已提交售后误说成草稿。"""
+    for message in result.all_messages():
+        for part in getattr(message, "parts", []):
+            if not isinstance(part, ToolReturnPart):
+                continue
+            if part.tool_name != "createAfterSale" or part.outcome != "success":
+                continue
+            content = part.content
+            if not isinstance(content, dict) or not content.get("created"):
+                continue
+            after_sale = content.get("afterSale")
+            if not isinstance(after_sale, dict):
+                continue
+            return _format_created_after_sale(after_sale)
+    return ""
+
+
+def _format_created_after_sale(after_sale: dict[str, Any]) -> str:
+    after_sale_no = str(
+        after_sale.get("afterSaleNo") or after_sale.get("after_sale_no") or ""
+    ).strip()
+    order_no = str(after_sale.get("orderNo") or after_sale.get("order_no") or "").strip()
+    type_value = after_sale.get("type")
+    status_value = after_sale.get("status")
+    reason = str(after_sale.get("reason") or "").strip()
+    type_label = _AFTER_SALE_TYPE_LABELS.get(type_value, str(type_value or "").strip())
+    status_label = _AFTER_SALE_STATUS_LABELS.get(status_value, str(status_value or "").strip())
+
+    parts = ["售后申请已提交"]
+    if after_sale_no:
+        parts.append(f"售后单号：{after_sale_no}")
+    if order_no:
+        parts.append(f"关联订单：{order_no}")
+    if type_label:
+        parts.append(f"类型：{type_label}")
+    if status_label:
+        parts.append(f"状态：{status_label}")
+    if reason:
+        parts.append(f"原因：{reason}")
+    parts.append("后续处理结果以平台审核为准。")
+    return "，".join(parts)

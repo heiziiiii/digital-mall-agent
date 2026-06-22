@@ -359,6 +359,7 @@ async def _search_by_field(field: str, value: object, vector: list[float], top_k
             "customer_id": hit.payload.get("customer_id"),
             "customer_no": hit.payload.get("customer_no"),
             "score": hit.score,
+            "created_at": hit.payload.get("created_at", ""),
         }
         for hit in hits
         if (hit.payload or {}).get(KIND) in (None, KIND_LONG_TERM)

@@ -28,7 +28,7 @@ React 前端
 ## 快速开始
 
 ```bash
-cd 前端
+cd frontend
 npm install
 npm run dev
 ```

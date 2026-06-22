@@ -63,6 +63,7 @@ class HitlGuideAgent:
         required_fields: list[str],
         missing_fields: list[str],
         default_instruction: str,
+        context: dict[str, Any] | None = None,
     ) -> HitlGuideOutput:
         """生成 HITL 表单引导；LLM 不可用时使用保守规则兜底。"""
         fallback = self._fallback(
@@ -84,6 +85,8 @@ class HitlGuideAgent:
             "missing_fields": missing_fields,
             "default_instruction": default_instruction,
         }
+        if context:
+            payload["context"] = context
         try:
             result = await timed_agent_run(
                 agent,
@@ -94,8 +97,10 @@ class HitlGuideAgent:
             logger.warning("HITL 引导 Agent 失败，使用兜底文案：%s", exc)
             return fallback
 
-        output = result.output
-        return self._merge_with_fallback(output, fallback)
+        output = self._merge_with_fallback(result.output, fallback)
+        if "reason" in missing_fields:
+            output.reason = ""
+        return output
 
     @classmethod
     def _merge_with_fallback(
@@ -103,7 +108,9 @@ class HitlGuideAgent:
         output: HitlGuideOutput,
         fallback: HitlGuideOutput,
     ) -> HitlGuideOutput:
-        reason = cls._first_person_reason(output.reason) if output.reason else fallback.reason
+        # reason 是即将落业务单的用户诉求摘要。若上游已给出结构化原因，
+        # 这里只允许做第一人称转换，避免 LLM 借上下文扩写情绪、心理或历史纠纷。
+        reason = fallback.reason or (cls._first_person_reason(output.reason) if output.reason else "")
         return HitlGuideOutput(
             reason=reason,
             guide_message=output.guide_message.strip() or fallback.guide_message,
@@ -132,7 +139,7 @@ class HitlGuideAgent:
             instruction = "请填写并核对售后申请表，确认后才会提交售后申请。"
         elif tool == "createHumanService":
             guide = (
-                "可以，我先把人工服务表整理好了。请用你的口吻补充或核对诉求原因，"
+                "可以，我先把人工服务表整理好了。请补充或核对具体问题，"
                 "确认后我再帮你创建人工服务单。"
             )
             instruction = "请填写并核对人工服务表，确认后才会创建人工服务单。"

@@ -5,8 +5,13 @@
 
 from __future__ import annotations
 
+import asyncio
+from types import SimpleNamespace
+
 from agent.agents.hitl_guide import HitlGuideOutput
-from agent.agents.order import OrderAgent, PendingApproval, SpecialistRunResult
+from pydantic_ai.messages import ToolReturnPart
+
+from agent.agents.order import OrderAgent, OrderServiceOutput, PendingApproval, SpecialistRunResult
 from agent.agents.orchestrator import DecisionResult
 from agent.customer_agent import AgentContext, CustomerAgent, Task
 
@@ -37,6 +42,7 @@ class _FakeHitlGuide:
         required_fields,
         missing_fields,
         default_instruction,
+        context=None,
     ) -> HitlGuideOutput:
         reason = str(args.get("reason") or "")
         if reason.startswith("用户"):
@@ -49,6 +55,25 @@ class _FakeHitlGuide:
             reason=reason,
             guide_message=f"{tool} 表单引导",
             instruction=f"{tool} 表单说明",
+        )
+
+
+class _BadMissingReasonGuide:
+    async def run(
+        self,
+        *,
+        tool,
+        user_input,
+        args,
+        required_fields,
+        missing_fields,
+        default_instruction,
+        context=None,
+    ) -> HitlGuideOutput:
+        return HitlGuideOutput(
+            reason="我想处理订单 O202606040002 的退货问题",
+            guide_message="请补充退货原因",
+            instruction=default_instruction,
         )
 
 
@@ -178,6 +203,35 @@ def test_after_sale_suspends_with_pending_action() -> None:
     assert ctx.pending_review is not None
 
 
+def test_missing_reason_stays_empty_even_if_guide_generates_placeholder() -> None:
+    decision = DecisionResult(
+        intent="order", tasks=[], planning_mode="planned"
+    )
+    agent = CustomerAgent(
+        orchestrator=_FakeOrchestrator(decision),
+        summarize_agent=_FakeSummarize("最终回答"),
+        hitl_guide_agent=_BadMissingReasonGuide(),
+        memory_loader=lambda ctx: None,
+        memory_saver=lambda ctx: None,
+    )
+    ctx = AgentContext(user_input="我要退最近那一笔订单苹果", session_id="s1", customer_id=7)
+    output = SpecialistRunResult(
+        pending=PendingApproval(
+            tool="createAfterSale",
+            call_id="call_missing_reason",
+            args={"orderNo": "O202606040002", "type": 3, "reason": ""},
+        ),
+        messages=["__history__"],
+    )
+
+    pending = asyncio.run(agent._pending_action("order", output, ctx))
+
+    assert pending["args"]["reason"] == ""
+    assert "reason" in pending["missing_fields"]
+    assert "reason" not in pending["known_fields"]
+    assert pending["guide_message"] == "请补充退货原因"
+
+
 def test_human_service_suspends_with_pending_action() -> None:
     decision = DecisionResult(
         intent="order",
@@ -260,6 +314,82 @@ def test_human_request_directly_invokes_human_service_action() -> None:
     assert ctx.agent_results == {}
 
 
+def test_human_service_uses_order_context_for_recent_order_complaint() -> None:
+    decision = DecisionResult(
+        intent="order",
+        tasks=[],
+        planning_mode="planned",
+        human_service={
+            "reason": "用户明确要求投诉，需人工介入处理投诉升级流程。",
+            "orderNo": "",
+        },
+    )
+    agent = CustomerAgent(
+        orchestrator=_FakeOrchestrator(decision),
+        summarize_agent=_FakeSummarize("最终回答"),
+        hitl_guide_agent=_FakeHitlGuide(),
+        memory_loader=lambda ctx: None,
+        memory_saver=lambda ctx: None,
+    )
+    ctx = AgentContext(user_input="我要投诉最近那笔订单", session_id="s1", customer_id=7)
+    ctx.agent_results["order"] = (
+        "您最近一笔订单信息如下：\n"
+        "订单号：O202606040002，下单时间：2026-06-18 08:30\n"
+        "商品：iPhone 14 Plus（512GB）、iPhone 13 Pro（512GB），"
+        "订单状态：已支付，物流状态：运输中（中通快递 ZTO202606040002）。\n"
+        "当前存在1条售后：AS202606040001（维修），状态为「已收件」。"
+    )
+
+    output = asyncio.run(agent._start_human_service_action(ctx, decision.human_service))
+    pending = asyncio.run(agent._pending_action("tool", output, ctx))
+
+    assert pending["args"]["orderNo"] == "O202606040002"
+    assert pending["known_fields"]["orderNo"] == "O202606040002"
+    assert "我想投诉订单O202606040002的问题" in pending["args"]["reason"]
+    assert "订单状态：已支付" in pending["args"]["reason"]
+    assert "物流状态：运输中" in pending["args"]["reason"]
+
+
+def test_human_service_reason_for_return_uses_business_problem_not_emotion() -> None:
+    decision = DecisionResult(
+        intent="order",
+        tasks=[],
+        planning_mode="planned",
+        human_service={
+            "reason": "用户情绪为愤怒/不满，且此前已就同一订单发起投诉，需人工介入协同处理退货与历史投诉。",
+            "orderNo": "O202606040002",
+        },
+    )
+    agent = CustomerAgent(
+        orchestrator=_FakeOrchestrator(decision),
+        summarize_agent=_FakeSummarize("最终回答"),
+        hitl_guide_agent=_FakeHitlGuide(),
+        memory_loader=lambda ctx: None,
+        memory_saver=lambda ctx: None,
+    )
+    ctx = AgentContext(
+        user_input="我要退货",
+        session_id="s1",
+        customer_id=7,
+        current_emotion="愤怒/不满",
+    )
+    ctx.agent_results["order"] = (
+        "订单O202606040002当前状态为已支付、运输中，含iPhone 14 Plus和iPhone 13 Pro各1台；"
+        "物流显示快件运输中，尚未签收。根据平台规则，商品未签收前不支持退货，仅可申请‘仅退款’（类型3）。"
+    )
+
+    output = asyncio.run(agent._start_human_service_action(ctx, decision.human_service))
+    pending = asyncio.run(agent._pending_action("tool", output, ctx))
+    reason = pending["args"]["reason"]
+
+    assert "我想处理订单O202606040002的退货/仅退款问题" in reason
+    assert "当前状态为已支付、运输中" in reason
+    assert "情绪" not in reason
+    assert "此前" not in reason
+    assert "历史投诉" not in reason
+    assert "协同" not in reason
+
+
 def test_confirm_with_edited_args_resumes_and_persists() -> None:
     order = _FakeOrder("售后单 A123 已创建")
     ctx = AgentContext(user_input="我要退货", session_id="s1", customer_id=7)
@@ -284,6 +414,46 @@ def test_confirm_with_edited_args_resumes_and_persists() -> None:
     for _ in gen:
         pass
     assert ctx.final_answer == "已为你提交售后单 A123"
+
+
+def test_order_wrap_uses_created_after_sale_tool_result_over_model_draft_text() -> None:
+    result = SimpleNamespace(
+        output=OrderServiceOutput(
+            answer=(
+                "当前已为您生成退货申请草稿，单号：AS20260622225745766。"
+                "核对无误后，点击确认即可提交。"
+            )
+        ),
+        all_messages=lambda: [
+            SimpleNamespace(
+                parts=[
+                    ToolReturnPart(
+                        tool_name="createAfterSale",
+                        content={
+                            "authorized": True,
+                            "created": True,
+                            "afterSale": {
+                                "afterSaleNo": "AS20260622225745766",
+                                "orderNo": "O202606040002",
+                                "type": 1,
+                                "status": 0,
+                                "reason": "不喜欢",
+                            },
+                        },
+                    )
+                ]
+            )
+        ],
+    )
+
+    wrapped = OrderAgent._wrap(result)
+
+    assert "售后申请已提交" in wrapped.text
+    assert "售后单号：AS20260622225745766" in wrapped.text
+    assert "关联订单：O202606040002" in wrapped.text
+    assert "状态：待审核" in wrapped.text
+    assert "草稿" not in wrapped.text
+    assert "点击确认" not in wrapped.text
 
 
 def test_cancel_resumes_with_denial() -> None:

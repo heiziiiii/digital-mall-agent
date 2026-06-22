@@ -293,13 +293,13 @@ def make_mysql_sql(selected):
         rows_sql.append(f" ({i}, '{product_no}', '{name}', {stock}, 1)")
     lines.append(",\n".join(rows_sql) + ";")
 
-    p = [f"P{10001 + i}" for i in range(8)]
-    names = [selected[i]["model"].replace("'", "\\'") for i in range(8)]
-    prices = [selected[i]["price"] for i in range(8)]
+    p = [f"P{10001 + i}" for i in range(len(selected))]
+    names = [selected[i]["model"].replace("'", "\\'") for i in range(len(selected))]
+    prices = [selected[i]["price"] for i in range(len(selected))]
 
     lines.append("""
 INSERT INTO orders (id, order_no, customer_id, total_amount, pay_amount, order_status, pay_status,
-                    receiver_name, receiver_phone, receiver_address, items, logistics)
+                    receiver_name, receiver_phone, receiver_address, items, logistics, created_at, updated_at)
 VALUES""")
 
     def item_json(pno, pname, price, qty=1):
@@ -320,17 +320,15 @@ VALUES""")
          item_json(p[1], names[1], prices[1]),
          logistics_json('京东物流', 'JD202606020001', 1,
                         [{"time": "2026-06-02 09:20", "location": "北京仓", "description": "订单已出库，等待揽收"}])),
-        (3, 'O202606030001', 3, prices[2] + prices[3], prices[2] + prices[3], 3, 1, '王先生', '13700003333', '深圳市南山区科技园科苑路88号',
-         json.dumps([{"productNo": p[2], "productName": names[2], "price": prices[2], "quantity": 1},
-                     {"productNo": p[3], "productName": names[3], "price": prices[3], "quantity": 1}], ensure_ascii=False),
+        (3, 'O202606030001', 3, prices[2], prices[2], 3, 1, '王先生', '13700003333', '深圳市南山区科技园科苑路88号',
+         item_json(p[2], names[2], prices[2]),
          logistics_json('顺丰速运', 'SF202606030001', 3,
                         [{"time": "2026-06-03 08:10", "location": "深圳仓", "description": "快件已发出"},
                          {"time": "2026-06-03 20:10", "location": "深圳市南山区", "description": "已签收，签收人：本人"}])),
         (4, 'O202606040001', 4, prices[4], 0.0, 0, 0, '赵敏', '13600004444', '杭州市西湖区文三路99号',
          item_json(p[4], names[4], prices[4]), 'NULL'),
-        (5, 'O202606040002', 5, prices[5] + prices[6], prices[5] + prices[6], 2, 1, '陈工', '13500005555', '广州市天河区体育西路66号',
-         json.dumps([{"productNo": p[5], "productName": names[5], "price": prices[5], "quantity": 1},
-                     {"productNo": p[6], "productName": names[6], "price": prices[6], "quantity": 1}], ensure_ascii=False),
+        (5, 'O202606040002', 5, prices[5], prices[5], 2, 1, '陈工', '13500005555', '广州市天河区体育西路66号',
+         item_json(p[5], names[5], prices[5]),
          logistics_json('中通快递', 'ZTO202606040002', 2,
                         [{"time": "2026-06-04 11:30", "location": "广州仓", "description": "快件已揽收"},
                          {"time": "2026-06-04 16:10", "location": "广州转运中心", "description": "快件运输中"}])),
@@ -346,12 +344,29 @@ VALUES""")
          logistics_json('京东物流', 'JD202606060001', 3,
                         [{"time": "2026-06-06 09:00", "location": "深圳仓", "description": "订单已出库"},
                          {"time": "2026-06-06 15:05", "location": "深圳市南山区", "description": "已签收"}])),
+        (9, 'O202606240001', 5, prices[31], prices[31], 1, 1, '陈工', '13500005555', '广州市天河区体育西路66号',
+         item_json(p[31], names[31], prices[31]),
+         logistics_json('京东物流', 'JD202606240001', 1,
+                        [{"time": "2026-06-24 09:15", "location": "广州仓", "description": "订单已出库，等待揽收"}])),
     ]
+
+    order_times = {
+        'O202606010001': ('2026-06-01 09:36:18', '2026-06-01 14:08:42'),
+        'O202606020001': ('2026-06-02 08:57:31', '2026-06-02 09:24:16'),
+        'O202606030001': ('2026-06-03 07:42:09', '2026-06-03 20:18:55'),
+        'O202606040001': ('2026-06-04 10:21:44', '2026-06-04 10:37:12'),
+        'O202606040002': ('2026-06-04 10:58:27', '2026-06-04 16:26:03'),
+        'O202606050001': ('2026-06-05 12:14:52', '2026-06-05 12:47:30'),
+        'O202606050002': ('2026-06-05 12:38:11', '2026-06-05 13:03:48'),
+        'O202606060001': ('2026-06-06 08:43:22', '2026-06-06 15:12:37'),
+        'O202606240001': ('2026-06-24 08:52:46', '2026-06-24 09:19:28'),
+    }
 
     order_rows = []
     for o in orders:
         (oid, order_no, cid, total, pay, ostatus, pstatus,
          rname, rphone, raddr, items_j, logistics_j) = o
+        created_at, updated_at = order_times[order_no]
         name_esc = rname.replace("'", "\\'")
         addr_esc = raddr.replace("'", "\\'")
         items_esc = items_j.replace("'", "\\'") if items_j != 'NULL' else None
@@ -360,7 +375,8 @@ VALUES""")
         logi_sql = f"'{logi_esc}'" if logi_esc else 'NULL'
         order_rows.append(
             f" ({oid}, '{order_no}', {cid}, {total:.2f}, {pay:.2f}, {ostatus}, {pstatus},"
-            f" '{name_esc}', '{rphone}', '{addr_esc}', {items_sql}, {logi_sql})"
+            f" '{name_esc}', '{rphone}', '{addr_esc}', {items_sql}, {logi_sql},"
+            f" '{created_at}', '{updated_at}')"
         )
     lines.append(",\n".join(order_rows) + ";")
 

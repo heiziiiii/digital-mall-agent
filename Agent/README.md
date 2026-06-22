@@ -5,7 +5,7 @@
 - [`src/agent/`](src/agent/)：Python 多 Agent 服务，负责理解用户问题、规划专家任务、调用 MCP 工具、生成回复和保存记忆。
 - [`src/api-gateway/`](src/api-gateway/)：Java API Gateway，负责登录鉴权、路由转发、身份透传和前端接口入口。
 
-MCP 工具服务位于仓库根目录的 [`../MCP/`](../MCP/)，前端位于 [`../前端/`](../前端/)。
+MCP 工具服务位于仓库根目录的 [`../MCP/`](../MCP/)，前端位于 [`../frontend/`](../frontend/)。
 
 ## 后端分层
 
@@ -49,10 +49,11 @@ cd ../api-gateway
 mvn spring-boot:run
 ```
 
-Gateway 启动前建议显式配置：
+Gateway 本地开发可直接启动；生产或共享环境启动前请显式配置：
 
 ```powershell
 $env:JWT_SECRET = "replace-with-at-least-32-bytes-secret"
+$env:REQUIRE_ENV_JWT_SECRET = "true"
 $env:MYSQL_USERNAME = "root"
 $env:MYSQL_PASSWORD = "root"
 $env:AGENT_SERVICE_URI = "http://127.0.0.1:8001"

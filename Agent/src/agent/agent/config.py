@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     openai_model: str = "qwen-plus"
+    # 编排器负责意图拆解、依赖规划，默认比主模型提升一档。
+    openai_orchestrator_model: str | None = "qwen3.5-plus"
     # 高频轻量节点可单独指定更快模型；留空则沿用 openai_model。
     openai_expert_model: str | None = None
     openai_memory_model: str | None = None

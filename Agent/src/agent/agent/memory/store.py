@@ -328,11 +328,21 @@ async def _recall_async(
         logger.warning("语义召回失败：%s", exc)
         return []
     min_score = get_settings().memory_recall_min_score
-    return [
-        memory
-        for memory in memories
-        if float(memory.get("score") or 0) >= min_score
-    ]
+    filtered: list[dict] = []
+    for memory in memories:
+        score = float(memory.get("score") or 0)
+        if score < min_score:
+            continue
+        filtered.append(
+            {
+                "text": str(memory.get("text") or ""),
+                "role": str(memory.get("role") or ""),
+                "score": score,
+                "turn": memory.get("turn"),
+                "created_at": str(memory.get("created_at") or ""),
+            }
+        )
+    return filtered
 
 
 def recall_cross_session_memory(
@@ -404,6 +414,15 @@ def load_memory(ctx: AgentContext) -> None:
     authenticated_customer = runtime.run(_load_authenticated_customer(ctx.customer_id))
 
     recent_history = _memory_recent_history(rolling_summary, history)
+    recall_tool = lambda query, top_k=None: recall_cross_session_memory(
+        session_id=session_id,
+        query=query,
+        top_k=top_k,
+        customer_id=ctx.customer_id,
+        customer_no=ctx.customer_no,
+        rolling_summary=rolling_summary,
+        user_profile=user_profile,
+    )
 
     # 记忆提取节点首轮只接收轻量画像；当模型判断确需完整画像时，再做二次提取。
     extract_agent = _memory_agent or _memory_extract_agent
@@ -414,7 +433,7 @@ def load_memory(ctx: AgentContext) -> None:
         "recent_history": recent_history,
         "profile_scope": "lightweight",
     }
-    memory = asyncio.run(extract_agent.extract(extract_payload))
+    memory = asyncio.run(extract_agent.extract(extract_payload, recall_tool=recall_tool))
     if getattr(memory, "full_profile_needed", False):
         memory = asyncio.run(
             extract_agent.extract(
@@ -422,7 +441,8 @@ def load_memory(ctx: AgentContext) -> None:
                     **extract_payload,
                     "user_profile": user_profile,
                     "profile_scope": "full",
-                }
+                },
+                recall_tool=recall_tool,
             )
         )
 

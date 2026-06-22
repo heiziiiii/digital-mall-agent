@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 from pydantic_ai import Agent, PromptedOutput
 
 from agent.hooks import timed_agent_run
-from agent.llm.model import get_model
+from agent.llm.model import get_orchestrator_model as get_model
 from agent.prompts.loader import render_skill
 
 if TYPE_CHECKING:  # 仅类型注解用；运行时在函数内惰性导入，避免运行时循环导入
@@ -173,31 +173,37 @@ def _normalize_human_service(spec: HumanServiceSpec | None) -> dict[str, Any] | 
     }
 
 
-def _infer_human_service(payload: dict[str, Any]) -> dict[str, Any] | None:
-    """从已整理上下文兜底识别人工服务诉求，避免完全依赖 LLM 填结构字段。"""
-    text_parts = [
-        str(payload.get("user_input", "") or ""),
-        str(payload.get("background_summary", "") or ""),
-    ]
-    text = "\n".join(part for part in text_parts if part)
-    emotion = str(payload.get("current_emotion", "") or "")
-    wants_human = any(
+def _explicit_human_service_requested(payload: dict[str, Any]) -> bool:
+    """判断用户本轮是否明确提出人工/投诉/升级类诉求。"""
+    text = str(payload.get("user_input", "") or "")
+    return any(
         keyword in text
         for keyword in ("人工", "真人", "客服", "投诉", "升级", "主管", "专员", "申诉", "复核")
     )
-    negative = emotion in {"愤怒/不满", "焦急"} or any(
-        keyword in text
-        for keyword in ("非常不满意", "很不满意", "太离谱", "生气", "投诉")
-    )
-    if not wants_human and not negative:
+
+
+def _emotion_needs_human_service(payload: dict[str, Any]) -> bool:
+    """情绪只决定是否提供人工兜底，不参与生成用户诉求原因。"""
+    emotion = str(payload.get("current_emotion", "") or "")
+    return emotion in {"愤怒/不满", "焦急"}
+
+
+def _infer_human_service(payload: dict[str, Any]) -> dict[str, Any] | None:
+    """从已整理上下文兜底识别人工服务诉求，避免完全依赖 LLM 填结构字段。"""
+    text = str(payload.get("user_input", "") or "")
+    if not _explicit_human_service_requested(payload) and not _emotion_needs_human_service(payload):
         return None
 
-    order_match = re.search(r"\bO\d{8,}\b", text)
-    reason = str(
-        payload.get("background_summary")
-        or payload.get("user_input")
-        or "用户需要人工进一步处理"
-    ).strip()
+    context_text = "\n".join(
+        part
+        for part in [
+            text,
+            str(payload.get("background_summary", "") or ""),
+        ]
+        if part
+    )
+    order_match = re.search(r"\bO\d{8,}\b", context_text)
+    reason = text.strip() or "需要人工进一步处理当前问题"
     return {
         "reason": reason[:200],
         "orderNo": order_match.group(0) if order_match else "",
@@ -279,9 +285,18 @@ class OrchestratorAgent:
         prompt = _build_decision_context(user_input)
         result = await timed_agent_run(self._get_agent(), prompt, "任务编排")
         tasks = _normalize_tasks(result.output.tasks)
-        human_service = _normalize_human_service(
+        planned_human_service = _normalize_human_service(
             getattr(result.output, "human_service", None)
-        ) or _infer_human_service(payload)
+        )
+        if (
+            planned_human_service
+            and not _explicit_human_service_requested(payload)
+            and not _emotion_needs_human_service(payload)
+        ):
+            planned_human_service = None
+        if planned_human_service and not _explicit_human_service_requested(payload):
+            planned_human_service["reason"] = text
+        human_service = planned_human_service or _infer_human_service(payload)
         logger.info(
             "LLM 编排结果：%s",
             [(t.agent, t.priority, t.depends_on) for t in tasks],

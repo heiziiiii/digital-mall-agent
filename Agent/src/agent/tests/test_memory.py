@@ -121,7 +121,7 @@ def test_load_falls_back_to_mysql_and_refills_cache(monkeypatch) -> None:
     assert ctx.history == [{"role": "user", "content": "早些的问题"}]
     assert ctx.recalled_memories == []
     assert ctx.current_emotion == "中性"
-    assert captured["recall_tool"] is None
+    assert callable(captured["recall_tool"])
     assert store.local_cache.get("sX") is not None
     assert captured["refilled"]["rolling_summary"] == "老摘要"
 
@@ -235,12 +235,12 @@ def test_load_new_session_inherits_latest_customer_profile(monkeypatch) -> None:
     assert captured["payload"]["recent_history"] == [
         {"role": "summary", "content": "压缩早期会话记忆：最近售后摘要"}
     ]
-    assert captured["recall_tool"] is None
+    assert callable(captured["recall_tool"])
     assert ctx.rolling_summary == "最近售后摘要"
     assert ctx.user_profile == legacy_profile
 
 
-def test_memory_extract_does_not_receive_or_call_long_term_recall(monkeypatch) -> None:
+def test_memory_extract_receives_long_term_recall_tool_without_auto_calling(monkeypatch) -> None:
     store.local_cache.clear()
     store.local_cache.put(
         "s-memory-recall",
@@ -254,7 +254,7 @@ def test_memory_extract_does_not_receive_or_call_long_term_recall(monkeypatch) -
     captured: dict = {}
 
     async def fake_embed(text):
-        raise AssertionError("记忆提取阶段不应执行长期语义召回")
+        raise AssertionError("长期语义召回应仅在 memory agent 调用工具时执行")
 
     async def fake_search(_sid, _vector, _top_k, **_kwargs):
         return [
@@ -294,12 +294,12 @@ def test_memory_extract_does_not_receive_or_call_long_term_recall(monkeypatch) -
     assert captured["payload"]["recent_history"] == [
         {"role": "summary", "content": "压缩早期会话记忆：用户当前有进行中的换货流程 AS202606030001"}
     ]
-    assert captured["recall_tool"] is None
+    assert callable(captured["recall_tool"])
     assert ctx.background_summary == "用户长期关注高端旗舰手机与售后规则。"
     assert ctx.recalled_memories == []
 
 
-def test_load_hits_local_cache_without_exposing_recall_tool(monkeypatch) -> None:
+def test_load_hits_local_cache_exposes_recall_tool_without_auto_calling(monkeypatch) -> None:
     store.local_cache.clear()
     store.local_cache.put(
         "sR",
@@ -349,8 +349,91 @@ def test_load_hits_local_cache_without_exposing_recall_tool(monkeypatch) -> None
 
     assert ctx.recalled_memories == []
     assert ctx.background_summary == ""
-    assert captured["recall_tool"] is None
+    assert callable(captured["recall_tool"])
     assert ctx.current_emotion == "焦急"
+
+
+def test_memory_extract_recall_tool_returns_time_and_filters_low_score(monkeypatch) -> None:
+    store.local_cache.clear()
+    store.local_cache.put(
+        "s-tool",
+        {
+            "history": [],
+            "rolling_summary": "",
+            "user_profile": UserProfile().model_dump(),
+            "turns": 0,
+        },
+    )
+    captured: dict = {}
+
+    async def fake_embed(query):
+        captured["query"] = query
+        return [0.1, 0.2]
+
+    async def fake_search(_sid, _vector, top_k, **kwargs):
+        captured["top_k"] = top_k
+        captured["identity"] = kwargs
+        return [
+            {
+                "text": "用户之前反馈耳机降噪有电流声。",
+                "role": "turn",
+                "turn": 4,
+                "score": 0.92,
+                "created_at": "2026-06-18T09:30:00",
+            },
+            {
+                "text": "用户闲聊过手机壳颜色。",
+                "role": "turn",
+                "turn": 2,
+                "score": 0.72,
+                "created_at": "2026-06-10T12:00:00",
+            },
+        ]
+
+    async def fake_extract(_payload, recall_tool=None):
+        captured["recall_tool"] = recall_tool
+        return MemoryExtraction(
+            background_summary="",
+            current_emotion="中性",
+        )
+
+    async def fake_load_customer(_customer_id):
+        return {}
+
+    monkeypatch.setattr(store.qdrant_store, "embed", fake_embed)
+    monkeypatch.setattr(store.qdrant_store, "search", fake_search)
+    monkeypatch.setattr(
+        store,
+        "get_settings",
+        lambda: SimpleNamespace(memory_recall_top_k=2, memory_recall_min_score=0.85),
+    )
+    monkeypatch.setattr(store, "_memory_agent", SimpleNamespace(extract=fake_extract))
+    monkeypatch.setattr(store, "_load_authenticated_customer", fake_load_customer)
+    monkeypatch.setattr(store, "get_runtime", lambda: _FakeRuntime())
+
+    ctx = AgentContext(
+        user_input="我之前那个耳机问题怎么处理",
+        session_id="s-tool",
+        customer_id=9,
+        customer_no="C009",
+    )
+    store.load_memory(ctx)
+    captured["memories"] = captured["recall_tool"]("之前的耳机问题", 5)
+
+    assert captured["query"] == "之前的耳机问题"
+    assert captured["top_k"] == 2
+    assert captured["identity"] == {"customer_id": 9, "customer_no": "C009"}
+    assert captured["memories"] == [
+        {
+            "text": "用户之前反馈耳机降噪有电流声。",
+            "role": "turn",
+            "score": 0.92,
+            "turn": 4,
+            "created_at": "2026-06-18T09:30:00",
+        }
+    ]
+    assert ctx.background_summary == ""
+    assert ctx.recalled_memories == []
 
 
 def test_load_keeps_recent_three_turns_and_compresses_overflow(monkeypatch) -> None:
@@ -574,7 +657,15 @@ def test_recall_searches_by_authenticated_customer(monkeypatch) -> None:
 
     async def fake_search(_sid, _vector, _top_k, **kwargs):
         captured.update(kwargs)
-        return [{"text": "用户偏好高端旗舰手机", "role": "turn", "turn": 3, "score": 0.88}]
+        return [
+            {
+                "text": "用户偏好高端旗舰手机",
+                "role": "turn",
+                "turn": 3,
+                "score": 0.88,
+                "created_at": "2026-06-20T10:00:00",
+            }
+        ]
 
     monkeypatch.setattr(store.qdrant_store, "embed", fake_embed)
     monkeypatch.setattr(store.qdrant_store, "search", fake_search)
@@ -595,7 +686,15 @@ def test_recall_searches_by_authenticated_customer(monkeypatch) -> None:
     )
 
     assert captured == {"customer_id": 7, "customer_no": "C007"}
-    assert result == [{"text": "用户偏好高端旗舰手机", "role": "turn", "turn": 3, "score": 0.88}]
+    assert result == [
+        {
+            "text": "用户偏好高端旗舰手机",
+            "role": "turn",
+            "turn": 3,
+            "score": 0.88,
+            "created_at": "2026-06-20T10:00:00",
+        }
+    ]
 
 
 def test_persist_long_term_memory_indexes_when_worth_saving(monkeypatch) -> None:
@@ -672,6 +771,7 @@ def test_qdrant_search_uses_query_points(monkeypatch) -> None:
             "customer_id": None,
             "customer_no": None,
             "score": 0.91,
+            "created_at": "",
         }
     ]
 

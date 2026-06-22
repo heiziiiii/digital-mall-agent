@@ -64,6 +64,12 @@ def get_model() -> OpenAIChatModel | None:
     return _get_model_for(_resolve_model_name(None))
 
 
+def get_orchestrator_model() -> OpenAIChatModel | None:
+    """编排 Agent 使用的模型；默认比主模型提升一档，可通过 OPENAI_ORCHESTRATOR_MODEL 覆盖。"""
+    settings = get_settings()
+    return _get_model_for(_resolve_model_name(settings.openai_orchestrator_model))
+
+
 def get_expert_model() -> OpenAIChatModel | None:
     """专家 Agent 使用的模型；可通过 OPENAI_EXPERT_MODEL 指向轻量模型。"""
     settings = get_settings()
@@ -79,6 +85,7 @@ def get_memory_model() -> OpenAIChatModel | None:
 def initialize_model() -> OpenAIChatModel | None:
     """在服务启动或 CLI 运行前显式初始化模型，避免首轮 Agent 执行时才懒加载。"""
     model = get_model()
+    get_orchestrator_model()
     get_expert_model()
     get_memory_model()
     if model is None:

@@ -82,6 +82,7 @@ graph TB
 OPENAI_API_KEY=sk-your-key
 OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 OPENAI_MODEL=qwen-plus
+OPENAI_ORCHESTRATOR_MODEL=qwen3.5-plus
 OPENAI_EXPERT_MODEL=qwen-turbo
 OPENAI_MEMORY_MODEL=qwen-turbo
 
@@ -101,7 +102,8 @@ RUN_CLEANUP_INTERVAL_SECONDS=60
 
 说明：
 
-- `OPENAI_MODEL` 用于主要回答和规划。
+- `OPENAI_MODEL` 用于主要回答。
+- `OPENAI_ORCHESTRATOR_MODEL` 用于任务编排，默认 `qwen3.5-plus`。
 - `OPENAI_EXPERT_MODEL` 可用于专家 Agent，适合配置更快的模型。
 - `OPENAI_MEMORY_MODEL` 可用于记忆提取和摘要。
 - `MCP_SERVER_URL` 必须指向 MCP 服务的 SSE 地址。

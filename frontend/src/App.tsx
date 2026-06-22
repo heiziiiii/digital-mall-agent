@@ -105,7 +105,7 @@ const reviewIntro = (action: PendingAction) => {
     return '可以，我先把售后申请表整理好了。请补充或核对下面的信息，尤其是“我的诉求/原因”，确认后我再帮你提交。'
   }
   if (action.tool === 'createHumanService') {
-    return '可以，我先把人工服务表整理好了。请用你的口吻补充或核对诉求原因，确认后我再帮你创建人工服务单。'
+    return '可以，我先把人工服务表整理好了。请补充或核对具体问题，确认后我再帮你创建人工服务单。'
   }
   if (action.tool === 'createOrder') {
     return '可以，我先把订单确认表整理好了。请核对信息，确认后我再帮你创建订单。'

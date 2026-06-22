@@ -24,7 +24,7 @@ const FIELD_LABELS: Record<string, string> = {
 
 const FIELD_PLACEHOLDERS: Record<string, string> = {
   orderNo: '请输入关联订单号',
-  reason: '请用“我……”描述你的诉求，例如：我收到的商品屏幕碎裂，想申请退货退款',
+  reason: '请补充具体问题或希望处理的事项',
 }
 
 const ACTION_TITLES: Record<string, string> = {
