@@ -60,9 +60,9 @@ public class SecurityConfig {
                 .authorizeExchange(ex -> ex
                         // 放行 CORS 预检
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                        // 登录接口与运维端点免认证
+                        // 登录接口与健康检查免认证
                         .pathMatchers("/api/auth/login").permitAll()
-                        .pathMatchers("/actuator/**").permitAll()
+                        .pathMatchers("/actuator/health").permitAll()
                         // 其余全部需要认证（/api/agent/**、/api/auth/me、/api/auth/logout 等）
                         .anyExchange().authenticated())
                 .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)

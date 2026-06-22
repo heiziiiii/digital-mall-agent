@@ -22,7 +22,7 @@ from pydantic_ai import (
 from pydantic_ai.usage import UsageLimits
 
 from agent.hooks import timed_agent_run
-from agent.llm.model import get_model
+from agent.llm.model import get_expert_model as get_model
 from agent.prompts.loader import render_skill
 from agent.tools.mcp_client import SpecialistDeps, toolset_for
 
@@ -74,6 +74,9 @@ class OrderAgent:
     name = NAME
     label = LABEL
 
+    def __init__(self) -> None:
+        self._agent: Agent | None = None
+
     def build_context(
         self,
         ctx: AgentContext,
@@ -89,20 +92,27 @@ class OrderAgent:
 
     def deps(self, ctx: AgentContext) -> SpecialistDeps:
         """订单工具需要服务端认证身份。"""
-        return SpecialistDeps(customer_id=ctx.customer_id)
+        return SpecialistDeps(customer_id=ctx.customer_id, session_id=ctx.session_id)
 
     def _build_agent(self) -> Agent:
-        """构造订单专家 Agent；output_type 含 DeferredToolRequests 以允许返回待审批写操作。"""
-        model = get_model()
-        if model is None:
-            raise RuntimeError(f"LLM 未配置（缺少 OPENAI_API_KEY），无法执行：{LABEL}")
-        return Agent(
-            model,
-            output_type=[OrderServiceOutput, DeferredToolRequests],
-            deps_type=SpecialistDeps,
-            system_prompt=render_skill("order"),
-            toolsets=[toolset_for("order")],
-        )
+        """构造并复用订单专家 Agent；output_type 含 DeferredToolRequests 以允许返回待审批写操作。"""
+        if self._agent is None:
+            model = get_model()
+            if model is None:
+                raise RuntimeError(f"LLM 未配置（缺少 OPENAI_API_KEY），无法执行：{LABEL}")
+            self._agent = Agent(
+                model,
+                output_type=[OrderServiceOutput, DeferredToolRequests],
+                deps_type=SpecialistDeps,
+                system_prompt=(
+                    f"{render_skill('order')}\n\n"
+                    "## 输出压缩要求\n"
+                    "- answer 只说明已核实事实、当前状态和下一步动作，避免重复订单字段和内部流程。\n"
+                    "- 查询类答复控制在 120 字左右；候选列表只列必要识别信息。"
+                ),
+                toolsets=[toolset_for("order")],
+            )
+        return self._agent
 
     async def run(
         self, context: str, agent_deps: SpecialistDeps | None = None

@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass
+from typing import Any
 
 from pydantic_ai.toolsets.abstract import ToolsetTool
 from pydantic_ai.toolsets.approval_required import ApprovalRequiredToolset
 from pydantic_ai.tools import ToolDefinition
 
 from agent.tools.mcp_client import (
+    TOOL_RETRY_TIMES,
     USER_ID_TOOLS,
     WRITE_APPROVAL_TOOLS,
     ContextCustomerToolset,
+    SpecialistDeps,
     _MODEL_ARGS_VALIDATOR,
     _hide_user_id_param,
     toolset_for,
@@ -21,8 +25,10 @@ from agent.tools.mcp_client import (
 class _FakeInner:
     """伪造被包装的底层工具集，避免真连 MCP 服务端。"""
 
-    def __init__(self, tools: dict[str, ToolsetTool]) -> None:
+    def __init__(self, tools: dict[str, ToolsetTool], failures: int = 0) -> None:
         self._tools = tools
+        self.failures = failures
+        self.calls: list[dict[str, Any]] = []
 
     def filtered(self, predicate):
         return _FakeInner({name: tool for name, tool in self._tools.items() if predicate(None, tool.tool_def)})
@@ -30,11 +36,33 @@ class _FakeInner:
     async def get_tools(self, ctx):
         return self._tools
 
+    async def call_tool(self, name, tool_args, ctx, tool):
+        self.calls.append({"name": name, "args": dict(tool_args)})
+        if len(self.calls) <= self.failures:
+            raise RuntimeError("远端 MCP 临时不可用")
+        return {"ok": True, "name": name, "args": tool_args}
+
+
+@dataclass
+class _Ctx:
+    deps: SpecialistDeps
+
 
 def _tool(name: str) -> ToolsetTool:
     tool_def = ToolDefinition(
         name=name, parameters_json_schema={"type": "object", "properties": {}}
     )
+    return ToolsetTool(
+        toolset=None,
+        tool_def=tool_def,
+        max_retries=1,
+        args_validator=_MODEL_ARGS_VALIDATOR,
+        args_validator_func=None,
+    )
+
+
+def _schema_tool(name: str, schema: dict) -> ToolsetTool:
+    tool_def = ToolDefinition(name=name, parameters_json_schema=schema)
     return ToolsetTool(
         toolset=None,
         tool_def=tool_def,
@@ -117,3 +145,127 @@ def test_toolset_for_wraps_with_pydantic_ai_approval_required(monkeypatch) -> No
     assert toolset.approval_required_func(None, ToolDefinition(name="createAfterSale"), {})
     assert toolset_for("service").approval_required_func(None, ToolDefinition(name="createHumanService"), {})
     assert not toolset.approval_required_func(None, ToolDefinition(name="queryOrder"), {})
+
+
+def test_tool_call_validates_args_before_remote_call() -> None:
+    inner = _FakeInner(
+        {
+            "searchKnowledge": _schema_tool(
+                "searchKnowledge",
+                {
+                    "type": "object",
+                    "properties": {"query": {"type": "string"}},
+                    "required": ["query"],
+                },
+            )
+        }
+    )
+    toolset = ContextCustomerToolset(inner, agent_name="tech")
+    tool = inner._tools["searchKnowledge"]
+
+    result = asyncio.run(
+        toolset.call_tool("searchKnowledge", {}, _Ctx(SpecialistDeps()), tool)
+    )
+
+    assert result["tool_failed"] is True
+    assert result["attempts"] == 0
+    assert "工具参数校验失败" in result["message"]
+    assert "缺少必填参数" in result["error"]
+    assert inner.calls == []
+
+
+def test_tool_call_retries_three_times_then_returns_agent_fallback() -> None:
+    inner = _FakeInner({"searchKnowledge": _tool("searchKnowledge")}, failures=99)
+    toolset = ContextCustomerToolset(inner, agent_name="tech")
+    tool = inner._tools["searchKnowledge"]
+
+    result = asyncio.run(
+        toolset.call_tool("searchKnowledge", {"query": "蓝屏"}, _Ctx(SpecialistDeps()), tool)
+    )
+
+    assert len(inner.calls) == 1 + TOOL_RETRY_TIMES
+    assert result["tool_failed"] is True
+    assert result["attempts"] == 1 + TOOL_RETRY_TIMES
+    assert "工具调用失败，错误信息是：远端 MCP 临时不可用" in result["message"]
+    assert "通用安全排查步骤" in result["fallback"]
+
+
+def test_user_id_tool_failure_return_mentions_order_fallback_without_remote_call() -> None:
+    inner = _FakeInner({"queryOrder": _tool("queryOrder")})
+    toolset = ContextCustomerToolset(inner, agent_name="order")
+    tool = inner._tools["queryOrder"]
+
+    result = asyncio.run(
+        toolset.call_tool("queryOrder", {"orderNo": "O1"}, _Ctx(SpecialistDeps()), tool)
+    )
+
+    assert result["tool_failed"] is True
+    assert result["attempts"] == 0
+    assert "当前未获取到认证客户ID" in result["error"]
+    assert "核对订单号、售后单号和当前登录身份" in result["fallback"]
+    assert inner.calls == []
+
+
+def test_tool_call_succeeds_after_retry() -> None:
+    inner = _FakeInner({"searchProducts": _tool("searchProducts")}, failures=2)
+    toolset = ContextCustomerToolset(inner, agent_name="product")
+    tool = inner._tools["searchProducts"]
+
+    result = asyncio.run(
+        toolset.call_tool("searchProducts", {"query": "手机"}, _Ctx(SpecialistDeps()), tool)
+    )
+
+    assert len(inner.calls) == 3
+    assert result["ok"] is True
+
+
+def test_product_search_adds_target_query_for_rag_when_missing() -> None:
+    inner = _FakeInner({"searchProducts": _tool("searchProducts")})
+    toolset = ContextCustomerToolset(inner, agent_name="product")
+    tool = inner._tools["searchProducts"]
+
+    result = asyncio.run(
+        toolset.call_tool(
+            "searchProducts",
+            {"brand": "三星", "category": "手机", "limit": 3, "sortBy": "relevance"},
+            _Ctx(SpecialistDeps()),
+            tool,
+        )
+    )
+
+    assert result["ok"] is True
+    assert inner.calls[0]["args"]["query"].startswith("三星手机")
+    assert "选购画像" in inner.calls[0]["args"]["query"]
+    assert "使用场景" in inner.calls[0]["args"]["query"]
+    assert "用户想" not in inner.calls[0]["args"]["query"]
+
+
+def test_tool_call_trace_includes_user_session_and_retry_stats(monkeypatch) -> None:
+    records: list[dict[str, Any]] = []
+    inner = _FakeInner({"searchProducts": _tool("searchProducts")}, failures=1)
+    toolset = ContextCustomerToolset(inner, agent_name="product")
+    tool = inner._tools["searchProducts"]
+    monkeypatch.setattr(
+        "agent.tools.mcp_client.log_tool_call",
+        lambda **kwargs: records.append(kwargs),
+    )
+
+    result = asyncio.run(
+        toolset.call_tool(
+            "searchProducts",
+            {"query": "手机"},
+            _Ctx(SpecialistDeps(customer_id=7, session_id="s1")),
+            tool,
+        )
+    )
+
+    assert result["ok"] is True
+    assert len(records) == 1
+    assert records[0]["agent_name"] == "product"
+    assert records[0]["tool_name"] == "searchProducts"
+    assert records[0]["user_id"] == 7
+    assert records[0]["session_id"] == "s1"
+    assert records[0]["attempts"] == 2
+    assert records[0]["retry_count"] == 1
+    assert records[0]["duration_ms"] >= 0
+    assert records[0]["started_at"]

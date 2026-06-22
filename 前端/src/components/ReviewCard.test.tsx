@@ -82,7 +82,7 @@ describe('ReviewCard 售后确认反馈', () => {
     expect(onApprove.mock.calls[0][0].reason).toBe('无法开机')
   })
 
-  it('人工服务确认不展示售后单号填写项，但保留原始参数', async () => {
+  it('人工服务确认不展示也不提交售后单号', async () => {
     const onApprove = vi.fn()
     render(
       <ReviewCard
@@ -104,7 +104,11 @@ describe('ReviewCard 售后确认反馈', () => {
     await userEvent.click(screen.getByRole('button', { name: '确认提交' }))
 
     expect(onApprove).toHaveBeenCalledTimes(1)
-    expect(onApprove.mock.calls[0][0].afterSaleNo).toBe('AS100')
+    expect(onApprove.mock.calls[0][0].afterSaleNo).toBeUndefined()
+    expect(onApprove.mock.calls[0][0]).toMatchObject({
+      orderNo: 'O100',
+      reason: '要求人工处理',
+    })
   })
 
   it('创建订单确认展示订单字段，并把数量转成 number', async () => {

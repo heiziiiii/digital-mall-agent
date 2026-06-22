@@ -48,7 +48,7 @@
 
 ## 鉴权
 
-- `/api/auth/login` 与 `/actuator/**` 放行，其余接口默认需要登录。
+- `/api/auth/login` 与 `/actuator/health` 放行，其余接口默认需要登录。
 - 登录校验 MySQL `customer` 表，成功后签发 HS256 JWT。
 - 受保护接口需携带 `Authorization: Bearer <token>`。
 - 登出会把 JWT 的 `jti` 写入 Redis 黑名单，直到 token 过期。
@@ -82,9 +82,11 @@
 | `AGENT_SERVICE_URI` | Python Agent 地址 | `http://127.0.0.1:8001` |
 | `MCP_SERVICE_URI` | MCP 服务端地址（订单/售后 REST） | `http://127.0.0.1:8081` |
 | `MYSQL_R2DBC_URL` | MySQL R2DBC 地址 | 见 `application.yml` |
-| `MYSQL_USERNAME` / `MYSQL_PASSWORD` | MySQL 账号密码 | `root` / `root` |
+| `MYSQL_USERNAME` / `MYSQL_PASSWORD` | MySQL 账号密码 | 无默认值，需显式提供 |
 | `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Redis 连接信息 | `localhost` / `6379` / 空 |
-| `JWT_SECRET` | JWT 签名密钥，生产必须覆盖 | 开发默认值 |
+| `JWT_SECRET` | JWT 签名密钥，至少 32 字节，启动时强校验来自环境变量 | 无默认值，必须提供 |
+| `FRONTEND_ORIGIN` / `FRONTEND_ORIGIN_ALT` | 允许跨域访问的前端来源 | `http://localhost:5173` / `http://127.0.0.1:5173` |
+| `REQUIRE_ENV_JWT_SECRET` | 是否强制校验 JWT_SECRET 来自环境变量 | `true` |
 
 服务器连接信息见 [`../../docs/server.md`](../../docs/server.md)。
 
@@ -101,6 +103,9 @@ python main.py --serve
 再启动网关：
 
 ```bash
+$env:JWT_SECRET = "replace-with-at-least-32-bytes-secret"
+$env:MYSQL_USERNAME = "你的数据库用户"
+$env:MYSQL_PASSWORD = "你的数据库密码"
 mvn spring-boot:run
 ```
 

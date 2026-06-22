@@ -54,6 +54,47 @@ def test_product_grounding_returns_json_when_no_tool_evidence() -> None:
     assert "暂未检索到" in grounded.summary
 
 
+def test_product_grounding_removes_unsupported_product_mentions_from_text() -> None:
+    output = ProductRecommendationOutput(
+        summary="iPhone SE 第三代最适合低端苹果需求",
+        recommendations=[
+            {
+                "product_no": "P10008",
+                "name": "苹果iPhone 13 Pro Max（256GB/全网通/5G版）",
+                "match_score": 75,
+            }
+        ],
+        notes="也可以考虑 iPhone SE 第三代。",
+    )
+    tool_outputs = [
+        "{'productNo': 'P10008', 'name': '苹果iPhone 13 Pro Max（256GB/全网通/5G版）'}"
+    ]
+
+    grounded = product.ground_product_result(output, tool_outputs=tool_outputs)
+
+    payload = json.dumps(grounded.model_dump(mode="json"), ensure_ascii=False)
+    assert "iPhone SE" not in payload
+    assert "P10008" in payload
+
+
+def test_product_run_returns_out_of_scope_for_non_digital_goods(monkeypatch) -> None:
+    monkeypatch.setattr(product, "get_model", lambda: None)
+
+    payload = json.loads(asyncio.run(ProductAgent().run("我要买汽车")))
+
+    assert payload["status"] == "out_of_scope"
+    assert payload["recommendations"] == []
+    assert "不在智能数码商城经营范围" in payload["summary"]
+    assert "不要推荐车载配件" in payload["notes"]
+
+
+def test_product_run_keeps_digital_car_accessory_in_scope(monkeypatch) -> None:
+    monkeypatch.setattr(product, "get_model", lambda: None)
+
+    with pytest.raises(RuntimeError):
+        asyncio.run(ProductAgent().run("我要买车载充电器"))
+
+
 def test_product_run_raises_when_model_unavailable(monkeypatch) -> None:
     # 模型不可用时不再返回占位 JSON，而是直接抛出
     monkeypatch.setattr(product, "get_model", lambda: None)

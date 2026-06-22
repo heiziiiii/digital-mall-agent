@@ -153,7 +153,7 @@ def test_human_service_suspends_with_pending_action() -> None:
         intent="order",
         tasks=[],
         planning_mode="planned",
-        human_service={"orderNo": "O1", "afterSaleNo": "", "reason": "用户要求人工处理"},
+        human_service={"orderNo": "O1", "reason": "用户要求人工处理"},
     )
     agent = CustomerAgent(
         orchestrator=_FakeOrchestrator(decision),
@@ -200,7 +200,6 @@ def test_human_request_directly_invokes_human_service_action() -> None:
         human_service={
             "reason": "用户要求转人工处理退款",
             "orderNo": "O1",
-            "afterSaleNo": "",
         },
     )
     agent = CustomerAgent(

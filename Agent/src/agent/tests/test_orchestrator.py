@@ -250,7 +250,7 @@ def test_human_service_is_inferred_from_complaint_context(monkeypatch) -> None:
     result = asyncio.run(agent.decide(ctx))
 
     assert result.human_service is not None
-    assert result.human_service["afterSaleNo"] == "AS202606030001"
+    assert "afterSaleNo" not in result.human_service
     assert "转人工" in result.human_service["reason"]
 
 
@@ -288,7 +288,6 @@ def test_llm_marked_human_service_is_planned(monkeypatch) -> None:
     assert result.human_service == {
         "reason": "用户要求人工核实退款进度",
         "orderNo": "O202606060001",
-        "afterSaleNo": "",
     }
     assert result.intent == "order"
 

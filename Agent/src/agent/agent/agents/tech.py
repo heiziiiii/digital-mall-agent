@@ -9,7 +9,7 @@ from pydantic_ai import Agent
 from pydantic_ai.usage import UsageLimits
 
 from agent.hooks import timed_agent_run
-from agent.llm.model import get_model
+from agent.llm.model import get_expert_model as get_model
 from agent.prompts.loader import render_skill
 from agent.tools.mcp_client import SpecialistDeps, toolset_for
 
@@ -38,6 +38,29 @@ class TechAgent:
     name = NAME
     label = LABEL
 
+    def __init__(self) -> None:
+        self._agent: Agent | None = None
+
+    def _get_agent(self) -> Agent:
+        """惰性构建并复用技术专家 Agent。"""
+        if self._agent is None:
+            model = get_model()
+            if model is None:
+                raise RuntimeError(f"LLM 未配置（缺少 OPENAI_API_KEY），无法执行：{LABEL}")
+            self._agent = Agent(
+                model,
+                output_type=TechSupportOutput,
+                deps_type=SpecialistDeps,
+                system_prompt=(
+                    f"{render_skill('tech')}\n\n"
+                    "## 输出压缩要求\n"
+                    "- answer 只给结论和必要步骤，避免复述检索过程、知识库原文和重复提醒。\n"
+                    "- 普通问题控制在 120 字左右；危险场景可适当增加安全提醒。"
+                ),
+                toolsets=[toolset_for("tech")],
+            )
+        return self._agent
+
     def build_context(
         self,
         ctx: AgentContext,
@@ -53,17 +76,7 @@ class TechAgent:
 
     async def run(self, context: str, deps: SpecialistDeps | None = None) -> str:
         """运行技术专家。"""
-        model = get_model()
-        if model is None:
-            raise RuntimeError(f"LLM 未配置（缺少 OPENAI_API_KEY），无法执行：{LABEL}")
-
-        agent = Agent(
-            model,
-            output_type=TechSupportOutput,
-            deps_type=SpecialistDeps,
-            system_prompt=render_skill("tech"),
-            toolsets=[toolset_for("tech")],
-        )
+        agent = self._get_agent()
         async with agent:
             result = await timed_agent_run(
                 agent,

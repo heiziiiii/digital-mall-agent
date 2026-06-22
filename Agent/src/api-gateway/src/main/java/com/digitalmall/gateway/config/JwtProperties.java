@@ -18,6 +18,12 @@ public record JwtProperties(
         String issuer
 ) {
     public JwtProperties {
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalArgumentException("JWT_SECRET 未配置：请通过环境变量提供 gateway.jwt.secret");
+        }
+        if (secret.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalArgumentException("JWT_SECRET 长度不足：HS256 密钥至少需要 32 字节");
+        }
         if (ttl == null || ttl.isZero() || ttl.isNegative()) {
             ttl = Duration.ofHours(2);
         }

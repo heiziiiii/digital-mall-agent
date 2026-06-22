@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_base_url: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     openai_model: str = "qwen-plus"
+    # 高频轻量节点可单独指定更快模型；留空则沿用 openai_model。
+    openai_expert_model: str | None = None
+    openai_memory_model: str | None = None
     # 单次 LLM 请求超时（秒）与失败重试次数；调小可让慢/挂的接口更快暴露失败
     openai_timeout: float = 30.0
     openai_max_retries: int = 1
@@ -30,6 +33,13 @@ class Settings(BaseSettings):
     safety_max_retries: int = 0
     # MCP 服务器地址（SSE 传输），客服工具由此服务器提供
     mcp_server_url: str = "http://localhost:8081/sse"
+    # Agent 后台运行池：限制 /run、/confirm、/resume 同时执行数量，避免请求暴涨时无限创建线程
+    agent_max_workers: int = 8
+    agent_queue_size: int = 32
+    # 会话运行态清理：完成/错误会话保留时间、待用户确认超时时间、清理巡检间隔（秒）
+    run_session_ttl_seconds: int = 1800
+    run_review_ttl_seconds: int = 900
+    run_cleanup_interval_seconds: int = 60
 
     # —— 多层记忆：本地热数据 + Redis 温数据 + Qdrant 快照/语义召回 + MySQL 最终记录 ——
     # L2 Redis：温数据，跨进程共享，带 TTL

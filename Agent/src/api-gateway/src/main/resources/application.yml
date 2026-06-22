@@ -7,8 +7,8 @@ spring:
   # 响应式 MySQL（R2DBC）：登录校验 customer 表。连接参数默认取 docs/server.md
   r2dbc:
     url: ${MYSQL_R2DBC_URL:r2dbc:mysql://localhost:3307/digital_cs?useServerPrepareStatement=true}
-    username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:root}
+    username: ${MYSQL_USERNAME:}
+    password: ${MYSQL_PASSWORD:}
     pool:
       initial-size: 2
       max-size: 10
@@ -25,7 +25,9 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOriginPatterns: "*"
+            allowedOrigins:
+              - ${FRONTEND_ORIGIN:http://localhost:5173}
+              - ${FRONTEND_ORIGIN_ALT:http://127.0.0.1:5173}
             allowedMethods: "*"
             allowedHeaders: "*"
             allowCredentials: true
@@ -80,8 +82,8 @@ spring:
 # JWT 配置（由 JwtService / SecurityConfig 读取）
 gateway:
   jwt:
-    # HS256 签名密钥，长度需 >= 32 字节。生产环境务必用环境变量 JWT_SECRET 覆盖
-    secret: ${JWT_SECRET:dev-only-secret-change-me-please-32bytes-min!!}
+    # HS256 签名密钥，长度需 >= 32 字节；默认不提供，启动时校验必须由环境变量 JWT_SECRET 注入
+    secret: ${JWT_SECRET:}
     # token 有效期，支持 Duration 写法：2h / 30m / 1d
     ttl: 2h
     # 签发者标识
@@ -89,6 +91,9 @@ gateway:
   memory:
     # Agent 记忆最终记录使用 spring.r2dbc 指向的 MySQL；
     # Qdrant 由 Python Agent 侧用于记忆快照和长期语义召回。
+  security:
+    # 默认强校验 JWT_SECRET 必须来自环境变量；测试可显式关闭
+    require-env-jwt-secret: ${REQUIRE_ENV_JWT_SECRET:true}
 
 # 说明：限流已改用 Spring Cloud Gateway 自带的 RequestRateLimiter + RedisRateLimiter，
 # 配置在上面各路由的 filters 中；限流粒度为用户 ID（见 userKeyResolver）。
@@ -97,7 +102,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health
   endpoint:
     health:
       show-details: always

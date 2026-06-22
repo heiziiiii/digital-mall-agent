@@ -16,12 +16,15 @@ from __future__ import annotations
 
 import logging
 import threading
+import time
 import uuid
 from collections.abc import Iterator
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any, Literal
 
+from agent.config import get_settings
 from agent.utils.io_log import print_io
 from agent.customer_agent import AgentContext, CustomerAgent
 from agent.customer_agent import STAGE_LABELS as CUSTOMER_STAGE_LABELS
@@ -42,6 +45,16 @@ _ALLOWED_TRANSITIONS: dict[RunStatus, set[RunStatus]] = {
 STAGE_LABELS: dict[str, str] = CUSTOMER_STAGE_LABELS
 
 
+class RunWorker:
+    """后台任务句柄；兼容旧测试/调用方使用 ``join`` 等待完成。"""
+
+    def __init__(self, future: Future) -> None:
+        self._future = future
+
+    def join(self, timeout: float | None = None) -> None:
+        self._future.result(timeout=timeout)
+
+
 @dataclass
 class RunSession:
     """单个会话的运行态。"""
@@ -50,13 +63,17 @@ class RunSession:
     session_id: str
     status: RunStatus = "running"
     pause_event: threading.Event = field(default_factory=threading.Event)
-    worker: threading.Thread | None = None
+    worker: RunWorker | None = None
     ctx: AgentContext | None = None
     events: Iterator[dict[str, Any]] | None = None  # 持有的运行生成器，供恢复时续跑
     final_answer: str = ""
     error: str = ""
     # HITL：待用户审核确认的高风险写操作（交前端展示并允许修改），由 confirm 消费。
     pending_review: dict | None = None
+    created_at: float = field(default_factory=time.monotonic)
+    updated_at: float = field(default_factory=time.monotonic)
+    completed_at: float | None = None
+    review_started_at: float | None = None
     lock: threading.Lock = field(default_factory=threading.Lock)
 
 
@@ -64,9 +81,29 @@ class RunManager:
     """管理所有会话的后台执行、暂停与恢复。"""
 
     def __init__(self) -> None:
+        settings = get_settings()
         self._sessions: dict[str, RunSession] = {}
         self._registry_lock = threading.Lock()
         self._customer_agent = CustomerAgent()
+        self._max_workers = max(1, settings.agent_max_workers)
+        self._queue_size = max(0, settings.agent_queue_size)
+        self._session_ttl = max(60, settings.run_session_ttl_seconds)
+        self._review_ttl = max(60, settings.run_review_ttl_seconds)
+        self._cleanup_interval = max(10, settings.run_cleanup_interval_seconds)
+        self._executor = ThreadPoolExecutor(
+            max_workers=self._max_workers,
+            thread_name_prefix="agent-run",
+        )
+        self._execution_slots = threading.BoundedSemaphore(
+            self._max_workers + self._queue_size
+        )
+        self._stop_cleaner = threading.Event()
+        self._cleaner = threading.Thread(
+            target=self._cleanup_loop,
+            name="agent-run-cleaner",
+            daemon=True,
+        )
+        self._cleaner.start()
 
     @staticmethod
     def _new_id() -> str:
@@ -146,6 +183,7 @@ class RunManager:
         """用户审核确认/修改后恢复：把审批决定注入挂起的生成器，继续执行落库与后续阶段。"""
         session = self._require(thread_id)
         with session.lock:
+            self._expire_review_if_needed(session)
             if session.status != "awaiting_review":
                 raise ValueError(f"会话 {thread_id} 当前状态为 {session.status}，无法确认")
             pending_review = session.pending_review
@@ -198,8 +236,24 @@ class RunManager:
             self._sessions[thread_id] = session
 
         yield {"type": "start", "thread_id": thread_id, "session_id": memory_session_id}
+        if not self._execution_slots.acquire(blocking=False):
+            message = "系统繁忙，当前 Agent 执行队列已满，请稍后重试。"
+            with session.lock:
+                session.error = message
+                self._transition(session, "error")
+            yield {
+                "type": "error",
+                "thread_id": thread_id,
+                "session_id": memory_session_id,
+                "status": "error",
+                "message": message,
+            }
+            return
         try:
+            stage_started = time.monotonic()
             for event in events:
+                self._log_stage_elapsed(session, event, stage_started, mode="stream")
+                stage_started = time.monotonic()
                 yield event
                 if event.get("stage") == "awaiting_review":
                     with session.lock:
@@ -274,9 +328,14 @@ class RunManager:
                 },
                 {"thread_id": thread_id, "session_id": memory_session_id, "error": str(exc)},
             )
+        finally:
+            self._execution_slots.release()
 
     def get(self, thread_id: str) -> RunSession:
-        return self._require(thread_id)
+        session = self._require(thread_id)
+        with session.lock:
+            self._expire_review_if_needed(session)
+        return session
 
     # —— 内部实现 ——
 
@@ -288,24 +347,41 @@ class RunManager:
         return session
 
     def _spawn(self, session: RunSession, send_value: Any | None = None) -> None:
-        worker = threading.Thread(
-            target=self._consume,
-            args=(session, send_value),
-            name=f"run-{session.thread_id}",
-            daemon=True,
-        )
-        session.worker = worker
-        worker.start()
+        if not self._execution_slots.acquire(blocking=False):
+            with session.lock:
+                session.error = "系统繁忙，当前 Agent 执行队列已满，请稍后重试。"
+                self._transition(session, "error")
+            logger.warning(
+                "Agent 执行队列已满，拒绝调度会话 %s max_workers=%d queue_size=%d",
+                session.thread_id,
+                self._max_workers,
+                self._queue_size,
+            )
+            return
+        future = self._executor.submit(self._consume_with_slot, session, send_value)
+        session.worker = RunWorker(future)
+
+    def _consume_with_slot(self, session: RunSession, send_value: Any | None = None) -> None:
+        try:
+            self._consume(session, send_value)
+        finally:
+            self._execution_slots.release()
 
     @staticmethod
     def _transition(session: RunSession, status: RunStatus) -> None:
         """显式状态机迁移，防止后台线程把会话推进到非法状态。"""
         if status == session.status:
+            session.updated_at = time.monotonic()
             return
         allowed = _ALLOWED_TRANSITIONS[session.status]
         if status not in allowed:
             raise ValueError(f"会话 {session.thread_id} 状态不能从 {session.status} 切换到 {status}")
         session.status = status
+        session.updated_at = time.monotonic()
+        if status == "awaiting_review":
+            session.review_started_at = session.updated_at
+        if status in {"completed", "error"}:
+            session.completed_at = session.updated_at
 
     @staticmethod
     def _validate_approval_args(pending_review: dict | None, args: dict[str, Any] | None) -> None:
@@ -323,6 +399,62 @@ class RunManager:
         if missing:
             raise ValueError(f"确认申请前请补齐字段：{', '.join(missing)}")
 
+    def _expire_review_if_needed(self, session: RunSession) -> None:
+        """待确认会话超过 TTL 后失效，避免高风险操作长时间悬挂。"""
+        if session.status != "awaiting_review":
+            return
+        started_at = session.review_started_at or session.updated_at
+        if time.monotonic() - started_at <= self._review_ttl:
+            return
+        session.pending_review = None
+        session.error = "确认操作已超时，请重新发起本次业务请求。"
+        self._transition(session, "error")
+
+    def _cleanup_loop(self) -> None:
+        """定期清理过期会话运行态，防止进程内会话字典无限增长。"""
+        while not self._stop_cleaner.wait(self._cleanup_interval):
+            try:
+                self.cleanup_expired_sessions()
+            except Exception:  # noqa: BLE001 - 清理线程不能影响主服务
+                logger.exception("清理过期 Agent 会话失败")
+
+    def cleanup_expired_sessions(self) -> int:
+        """清理过期会话；返回移除的会话数量，便于测试和运维观测。"""
+        now = time.monotonic()
+        expired: list[str] = []
+        with self._registry_lock:
+            for thread_id, session in list(self._sessions.items()):
+                with session.lock:
+                    self._expire_review_if_needed(session)
+                    if session.status in {"completed", "error"}:
+                        finished_at = session.completed_at or session.updated_at
+                        if now - finished_at >= self._session_ttl:
+                            expired.append(thread_id)
+            for thread_id in expired:
+                self._sessions.pop(thread_id, None)
+        if expired:
+            logger.info("已清理过期 Agent 会话 %d 个", len(expired))
+        return len(expired)
+
+    @staticmethod
+    def _log_stage_elapsed(
+        session: RunSession,
+        event: dict[str, Any],
+        started_at: float,
+        *,
+        mode: str,
+    ) -> None:
+        stage = str(event.get("stage") or event.get("type") or "unknown")
+        elapsed_ms = int((time.monotonic() - started_at) * 1000)
+        logger.info(
+            "Agent 阶段完成 thread_id=%s session_id=%s mode=%s stage=%s elapsed_ms=%d",
+            session.thread_id,
+            session.session_id,
+            mode,
+            stage,
+            elapsed_ms,
+        )
+
     def _consume(self, session: RunSession, send_value: Any | None = None) -> None:
         """在后台线程中逐阶段消费运行生成器。
 
@@ -335,8 +467,11 @@ class RunManager:
         if gen is None:
             return
         try:
+            stage_started = time.monotonic()
             event = gen.send(send_value)  # 首步 send(None) 启动；确认恢复时 send(decision)
             while True:
+                self._log_stage_elapsed(session, event, stage_started, mode="background")
+                stage_started = time.monotonic()
                 # 命中高风险写操作：落待确认信息并挂起，生成器停在 awaiting_review 的 yield 处
                 if event.get("stage") == "awaiting_review":
                     with session.lock:

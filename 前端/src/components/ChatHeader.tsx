@@ -21,7 +21,7 @@ export default function ChatHeader({ title, user, onMenu, onLogout }: ChatHeader
         <span className="header-name">{title}</span>
         <span className="header-sub">
           <span className="status-dot" />
-          阿数 在线 · 平均 15 秒响应
+          阿数 在线
         </span>
       </div>
 

@@ -9,16 +9,12 @@ from collections.abc import Awaitable, Callable, Iterator
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
-from pydantic_ai import Agent, DeferredToolRequests
-
-from agent.llm.model import get_model
 from agent.agents.order import OrderAgent, PendingApproval, SpecialistRunResult
 from agent.agents.orchestrator import OrchestratorAgent
 from agent.agents.product import ProductAgent
 from agent.agents.summarize import SummarizeAgent
 from agent.agents.tech import TechAgent
-from agent.tools.mcp_client import ContextCustomerToolset, SpecialistDeps, get_mcp_server, toolset_for
+from agent.tools.mcp_client import ContextCustomerToolset, SpecialistDeps, get_mcp_server
 
 Intent = Literal["product", "tech", "order", "chat"]
 AgentName = Literal["product", "tech", "order"]
@@ -88,19 +84,6 @@ STAGE_LABELS: dict[str, str] = {
     "summarize": "生成回答",
     "memory_save": "记忆保存",
 }
-
-_TOOL_ACTION_LIMIT = 4
-_HUMAN_SERVICE_TOOL_PROMPT = (
-    "你是智能客服系统的工具执行器，只负责把已规划的人工服务记录请求转成 "
-    "createHumanService 待确认工具调用。不要处理订单、售后或技术问题；不要输出普通话术。"
-)
-
-
-class ToolActionOutput(BaseModel):
-    """工具动作执行后的文本输出。"""
-
-    answer: str = Field(default="", min_length=1)
-
 
 def _default_load_memory(ctx: AgentContext) -> None:
     """惰性导入记忆模块，避免只使用调度能力时加载存储后端依赖。"""
@@ -292,11 +275,11 @@ class CustomerAgent:
             previous_results=self._dependency_results(ctx, agent_name),
         )
 
-    def _specialist_deps(self, agent_name: AgentName, ctx: AgentContext) -> SpecialistDeps | None:
-        """只有订单/售后专家接收服务端认证身份。"""
-        if agent_name != "order":
-            return None
-        return self.specialists["order"].deps(ctx)
+    def _specialist_deps(self, agent_name: AgentName, ctx: AgentContext) -> SpecialistDeps:
+        """构造工具调用上下文；所有专家都携带会话，订单专家额外使用认证身份。"""
+        if agent_name == "order":
+            return self.specialists["order"].deps(ctx)
+        return SpecialistDeps(customer_id=ctx.customer_id, session_id=ctx.session_id)
 
     async def run_specialist(
         self,
@@ -479,19 +462,6 @@ class CustomerAgent:
             agent_deps=self._specialist_deps(task.agent, ctx),
         )
 
-    def _build_tool_action_agent(self) -> Agent:
-        """构造通用工具动作执行器；当前仅用于 createHumanService。"""
-        model = get_model()
-        if model is None:
-            raise RuntimeError("LLM 未配置（缺少 OPENAI_API_KEY），无法执行人工服务工具")
-        return Agent(
-            model,
-            output_type=[ToolActionOutput, DeferredToolRequests],
-            deps_type=SpecialistDeps,
-            system_prompt=_HUMAN_SERVICE_TOOL_PROMPT,
-            toolsets=[toolset_for("service")],
-        )
-
     async def _start_human_service_action(
         self, ctx: AgentContext, plan: dict[str, Any]
     ) -> SpecialistRunResult:
@@ -499,7 +469,6 @@ class CustomerAgent:
         payload = {
             "reason": str(plan.get("reason", "") or "").strip(),
             "orderNo": str(plan.get("orderNo", "") or "").strip(),
-            "afterSaleNo": str(plan.get("afterSaleNo", "") or "").strip(),
         }
         return SpecialistRunResult(
             pending=PendingApproval(
@@ -541,7 +510,7 @@ class CustomerAgent:
         """确认后直接调用 MCP 创建人工服务单，避免人工 HITL 依赖二次 LLM 工具规划。"""
 
         class _ToolContext:
-            deps = SpecialistDeps(customer_id=ctx.customer_id)
+            deps = SpecialistDeps(customer_id=ctx.customer_id, session_id=ctx.session_id)
 
         allowed = {"createHumanService"}
         toolset = ContextCustomerToolset(
@@ -557,7 +526,6 @@ class CustomerAgent:
                 {
                     "reason": str(args.get("reason", "") or "").strip(),
                     "orderNo": str(args.get("orderNo", "") or "").strip(),
-                    "afterSaleNo": str(args.get("afterSaleNo", "") or "").strip(),
                 },
                 _ToolContext(),
                 tools["createHumanService"],
@@ -582,26 +550,6 @@ class CustomerAgent:
         if order_no:
             parts.append(f"关联订单：{order_no}")
         return "，".join(parts) + "。"
-
-    @staticmethod
-    def _wrap_tool_action(result: Any) -> SpecialistRunResult:
-        """把通用工具执行器结果归一为 SpecialistRunResult。"""
-        output = result.output
-        if isinstance(output, DeferredToolRequests) and output.approvals:
-            call = output.approvals[0]
-            from agent.agents.order import PendingApproval
-
-            return SpecialistRunResult(
-                pending=PendingApproval(
-                    tool=call.tool_name,
-                    call_id=call.tool_call_id,
-                    args=call.args_as_dict(),
-                ),
-                messages=result.all_messages(),
-            )
-        if isinstance(output, ToolActionOutput):
-            return SpecialistRunResult(text=output.answer.strip())
-        return SpecialistRunResult(text=str(output))
 
     def run(
         self,

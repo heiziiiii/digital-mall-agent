@@ -215,8 +215,11 @@ def test_runtime_passes_custom_context_to_each_specialist(monkeypatch) -> None:
         if name == "order":
             assert deps is not None
             assert deps.customer_id == 8
+            assert deps.session_id == "customer-8"
         else:
-            assert deps is None
+            assert deps is not None
+            assert deps.customer_id == 8
+            assert deps.session_id == "customer-8"
         return f"{name}-result"
 
     list(_make_agent(decision, specialist=fake_specialist).iter_run(ctx))

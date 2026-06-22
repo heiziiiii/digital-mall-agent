@@ -100,14 +100,27 @@ def log_tool_call(
     output: Any = None,
     status: str = "success",
     duration_ms: float | None = None,
+    user_id: int | str | None = None,
+    session_id: str | None = None,
+    attempts: int | None = None,
+    retry_count: int | None = None,
+    started_at: str | None = None,
+    finished_at: str | None = None,
     error: BaseException | None = None,
 ) -> None:
     """记录一次 MCP Tool 调用，写入独立 tool_calls.jsonl。"""
+    finished_at = finished_at or datetime.now().isoformat(timespec="seconds")
     payload = {
-        "time": datetime.now().isoformat(timespec="seconds"),
+        "time": finished_at,
+        "started_at": started_at,
+        "finished_at": finished_at,
         "agent": agent_name,
         "tool": tool_name,
+        "user_id": user_id,
+        "session_id": session_id,
         "status": status,
+        "attempts": attempts,
+        "retry_count": retry_count,
         "duration_ms": duration_ms,
         "input": _to_jsonable(args),
         "output": _to_jsonable(output),

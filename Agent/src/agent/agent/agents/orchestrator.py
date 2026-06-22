@@ -76,7 +76,6 @@ class HumanServiceSpec(BaseModel):
     needed: bool = Field(default=False, description="本轮是否需要创建人工服务记录")
     reason: str = Field(default="", description="转人工原因/用户诉求摘要")
     orderNo: str = Field(default="", description="关联订单号；未知则留空")
-    afterSaleNo: str = Field(default="", description="关联售后单号；未知则留空")
 
 
 class TaskSpec(BaseModel):
@@ -247,7 +246,6 @@ def _normalize_human_service(spec: HumanServiceSpec | None) -> dict[str, Any] | 
     return {
         "reason": spec.reason.strip(),
         "orderNo": spec.orderNo.strip(),
-        "afterSaleNo": spec.afterSaleNo.strip(),
     }
 
 
@@ -271,12 +269,10 @@ def _infer_human_service(payload: dict[str, Any]) -> dict[str, Any] | None:
         return None
 
     order_match = re.search(r"\bO\d{8,}\b", text)
-    after_sale_match = re.search(r"\bAS\d{8,}\b", text)
     reason = str(payload.get("background_summary") or payload.get("user_input") or "用户需要人工进一步处理").strip()
     return {
         "reason": reason[:200],
         "orderNo": order_match.group(0) if order_match else "",
-        "afterSaleNo": after_sale_match.group(0) if after_sale_match else "",
     }
 
 

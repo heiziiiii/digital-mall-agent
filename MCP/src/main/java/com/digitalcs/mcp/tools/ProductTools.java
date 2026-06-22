@@ -19,9 +19,9 @@ public class ProductTools {
 
     private final ProductService productService;
 
-    @Tool(description = "按客户需求检索本店数码商品，支持关键词、类目、品牌、预算和排序。适合找商品、推荐商品、筛选或对比候选款；客户已明确某个商品编号并追问价格、库存或规格时，改用 getProductDetail。")
+    @Tool(description = "按客户需求检索本店数码商品，支持目标商品短语、类目、品牌、预算和排序。适合找商品、推荐商品、筛选或对比候选款；客户已明确某个商品编号并追问价格、库存或规格时，改用 getProductDetail。")
     public List<Map<String, Object>> searchProducts(
-            @ToolParam(description = "搜索关键词或自然语言描述，如 '静音空调'、'5000mAh 长续航手机'；可为空(此时按类目/品牌/价格筛选浏览)", required = false) String query,
+            @ToolParam(description = "面向 RAG/向量检索的目标商品短语，描述用户期待的机型或产品，如 '三星高端旗舰手机'、'华为长续航手机'、'苹果大存储手机'；不要写 '用户想找'、'优先推荐' 这类指导性话语", required = false) String query,
             @ToolParam(description = "类目过滤，需与商品类目一致，如 '手机'、'笔记本电脑'", required = false) String category,
             @ToolParam(description = "品牌过滤，如 '华为'、'苹果'、'小米'", required = false) String brand,
             @ToolParam(description = "最低价格(元)，含此价", required = false) Double minPrice,

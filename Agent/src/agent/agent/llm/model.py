@@ -26,9 +26,14 @@ def _mask_key(key: str) -> str:
     return f"{key[:6]}...{key[-4:]}"
 
 
-@lru_cache(maxsize=1)
-def get_model() -> OpenAIChatModel | None:
-    """构建并缓存对话模型；未配置 OPENAI_API_KEY 时返回 None。"""
+def _resolve_model_name(model_name: str | None) -> str:
+    settings = get_settings()
+    return (model_name or settings.openai_model).strip()
+
+
+@lru_cache(maxsize=None)
+def _get_model_for(model_name: str) -> OpenAIChatModel | None:
+    """按模型名构建并缓存对话模型；未配置 OPENAI_API_KEY 时返回 None。"""
     settings = get_settings()
     if not settings.openai_api_key:
         logger.warning("未配置 OPENAI_API_KEY，LLM 不可用，相关步骤将走占位/兜底逻辑。")
@@ -37,7 +42,7 @@ def get_model() -> OpenAIChatModel | None:
     # 打印关键配置，便于核对实际命中的模型与接口（不打印完整 key）
     logger.info(
         "初始化 LLM：model=%s base_url=%s timeout=%ss max_retries=%d key=%s",
-        settings.openai_model,
+        model_name,
         settings.openai_base_url,
         settings.openai_timeout,
         settings.openai_max_retries,
@@ -51,12 +56,31 @@ def get_model() -> OpenAIChatModel | None:
         timeout=settings.openai_timeout,
         max_retries=settings.openai_max_retries,
     )
-    return OpenAIChatModel(settings.openai_model, provider=OpenAIProvider(openai_client=client))
+    return OpenAIChatModel(model_name, provider=OpenAIProvider(openai_client=client))
+
+
+def get_model() -> OpenAIChatModel | None:
+    """构建并缓存默认对话模型；未配置 OPENAI_API_KEY 时返回 None。"""
+    return _get_model_for(_resolve_model_name(None))
+
+
+def get_expert_model() -> OpenAIChatModel | None:
+    """专家 Agent 使用的模型；可通过 OPENAI_EXPERT_MODEL 指向轻量模型。"""
+    settings = get_settings()
+    return _get_model_for(_resolve_model_name(settings.openai_expert_model))
+
+
+def get_memory_model() -> OpenAIChatModel | None:
+    """记忆提取 Agent 使用的模型；可通过 OPENAI_MEMORY_MODEL 指向轻量模型。"""
+    settings = get_settings()
+    return _get_model_for(_resolve_model_name(settings.openai_memory_model))
 
 
 def initialize_model() -> OpenAIChatModel | None:
     """在服务启动或 CLI 运行前显式初始化模型，避免首轮 Agent 执行时才懒加载。"""
     model = get_model()
+    get_expert_model()
+    get_memory_model()
     if model is None:
         logger.warning("LLM 预初始化未完成：模型不可用，将使用占位/兜底逻辑。")
     else:

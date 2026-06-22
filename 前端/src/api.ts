@@ -10,7 +10,9 @@ const AUTH_TOKEN_KEY = 'token'
 function getAuthToken(): string {
   const envToken = import.meta.env.VITE_API_TOKEN as string | undefined
   try {
-    return localStorage.getItem(AUTH_TOKEN_KEY) || envToken || ''
+    const legacyToken = localStorage.getItem(AUTH_TOKEN_KEY)
+    if (legacyToken) localStorage.removeItem(AUTH_TOKEN_KEY)
+    return sessionStorage.getItem(AUTH_TOKEN_KEY) || envToken || ''
   } catch {
     return envToken || ''
   }
@@ -257,11 +259,21 @@ async function requestEnvelope<T>(path: string, init?: RequestInit, options?: { 
 }
 
 export function saveAuthToken(token: string) {
-  localStorage.setItem(AUTH_TOKEN_KEY, token)
+  sessionStorage.setItem(AUTH_TOKEN_KEY, token)
+  try {
+    localStorage.removeItem(AUTH_TOKEN_KEY)
+  } catch {
+    /* 忽略旧 token 清理失败 */
+  }
 }
 
 export function clearAuthToken() {
-  localStorage.removeItem(AUTH_TOKEN_KEY)
+  sessionStorage.removeItem(AUTH_TOKEN_KEY)
+  try {
+    localStorage.removeItem(AUTH_TOKEN_KEY)
+  } catch {
+    /* 忽略旧 token 清理失败 */
+  }
 }
 
 export function hasAuthToken(): boolean {

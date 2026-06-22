@@ -56,7 +56,7 @@ export default function ReviewCard({ action, busy, onApprove, onCancel }: Review
       const value = values[key]?.trim()
       acc[key] = NUMBER_FIELDS.has(key) ? Number(value || 0) : value
       return acc
-    }, { ...action.args })
+    }, {})
     onApprove(args)
   }
 

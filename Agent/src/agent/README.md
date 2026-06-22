@@ -48,7 +48,17 @@ pip install -r requirements.txt
 OPENAI_API_KEY=...
 OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 OPENAI_MODEL=qwen-plus
+# 可选：高频节点使用更快/更便宜的轻量模型；不填则沿用 OPENAI_MODEL
+OPENAI_EXPERT_MODEL=qwen-turbo
+OPENAI_MEMORY_MODEL=qwen-turbo
 MCP_SERVER_URL=http://localhost:8081/sse
+# 后台执行池：限制 /run、/confirm、/resume 同时运行，避免高并发时无限创建线程
+AGENT_MAX_WORKERS=8
+AGENT_QUEUE_SIZE=32
+# 运行态清理：完成/错误会话保留 30 分钟，待确认操作 15 分钟超时
+RUN_SESSION_TTL_SECONDS=1800
+RUN_REVIEW_TTL_SECONDS=900
+RUN_CLEANUP_INTERVAL_SECONDS=60
 ```
 
 运行 CLI：

@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 from pydantic_ai import Agent
 
 from agent.hooks import timed_agent_run
-from agent.llm.model import get_model
+from agent.llm.model import get_memory_model
 from agent.prompts.loader import render_skill
 
 RecallFn = Callable[[str, int | None], list[dict]]
@@ -53,7 +53,7 @@ class MemoryExtractAgent:
 
     @staticmethod
     def _require_model():
-        model = get_model()
+        model = get_memory_model()
         if model is None:
             raise RuntimeError("LLM 未配置（缺少 OPENAI_API_KEY），无法执行：记忆提取")
         return model

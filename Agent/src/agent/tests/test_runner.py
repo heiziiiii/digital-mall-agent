@@ -120,7 +120,7 @@ def test_confirm_requires_human_service_reason() -> None:
         status="awaiting_review",
         pending_review={
             "tool": "createHumanService",
-            "args": {"orderNo": "O1", "afterSaleNo": "", "reason": ""},
+            "args": {"orderNo": "O1", "reason": ""},
             "required_fields": ["reason"],
         },
     )
@@ -128,6 +128,46 @@ def test_confirm_requires_human_service_reason() -> None:
 
     with pytest.raises(ValueError, match="reason"):
         manager.confirm("t1", approved=True, args={"orderNo": "O1"})
+
+
+def test_awaiting_review_expires_before_confirm() -> None:
+    manager = RunManager()
+    manager._review_ttl = 1
+    session = RunSession(
+        thread_id="t-expire",
+        session_id="s1",
+        status="awaiting_review",
+        pending_review={
+            "tool": "createAfterSale",
+            "args": {"orderNo": "O1", "type": 3, "reason": "仅退款"},
+            "required_fields": ["orderNo", "type", "reason"],
+        },
+    )
+    session.review_started_at = time.monotonic() - 2
+    manager._sessions[session.thread_id] = session
+
+    with pytest.raises(ValueError, match="error"):
+        manager.confirm(
+            session.thread_id,
+            approved=True,
+            args={"orderNo": "O1", "type": 3, "reason": "仅退款"},
+        )
+
+    assert session.status == "error"
+    assert session.pending_review is None
+    assert "超时" in session.error
+
+
+def test_cleanup_removes_finished_sessions_after_ttl() -> None:
+    manager = RunManager()
+    manager._session_ttl = 1
+    session = RunSession(thread_id="t-old", session_id="s1", status="completed")
+    session.completed_at = time.monotonic() - 2
+    manager._sessions[session.thread_id] = session
+
+    assert manager.cleanup_expired_sessions() == 1
+    with pytest.raises(KeyError):
+        manager.get(session.thread_id)
 
 
 def test_stream_stops_at_awaiting_review_without_auto_denial() -> None:

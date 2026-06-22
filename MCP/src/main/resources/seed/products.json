@@ -1,150 +1,6047 @@
 [
   {
     "productNo": "P10001",
-    "name": "极客Pro X1 旗舰手机",
-    "subtitle": "6.7英寸 5000mAh 长续航",
+    "name": "苹果iPhone 16 Pro Max（256GB）",
+    "subtitle": "A18 Pro / 256GB",
     "category": "手机",
-    "brand": "极客Pro",
-    "tags": ["续航久", "快充强", "性价比高", "大屏"],
-    "price": 3999.00,
-    "marketPrice": 4299.00,
-    "publishedAt": "2024-03-01",
-    "description": "极客Pro X1 搭载旗舰处理器，6.7英寸OLED屏，5000mAh大电池，支持百瓦快充。",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10946.5,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 16 Pro Max（256GB）搭载苹果 A18 Pro处理器，配备256GB存储组合，主摄达4800万像素，搭载iOS系统。",
     "specs": [
-      {"name": "处理器", "value": "旗舰8核"},
-      {"name": "屏幕", "value": "6.7英寸 OLED 120Hz"},
-      {"name": "电池", "value": "5000mAh"},
-      {"name": "快充", "value": "100W"}
+      {
+        "name": "处理器",
+        "value": "苹果 A18 Pro"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "沙漠色、原色、白色、黑色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
     ]
   },
   {
     "productNo": "P10002",
-    "name": "星云 Air 14 轻薄本",
-    "subtitle": "14英寸 2.8K 屏 1.2kg",
-    "category": "笔记本电脑",
-    "brand": "星云",
-    "tags": ["轻薄便携", "续航久", "高刷屏", "办公创作"],
-    "price": 5299.00,
-    "marketPrice": 5599.00,
-    "publishedAt": "2024-02-15",
-    "description": "星云Air 14 轻薄笔记本，2.8K高刷屏，长续航，适合办公与轻度创作。",
+    "name": "苹果iPhone 15 Pro Max（256GB）",
+    "subtitle": "A17 Pro / 256GB",
+    "category": "手机",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10516.46,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 15 Pro Max（256GB）搭载苹果 A17 Pro处理器，配备256GB存储组合，主摄达4800万像素，搭载iOS 17系统。",
     "specs": [
-      {"name": "处理器", "value": "低功耗酷睿"},
-      {"name": "屏幕", "value": "14英寸 2.8K"}
+      {
+        "name": "处理器",
+        "value": "苹果 A17 Pro"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS 17"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色钛金属、白色钛金属、蓝色钛金属、原色钛金属"
+      },
+      {
+        "name": "好评率",
+        "value": "9.5星"
+      }
     ]
   },
   {
     "productNo": "P10003",
-    "name": "苹果 iPhone 15 Pro",
-    "subtitle": "6.1英寸 钛金属 A17 Pro",
+    "name": "苹果iPhone 16 Plus（512GB）",
+    "subtitle": "A18 / 512GB",
     "category": "手机",
     "brand": "苹果",
-    "tags": ["性能高", "机身轻", "影像强", "系统流畅"],
-    "price": 8999.00,
-    "marketPrice": 9299.00,
-    "publishedAt": "2023-09-22",
-    "description": "苹果 iPhone 15 Pro 采用钛金属边框，搭载 A17 Pro 芯片，全新潜望长焦，支持 USB-C 与灵动岛。",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10691.45,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 16 Plus（512GB）搭载苹果 A18处理器，配备512GB存储组合，主摄达4800万像素，搭载iOS 18系统。",
     "specs": [
-      {"name": "处理器", "value": "A17 Pro"},
-      {"name": "屏幕", "value": "6.1英寸 超视网膜XDR 120Hz"},
-      {"name": "存储", "value": "256G"},
-      {"name": "接口", "value": "USB-C"},
-      {"name": "材质", "value": "钛金属"}
+      {
+        "name": "处理器",
+        "value": "苹果 A18"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS 18"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "群青色、深青色、粉色、黑色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
     ]
   },
   {
     "productNo": "P10004",
-    "name": "三星 Galaxy S24 Ultra",
-    "subtitle": "6.8英寸 2K 内置S Pen",
+    "name": "苹果iPhone 15 Plus（512GB）",
+    "subtitle": "A16 / 6GB+512GB / 3279mAh",
     "category": "手机",
-    "brand": "三星",
-    "tags": ["屏幕好", "影像强", "手写笔", "商务旗舰"],
-    "price": 9699.00,
-    "marketPrice": 9999.00,
-    "publishedAt": "2024-01-31",
-    "description": "三星 Galaxy S24 Ultra 搭载第三代骁龙8旗舰芯片，2K 动态 AMOLED 直屏，内置 S Pen，5000mAh 大电池支持45W快充，AI 影像出色。",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10655.18,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 15 Plus（512GB）搭载苹果 A16处理器，配备6GB RAM + 512GB存储组合，内置3279mAh电池，主摄达4800万像素，搭载iOS 17系统。",
     "specs": [
-      {"name": "处理器", "value": "第三代骁龙8 Gen3 领先版"},
-      {"name": "屏幕", "value": "6.8英寸 2K AMOLED 120Hz"},
-      {"name": "电池", "value": "5000mAh"},
-      {"name": "快充", "value": "45W"},
-      {"name": "影像", "value": "2亿像素主摄"}
+      {
+        "name": "处理器",
+        "value": "苹果 A16"
+      },
+      {
+        "name": "存储",
+        "value": "6GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3279mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS 17"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "粉色、黑色、蓝色、绿色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
     ]
   },
   {
     "productNo": "P10005",
-    "name": "华为 Mate 60 Pro",
-    "subtitle": "6.82英寸 卫星通话 玄武钢化昆仑玻璃",
+    "name": "苹果iPhone 14 Pro Max（256GB）",
+    "subtitle": "A16 / 6GB+256GB / 4323mAh",
     "category": "手机",
-    "brand": "华为",
-    "tags": ["信号强", "卫星通话", "耐摔", "续航久"],
-    "price": 6999.00,
-    "marketPrice": 7299.00,
-    "publishedAt": "2023-08-29",
-    "description": "华为 Mate 60 Pro 支持卫星通话，搭载麒麟旗舰芯片与鸿蒙系统，玄武架构与昆仑玻璃更耐摔，5000mAh 电池支持88W有线快充。",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9899.0,
+    "marketPrice": 10904.27,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 14 Pro Max（256GB）搭载苹果 A16处理器，配备6GB RAM + 256GB存储组合，内置4323mAh电池，主摄达4800万像素，搭载iOS 16系统。",
     "specs": [
-      {"name": "处理器", "value": "麒麟9000S"},
-      {"name": "屏幕", "value": "6.82英寸 OLED 120Hz"},
-      {"name": "电池", "value": "5000mAh"},
-      {"name": "快充", "value": "88W有线 50W无线"},
-      {"name": "特色", "value": "卫星通话"}
+      {
+        "name": "处理器",
+        "value": "苹果 A16"
+      },
+      {
+        "name": "存储",
+        "value": "6GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4323mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS 16"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "深空黑色、银色、金色、暗紫色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
     ]
   },
   {
     "productNo": "P10006",
-    "name": "小米 14 Pro",
-    "subtitle": "6.73英寸 全等深微曲屏 徕卡光学",
+    "name": "苹果iPhone 14 Plus（512GB）",
+    "subtitle": "A15 / 6GB+512GB / 4325mAh",
     "category": "手机",
-    "brand": "小米",
-    "tags": ["性能高", "快充强", "影像强", "屏幕好"],
-    "price": 5299.00,
-    "marketPrice": 5499.00,
-    "publishedAt": "2023-10-31",
-    "description": "小米 14 Pro 搭载第三代骁龙8旗舰芯片，徕卡可变光圈主摄，全等深四曲屏，4880mAh 电池支持120W秒充与50W无线快充。",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9699.0,
+    "marketPrice": 10643.38,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 14 Plus（512GB）搭载苹果 A15处理器，配备6GB RAM + 512GB存储组合，内置4325mAh电池，主摄达1200万像素，搭载iOS 16系统。",
     "specs": [
-      {"name": "处理器", "value": "第三代骁龙8 Gen3"},
-      {"name": "屏幕", "value": "6.73英寸 2K LTPO 120Hz"},
-      {"name": "电池", "value": "4880mAh"},
-      {"name": "快充", "value": "120W有线 50W无线"},
-      {"name": "影像", "value": "徕卡光学可变光圈"}
+      {
+        "name": "处理器",
+        "value": "苹果 A15"
+      },
+      {
+        "name": "存储",
+        "value": "6GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4325mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS 16"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "午夜色、紫色、星光色、红色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
     ]
   },
   {
     "productNo": "P10007",
-    "name": "OPPO Find X7 Ultra",
-    "subtitle": "6.82英寸 双潜望长焦 哈苏影像",
+    "name": "苹果iPhone 13 Pro（512GB/全网通/5G版）",
+    "subtitle": "A15 / 6GB+512GB / 支持，3D结构光（Face I 电池容量",
     "category": "手机",
-    "brand": "OPPO",
-    "tags": ["影像强", "长焦好", "快充强", "高端旗舰"],
-    "price": 5999.00,
-    "marketPrice": 6299.00,
-    "publishedAt": "2024-01-08",
-    "description": "OPPO Find X7 Ultra 搭载哈苏影像系统与双潜望长焦，第三代骁龙8芯片，6.82英寸2K曲面屏，5000mAh 电池支持100W超级闪充。",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9300.0,
+    "marketPrice": 10345.81,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 13 Pro（512GB/全网通/5G版）搭载苹果 A15处理器，配备6GB RAM + 512GB存储组合，内置支持，3D结构光（Face I 电池容量电池，主摄达1200万像素，搭载iOS系统。",
     "specs": [
-      {"name": "处理器", "value": "第三代骁龙8 Gen3"},
-      {"name": "屏幕", "value": "6.82英寸 2K 曲面屏 120Hz"},
-      {"name": "电池", "value": "5000mAh"},
-      {"name": "快充", "value": "100W有线 50W无线"},
-      {"name": "影像", "value": "哈苏双潜望长焦"}
+      {
+        "name": "处理器",
+        "value": "苹果 A15"
+      },
+      {
+        "name": "存储",
+        "value": "6GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "支持，3D结构光（Face I 电池容量"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "石墨色、金色、银色、远峰蓝色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
     ]
   },
   {
     "productNo": "P10008",
-    "name": "vivo X100 Pro",
-    "subtitle": "6.78英寸 蔡司APO超级长焦 天玑9300",
+    "name": "苹果iPhone 13 Pro Max（256GB/全网通/5G版）",
+    "subtitle": "A15 / 256GB / 支持，3D结构光（Face I 电池容量",
+    "category": "手机",
+    "brand": "苹果",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9250.0,
+    "marketPrice": 9768.79,
+    "publishedAt": "2024-01-01",
+    "description": "苹果iPhone 13 Pro Max（256GB/全网通/5G版）搭载苹果 A15处理器，配备256GB存储组合，内置支持，3D结构光（Face I 电池容量电池，主摄达1200万像素，搭载iOS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "苹果 A15"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "电池",
+        "value": "支持，3D结构光（Face I 电池容量"
+      },
+      {
+        "name": "操作系统",
+        "value": "iOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "石墨色、金色、银色、远峰蓝色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10009",
+    "name": "三星W25 Flip(12GB/512GB)",
+    "subtitle": "骁龙8 Gen3 for Galaxy / 12GB+512GB / 主",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10794.27,
+    "publishedAt": "2024-01-01",
+    "description": "三星W25 Flip(12GB/512GB)搭载高通 骁龙8 Gen3 for Galaxy处理器，配备12GB RAM + 512GB存储组合，内置主电池，主摄达5000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3 for Galaxy"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "主"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "陶瓷黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10010",
+    "name": "三星W24 Flip（12GB/512GB）",
+    "subtitle": "骁龙8 Gen2 / 12GB+512GB / 3700mAh",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10519.81,
+    "publishedAt": "2024-01-01",
+    "description": "三星W24 Flip（12GB/512GB）搭载高通 骁龙8 Gen2处理器，配备12GB RAM + 512GB存储组合，内置3700mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3700mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "冰瓷白"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10011",
+    "name": "三星W23 Flip（12GB/512GB）",
+    "subtitle": "骁龙8+ Gen1 / 12GB+512GB / 3700mAh",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10651.98,
+    "publishedAt": "2024-01-01",
+    "description": "三星W23 Flip（12GB/512GB）搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 512GB存储组合，内置3700mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3700mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "熠金黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10012",
+    "name": "三星Galaxy S21 Ultra（12GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 12GB+256GB / 5000mAh",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9599.0,
+    "marketPrice": 10418.51,
+    "publishedAt": "2024-01-01",
+    "description": "三星Galaxy S21 Ultra（12GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 256GB存储组合，内置5000mAh电池，主摄达1200万像素，搭载One UI 3系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "One UI 3"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "幻境银、幽夜黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10013",
+    "name": "三星Galaxy S23 Ultra（12GB/512GB）",
+    "subtitle": "骁龙8 Gen2 for Galaxy  / 12GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9556.0,
+    "marketPrice": 10051.55,
+    "publishedAt": "2024-01-01",
+    "description": "三星Galaxy S23 Ultra（12GB/512GB）搭载高通 骁龙8 Gen2 for Galaxy （4nm）处理器，配备12GB RAM + 512GB存储组合，内置5000mAh电池，主摄达1200万像素，搭载One UI 5.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2 for Galaxy （4nm）"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "One UI 5.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10014",
+    "name": "三星Galaxy Z Fold3（12GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 12GB+512GB / 4400mAh",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9500.0,
+    "marketPrice": 10107.23,
+    "publishedAt": "2024-01-01",
+    "description": "三星Galaxy Z Fold3（12GB/512GB/全网通/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 512GB存储组合，内置4400mAh电池，主摄达1200万像素，搭载One UI 3.1.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4400mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "One UI 3.1.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "幽谷绿、陨石黑、雪川银"
+      },
+      {
+        "name": "好评率",
+        "value": "8.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10015",
+    "name": "三星Galaxy Z Flip5（8GB/512GB）",
+    "subtitle": "骁龙8 Gen2 for Galaxy  / 8GB+512GB / 3700mAh",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9499.0,
+    "marketPrice": 10406.08,
+    "publishedAt": "2024-01-01",
+    "description": "三星Galaxy Z Flip5（8GB/512GB）搭载高通 骁龙8 Gen2 for Galaxy （4nm）处理器，配备8GB RAM + 512GB存储组合，内置3700mAh电池，主摄达1200万像素，搭载One UI 5.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2 for Galaxy （4nm）"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3700mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "One UI 5.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "冰薄荷、云影灰、冰玫紫、星河白"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10016",
+    "name": "三星Galaxy S20+（12GB/512GB/全网通）",
+    "subtitle": "骁龙865 / 12GB+512GB / 屏幕指纹识别（超声波） 电池容量",
+    "category": "手机",
+    "brand": "三星",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9047.0,
+    "marketPrice": 9844.46,
+    "publishedAt": "2024-01-01",
+    "description": "三星Galaxy S20+（12GB/512GB/全网通）搭载高通 骁龙865处理器，配备12GB RAM + 512GB存储组合，内置屏幕指纹识别（超声波） 电池容量电池，主摄达1200万像素，搭载One UI 2.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙865"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "屏幕指纹识别（超声波） 电池容量"
+      },
+      {
+        "name": "操作系统",
+        "value": "One UI 2.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "幻游黑、遐想灰、浮氧蓝、馥郁红"
+      },
+      {
+        "name": "好评率",
+        "value": "9.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10017",
+    "name": "华为Mate Xs 2（8GB/256GB/4G版）",
+    "subtitle": "骁龙888 4G / 8GB+256GB / 4600mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10653.24,
+    "publishedAt": "2024-01-01",
+    "description": "华为Mate Xs 2（8GB/256GB/4G版）搭载高通 骁龙888 4G处理器，配备8GB RAM + 256GB存储组合，内置4600mAh电池，主摄达5000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888 4G"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4600mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1070万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "雅黑、锦白、霜紫"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10018",
+    "name": "华为Mate 60 Pro+ 16GB+1TB（16GB/1TB）",
+    "subtitle": "麒麟 9000s / 16GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10911.39,
+    "publishedAt": "2024-01-01",
+    "description": "华为Mate 60 Pro+ 16GB+1TB（16GB/1TB）搭载海思 麒麟 9000s处理器，配备16GB RAM + 1TB存储组合，内置5000mAh电池，主摄达4800万像素，搭载鸿蒙操作系统 4.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "海思 麒麟 9000s"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "鸿蒙操作系统 4.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1300万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "宣白、砚黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10019",
+    "name": "华为Mate RS保时捷版（全网通）",
+    "subtitle": "麒麟 970 / 6GB+256GB / 屏幕指纹识别，后置指纹 电池容量",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9999.0,
+    "marketPrice": 11065.49,
+    "publishedAt": "2024-01-01",
+    "description": "华为Mate RS保时捷版（全网通）搭载海思 麒麟 970处理器，配备6GB RAM + 256GB存储组合，内置屏幕指纹识别，后置指纹 电池容量电池，主摄达4000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "海思 麒麟 970"
+      },
+      {
+        "name": "存储",
+        "value": "6GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "屏幕指纹识别，后置指纹 电池容量"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "玄黑、瑞红"
+      },
+      {
+        "name": "好评率",
+        "value": "7.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10020",
+    "name": "华为P50 Pocket（8GB/512GB）",
+    "subtitle": "骁龙888 4G / 8GB+512GB / 4000mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9988.0,
+    "marketPrice": 10491.94,
+    "publishedAt": "2024-01-01",
+    "description": "华为P50 Pocket（8GB/512GB）搭载高通 骁龙888 4G处理器，配备8GB RAM + 512GB存储组合，内置4000mAh电池，主摄达4000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888 4G"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1070万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "曜石黑、晶钻白、天青蓝、云锦白"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10021",
+    "name": "HUAWEI Mate 70 Pro+(16GB/1TB)",
+    "subtitle": "空 / 16GB+1TB / 5700mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9499.0,
+    "marketPrice": 10509.76,
+    "publishedAt": "2024-01-01",
+    "description": "HUAWEI Mate 70 Pro+(16GB/1TB)搭载空处理器，配备16GB RAM + 1TB存储组合，内置5700mAh电池，主摄达5000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "空"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5700mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1300万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "金丝银锦、墨韵黑、羽衣白、飞天青"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10022",
+    "name": "华为Mate 60 Pro+（16GB/512GB）",
+    "subtitle": "麒麟 9000s / 16GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9888.73,
+    "publishedAt": "2024-01-01",
+    "description": "华为Mate 60 Pro+（16GB/512GB）搭载海思 麒麟 9000s处理器，配备16GB RAM + 512GB存储组合，内置5000mAh电池，主摄达4800万像素，搭载鸿蒙操作系统 4.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "海思 麒麟 9000s"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "鸿蒙操作系统 4.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1300万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "宣白、砚黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10023",
+    "name": "HUAWEI Pura 70 Ultra(16GB/1TB)",
+    "subtitle": "空 / 16GB+1TB / 5200mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9663.28,
+    "publishedAt": "2024-01-01",
+    "description": "HUAWEI Pura 70 Ultra(16GB/1TB)搭载空处理器，配备16GB RAM + 1TB存储组合，内置5200mAh电池，主摄达5000万像素，搭载HarmonyOS 4.2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "空"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5200mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "HarmonyOS 4.2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1300万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "香颂绿、星芒黑、星芒白、摩卡棕"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10024",
+    "name": "HUAWEI Pura 70 Pro+(16GB/1TB)",
+    "subtitle": "空 / 16GB+1TB / 5050mAh",
+    "category": "手机",
+    "brand": "华为",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9546.89,
+    "publishedAt": "2024-01-01",
+    "description": "HUAWEI Pura 70 Pro+(16GB/1TB)搭载空处理器，配备16GB RAM + 1TB存储组合，内置5050mAh电池，主摄达5000万像素，搭载HarmonyOS 4.2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "空"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5050mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "HarmonyOS 4.2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1300万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "弦乐白、光织银、魅影黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10025",
+    "name": "小米MIX FOLD 2（12GB/512GB）",
+    "subtitle": "骁龙8+ Gen1 / 512GB / 4500mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 11168.93,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 2（12GB/512GB）搭载高通 骁龙8+ Gen1处理器，配备512GB存储组合，内置4500mAh电池，主摄达5000万像素，搭载MIUI Fold系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MIUI Fold"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "月银黑、星耀金"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10026",
+    "name": "小米MIX FOLD 4(16GB/512GB)",
+    "subtitle": "骁龙8 Gen3 / 512GB / 5100mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10734.54,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 4(16GB/512GB)搭载高通骁龙8 Gen3处理器，配备512GB存储组合，内置5100mAh电池，主摄达5000万像素，搭载Xiaomi HyperOS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5100mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Xiaomi HyperOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "小米龙鳞纤维版、白色、黑色、龙胆蓝"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10027",
+    "name": "小米MIX FOLD 3（16GB/512GB）",
+    "subtitle": "骁龙8 Gen2（领先版） / 512GB / 4800mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10563.87,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 3（16GB/512GB）搭载高通 骁龙8 Gen2（领先版）处理器，配备512GB存储组合，内置4800mAh电池，主摄达5000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2（领先版）"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4800mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "小米龙鳞纤维版、月影黑、星耀金"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10028",
+    "name": "小米MIX FOLD 4(12GB/256GB)",
+    "subtitle": "骁龙8 Gen3 / 256GB / 5100mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9509.87,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 4(12GB/256GB)搭载高通骁龙8 Gen3处理器，配备256GB存储组合，内置5100mAh电池，主摄达5000万像素，搭载Xiaomi HyperOS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5100mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Xiaomi HyperOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "小米龙鳞纤维版、白色、黑色、龙胆蓝"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10029",
+    "name": "小米MIX FOLD 3（12GB/256GB）",
+    "subtitle": "骁龙8 Gen2（领先版） / 256GB / 4800mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9982.81,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 3（12GB/256GB）搭载高通 骁龙8 Gen2（领先版）处理器，配备256GB存储组合，内置4800mAh电池，主摄达5000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2（领先版）"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4800mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "小米龙鳞纤维版、月影黑、星耀金"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10030",
+    "name": "小米MIX FOLD 2（12GB/256GB）",
+    "subtitle": "骁龙8+ Gen1 / 256GB / 4500mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9829.26,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 2（12GB/256GB）搭载高通 骁龙8+ Gen1处理器，配备256GB存储组合，内置4500mAh电池，主摄达5000万像素，搭载MIUI Fold系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MIUI Fold"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "月银黑、星耀金"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10031",
+    "name": "小米MIX FOLD 虎年礼盒版（16GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 16GB+512GB / 5020mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9957.38,
+    "publishedAt": "2024-01-01",
+    "description": "小米MIX FOLD 虎年礼盒版（16GB/512GB/全网通/5G版）搭载高通 骁龙888处理器，配备16GB RAM + 512GB存储组合，内置5020mAh电池，主摄达1300万像素，搭载MIUI 12系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5020mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MIUI 12"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1300万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "陶瓷特别版"
+      },
+      {
+        "name": "好评率",
+        "value": "7.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10032",
+    "name": "小米14 Ultra(16GB/1TB/钛金属版)",
+    "subtitle": "骁龙8 Gen3 / 16GB+1TB / 5300mAh",
+    "category": "手机",
+    "brand": "小米",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8799.0,
+    "marketPrice": 9688.41,
+    "publishedAt": "2024-01-01",
+    "description": "小米14 Ultra(16GB/1TB/钛金属版)搭载高通 骁龙8 Gen3处理器，配备16GB RAM + 1TB存储组合，内置5300mAh电池，主摄达5000万像素，搭载Xiaomi HyperOS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5300mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Xiaomi HyperOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "钛金属"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10033",
+    "name": "vivo X Fold3 Pro(16GB/512GB)",
+    "subtitle": "骁龙8 Gen3 / 512GB / 双屏幕指纹识别（3D大面 面部识别",
     "category": "手机",
     "brand": "vivo",
-    "tags": ["影像强", "长焦好", "续航久", "性能高"],
-    "price": 4999.00,
-    "marketPrice": 5299.00,
-    "publishedAt": "2023-11-13",
-    "description": "vivo X100 Pro 搭载天玑9300旗舰芯片与蔡司APO超级长焦，6.78英寸2K曲面屏，5400mAh 蓝海电池支持100W有线快充。",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10874.27,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold3 Pro(16GB/512GB)搭载高通骁龙8 Gen3处理器，配备512GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS 4系统。",
     "specs": [
-      {"name": "处理器", "value": "天玑9300"},
-      {"name": "屏幕", "value": "6.78英寸 2K AMOLED 120Hz"},
-      {"name": "电池", "value": "5400mAh"},
-      {"name": "快充", "value": "100W有线 50W无线"},
-      {"name": "影像", "value": "蔡司APO超级长焦"}
+      {
+        "name": "处理器",
+        "value": "高通骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS 4"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "薄翼黑、轻羽白"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10034",
+    "name": "vivo X Fold+（12GB/256GB）",
+    "subtitle": "骁龙8+ Gen1 / 12GB+256GB / 双屏幕指纹识别（3D大面 面部识别",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 11180.06,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold+（12GB/256GB）搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 256GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS Ocean系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS Ocean"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "晴山蓝、梧桐灰、华夏红"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10035",
+    "name": "vivo X Fold2（12GB/512GB）",
+    "subtitle": "骁龙8 Gen2 / 12GB+512GB / 双屏幕指纹识别（3D大面 面部识别",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10763.9,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold2（12GB/512GB）搭载高通 骁龙8 Gen2处理器，配备12GB RAM + 512GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS 3系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS 3"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "弦影黑、天青蓝、华夏红"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10036",
+    "name": "vivo X Fold（12GB/512GB）",
+    "subtitle": "骁龙8 Gen1 / 12GB+512GB / 双屏幕指纹识别（3D大面 面部识别",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10885.34,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold（12GB/512GB）搭载高通 骁龙8 Gen1处理器，配备12GB RAM + 512GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS Ocean系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS Ocean"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "晴山蓝、梧桐灰"
+      },
+      {
+        "name": "好评率",
+        "value": "9.5星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10037",
+    "name": "vivo X Fold2（12GB/256GB）",
+    "subtitle": "骁龙8 Gen2 / 12GB+256GB / 双屏幕指纹识别（3D大面 面部识别",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9971.42,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold2（12GB/256GB）搭载高通 骁龙8 Gen2处理器，配备12GB RAM + 256GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS 3系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS 3"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "弦影黑、天青蓝、华夏红"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10038",
+    "name": "vivo X Fold（12GB/256GB）",
+    "subtitle": "骁龙8 Gen1 / 12GB+256GB / 双屏幕指纹识别（3D大面 面部识别",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9838.57,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold（12GB/256GB）搭载高通 骁龙8 Gen1处理器，配备12GB RAM + 256GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS Ocean系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS Ocean"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "晴山蓝、梧桐灰"
+      },
+      {
+        "name": "好评率",
+        "value": "9.5星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10039",
+    "name": "vivo X Fold3 Pro(12GB/256GB)",
+    "subtitle": "骁龙8 Gen3 / 256GB / 双屏幕指纹识别（3D大面 面部识别",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9991.77,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold3 Pro(12GB/256GB)搭载高通骁龙8 Gen3处理器，配备256GB存储组合，内置双屏幕指纹识别（3D大面 面部识别电池，主摄达5000万像素，搭载OriginOS 4系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "电池",
+        "value": "双屏幕指纹识别（3D大面 面部识别"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS 4"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "薄翼黑、轻羽白"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10040",
+    "name": "vivo X Fold3（16GB/1TB）",
+    "subtitle": "骁龙8 Gen2 / 16GB+1TB / 支持，Face Wake面部识 电池容量",
+    "category": "手机",
+    "brand": "vivo",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9812.64,
+    "publishedAt": "2024-01-01",
+    "description": "vivo X Fold3（16GB/1TB）搭载高通 骁龙8 Gen2处理器，配备16GB RAM + 1TB存储组合，内置支持，Face Wake面部识 电池容量电池，主摄达5000万像素，搭载OriginOS 4系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "支持，Face Wake面部识 电池容量"
+      },
+      {
+        "name": "操作系统",
+        "value": "OriginOS 4"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "薄翼黑、轻羽白"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10041",
+    "name": "OPPO Find N3（12GB/512GB）",
+    "subtitle": "骁龙8 Gen2 / 12GB+512GB / 4680mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10992.1,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find N3（12GB/512GB）搭载高通 骁龙8 Gen2处理器，配备12GB RAM + 512GB存储组合，内置4680mAh电池，主摄达4800万像素，搭载ColorOS 13系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4680mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 13"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "千山绿、日志金、潜航黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10042",
+    "name": "OPPO Find X兰博基尼版（全网通）",
+    "subtitle": "骁龙845 / 8GB+512GB / 3400mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10531.02,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find X兰博基尼版（全网通）搭载高通 骁龙845处理器，配备8GB RAM + 512GB存储组合，内置3400mAh电池，主摄达2000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙845"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3400mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2500万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "碳纤黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10043",
+    "name": "OPPO Find N2（16GB/512GB）",
+    "subtitle": "骁龙8+ Gen1 / 16GB+512GB / 4520mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9592.51,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find N2（16GB/512GB）搭载高通 骁龙8+ Gen1处理器，配备16GB RAM + 512GB存储组合，内置4520mAh电池，主摄达5000万像素，搭载ColorOS 13系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4520mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 13"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10044",
+    "name": "OPPO Find N（12GB/512GB/5G版）",
+    "subtitle": "骁龙888 / 12GB+512GB / 4500mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9631.24,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find N（12GB/512GB/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 512GB存储组合，内置4500mAh电池，主摄达5000万像素，搭载ColorOS 12系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 12"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "浮光、星夜、云端"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10045",
+    "name": "OPPO Find N2（12GB/256GB）",
+    "subtitle": "骁龙8+ Gen1 / 12GB+256GB / 4520mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 7999.0,
+    "marketPrice": 8443.63,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find N2（12GB/256GB）搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 256GB存储组合，内置4520mAh电池，主摄达5000万像素，搭载ColorOS 13系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4520mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 13"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10046",
+    "name": "OPPO Find N（8GB/256GB/5G版）",
+    "subtitle": "骁龙888 / 8GB+256GB / 4500mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 7699.0,
+    "marketPrice": 8209.41,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find N（8GB/256GB/5G版）搭载高通 骁龙888处理器，配备8GB RAM + 256GB存储组合，内置4500mAh电池，主摄达5000万像素，搭载ColorOS 12系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 12"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "星夜、云端"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10047",
+    "name": "OPPO Find N3 Flip  （12GB/512GB）",
+    "subtitle": "天玑9200 / 12GB+512GB / 4300mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 7599.0,
+    "marketPrice": 8032.68,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find N3 Flip  （12GB/512GB）搭载联发科 天玑9200处理器，配备12GB RAM + 512GB存储组合，内置4300mAh电池，主摄达5000万像素，搭载ColorOS 13.2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "联发科 天玑9200"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4300mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 13.2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "月光缪斯、薄雾玫瑰、镜中之夜"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10048",
+    "name": "OPPO Find X7 Ultra(16GB/1TB/卫星通信版)",
+    "subtitle": "骁龙8 Gen3 / 16GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "OPPO",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 7499.0,
+    "marketPrice": 8019.87,
+    "publishedAt": "2024-01-01",
+    "description": "OPPO Find X7 Ultra(16GB/1TB/卫星通信版)搭载高通 骁龙8 Gen3处理器，配备16GB RAM + 1TB存储组合，内置5000mAh电池，主摄达5000万像素，搭载ColorOS 13.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 13.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "海阔天空、松影墨韵、大漠银月"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10049",
+    "name": "荣耀Magic6 RSR保时捷设计(24GB/1TB)",
+    "subtitle": "骁龙8 Gen3 / 24GB+1TB / 5600mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10943.88,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic6 RSR保时捷设计(24GB/1TB)搭载高通 骁龙8 Gen3处理器，配备24GB RAM + 1TB存储组合，内置5600mAh电池，主摄达5000万像素，搭载MagicOS 8.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5600mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 8.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "玛瑙灰、冰莓粉"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10050",
+    "name": "荣耀Magic V3(16GB/512GB)",
+    "subtitle": "骁龙8 Gen3 / 16GB+512GB / 5150mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10754.31,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic V3(16GB/512GB)搭载高通骁龙8 Gen3处理器，配备16GB RAM + 512GB存储组合，内置5150mAh电池，主摄达5000万像素，搭载MagicOS 8.0.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5150mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 8.0.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "绒黑色、苔原绿、祁连雪、丝路敦煌"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10051",
+    "name": "荣耀Magic V（12GB/256GB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 12GB+256GB / 4750mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10758.05,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic V（12GB/256GB/5G版）搭载高通 骁龙8 Gen1处理器，配备12GB RAM + 256GB存储组合，内置4750mAh电池，主摄达5000万像素，搭载Magic UI 6.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4750mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Magic UI 6.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "钛空银、亮黑色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.5星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10052",
+    "name": "荣耀Magic V2（16GB/512GB）",
+    "subtitle": "骁龙8 Gen2 / 16GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9999.0,
+    "marketPrice": 10645.59,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic V2（16GB/512GB）搭载高通 骁龙8 Gen2处理器，配备16GB RAM + 512GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载MagicOS 7.2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 7.2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "绒紫色、绒黑色、云霞金、雅黑色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10053",
+    "name": "荣耀Magic V3(12GB/256GB)",
+    "subtitle": "骁龙8 Gen3 / 12GB+256GB / 5150mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9617.13,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic V3(12GB/256GB)搭载高通骁龙8 Gen3处理器，配备12GB RAM + 256GB存储组合，内置5150mAh电池，主摄达5000万像素，搭载MagicOS 8.0.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5150mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 8.0.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "绒黑色、苔原绿、祁连雪、丝路敦煌"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10054",
+    "name": "荣耀Magic V2（16GB/256GB）",
+    "subtitle": "骁龙8 Gen2 / 16GB+256GB / 5000mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 10038.98,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic V2（16GB/256GB）搭载高通 骁龙8 Gen2处理器，配备16GB RAM + 256GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载MagicOS 7.2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 7.2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "绒紫色、绒黑色、云霞金、雅黑色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10055",
+    "name": "荣耀Magic7 RSR(24GB/1TB)",
+    "subtitle": "骁龙 8 Elite / 24GB+1TB / 5850mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9857.17,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic7 RSR(24GB/1TB)搭载高通 骁龙 8 Elite处理器，配备24GB RAM + 1TB存储组合，内置5850mAh电池，主摄达5000万像素，搭载MagicOS 9.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5850mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 9.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "玛瑙灰、普罗旺斯紫"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10056",
+    "name": "荣耀Magic Vs（12GB/512GB）",
+    "subtitle": "骁龙8+ Gen1（降频版） / 512GB / 5000mAh",
+    "category": "手机",
+    "brand": "荣耀",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9832.66,
+    "publishedAt": "2024-01-01",
+    "description": "荣耀Magic Vs（12GB/512GB）搭载高通 骁龙8+ Gen1（降频版）处理器，配备512GB存储组合，内置5000mAh电池，主摄达5400万像素，搭载MagicOS 7.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1（降频版）"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MagicOS 7.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10057",
+    "name": "Redmi K30 Pro变焦版（12GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙865 / 12GB+512GB / 屏幕指纹识别，人脸识别 电池容量",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 5999.0,
+    "marketPrice": 6370.82,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K30 Pro变焦版（12GB/512GB/全网通/5G版）搭载高通 骁龙865处理器，配备12GB RAM + 512GB存储组合，内置屏幕指纹识别，人脸识别 电池容量电池，主摄达6400万像素，搭载MIUI 11系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙865"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "屏幕指纹识别，人脸识别 电池容量"
+      },
+      {
+        "name": "操作系统",
+        "value": "MIUI 11"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "天际蓝、星环紫"
+      },
+      {
+        "name": "好评率",
+        "value": "9.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10058",
+    "name": "Redmi K80 Pro(16GB/1TB/冠军版)",
+    "subtitle": "骁龙 8 Elite / 16GB+1TB / 6000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4999.0,
+    "marketPrice": 5504.09,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K80 Pro(16GB/1TB/冠军版)搭载高通 骁龙 8 Elite处理器，配备16GB RAM + 1TB存储组合，内置6000mAh电池，主摄达5000万像素，搭载Xiaomi HyperOS 2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "6000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Xiaomi HyperOS 2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "玄夜黑、雪岩白、山峦青、冠军版深灰色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10059",
+    "name": "Redmi K80 Pro(16GB/1TB)",
+    "subtitle": "骁龙 8 Elite / 16GB+1TB / 6000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4799.0,
+    "marketPrice": 5093.84,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K80 Pro(16GB/1TB)搭载高通 骁龙 8 Elite处理器，配备16GB RAM + 1TB存储组合，内置6000mAh电池，主摄达5000万像素，搭载Xiaomi HyperOS 2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "6000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Xiaomi HyperOS 2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "玄夜黑、雪岩白、山峦青、冠军版深灰色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10060",
+    "name": "Redmi  K70 Pro 冠军版(24GB/1TB)",
+    "subtitle": "骁龙8 Gen3 / 12GB+256GB / 5000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4599.0,
+    "marketPrice": 4951.11,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi  K70 Pro 冠军版(24GB/1TB)搭载高通 骁龙8 Gen3处理器，配备12GB RAM + 256GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载小米澎湃OS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "小米澎湃OS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黄色、绿色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10061",
+    "name": "Redmi K60 Pro （16GB/512GB）",
+    "subtitle": "骁龙8 Gen2 / 16GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4599.0,
+    "marketPrice": 5147.51,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K60 Pro （16GB/512GB）搭载高通 骁龙8 Gen2处理器，配备16GB RAM + 512GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载MIUI 14系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MIUI 14"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "幽芒、晴雪、墨羽"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10062",
+    "name": "Redmi K70 Pro(24GB/1TB)",
+    "subtitle": "骁龙8 Gen3 / 24GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4399.0,
+    "marketPrice": 4816.03,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K70 Pro(24GB/1TB)搭载高通 骁龙8 Gen3处理器，配备24GB RAM + 1TB存储组合，内置5000mAh电池，主摄达5000万像素，搭载小米澎湃OS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "小米澎湃OS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "墨羽、晴雪、竹月蓝"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10063",
+    "name": "Redmi K20 Pro（12GB/512GB/全网通/尊享版）",
+    "subtitle": "骁龙855 Plus / 12GB+512GB / 4000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 4399.0,
+    "marketPrice": 4790.45,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K20 Pro（12GB/512GB/全网通/尊享版）搭载高通 骁龙855 Plus处理器，配备12GB RAM + 512GB存储组合，内置4000mAh电池，主摄达4800万像素，搭载MIUI 10系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙855 Plus"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MIUI 10"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "碳纤黑、水之蜜语、火焰红、冰川蓝"
+      },
+      {
+        "name": "好评率",
+        "value": "8.3星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10064",
+    "name": "Redmi K80 Pro(16GB/512GB)",
+    "subtitle": "骁龙 8 Elite / 16GB+512GB / 6000mAh",
+    "category": "手机",
+    "brand": "红米",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4299.0,
+    "marketPrice": 4719.97,
+    "publishedAt": "2024-01-01",
+    "description": "Redmi K80 Pro(16GB/512GB)搭载高通 骁龙 8 Elite处理器，配备16GB RAM + 512GB存储组合，内置6000mAh电池，主摄达5000万像素，搭载Xiaomi HyperOS 2系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "6000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Xiaomi HyperOS 2"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "玄夜黑、雪岩白、山峦青、冠军版深灰色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10065",
+    "name": "真我GT7 Pro(16GB/1TB)",
+    "subtitle": "骁龙 8 Elite / 16GB+1TB / 6500mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4799.0,
+    "marketPrice": 5322.09,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT7 Pro(16GB/1TB)搭载高通 骁龙 8 Elite处理器，配备16GB RAM + 1TB存储组合，内置6500mAh电池，主摄达5000万像素，搭载realme UI 6.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "6500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 6.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "光域白、星迹钛、火星"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10066",
+    "name": "真我GT2 Pro（12GB/512GB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 512GB / 5000mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4799.0,
+    "marketPrice": 5299.63,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT2 Pro（12GB/512GB/5G版）搭载高通 骁龙8 Gen1处理器，配备512GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载realme UI 3.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 3.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "大师·纸、大师·森、锻黑、钛蓝"
+      },
+      {
+        "name": "好评率",
+        "value": "9.5星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10067",
+    "name": "真我GT7 Pro(16GB/512GB)",
+    "subtitle": "骁龙 8 Elite / 16GB+512GB / 6500mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4299.0,
+    "marketPrice": 4582.88,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT7 Pro(16GB/512GB)搭载高通 骁龙 8 Elite处理器，配备16GB RAM + 512GB存储组合，内置6500mAh电池，主摄达5000万像素，搭载realme UI 6.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "6500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 6.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "光域白、星迹钛、火星"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10068",
+    "name": "真我GT5 Pro(16GB/1TB)",
+    "subtitle": "骁龙8 Gen3 / 16GB+1TB / 5400mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4299.0,
+    "marketPrice": 4523.61,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT5 Pro(16GB/1TB)搭载高通 骁龙8 Gen3处理器，配备16GB RAM + 1TB存储组合，内置5400mAh电池，主摄达5000万像素，搭载realme UI 5.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5400mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 5.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "赤岩、皓月、星夜"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10069",
+    "name": "真我GT7 Pro(12GB/512GB)",
+    "subtitle": "骁龙 8 Elite / 12GB+512GB / 6500mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 3999.0,
+    "marketPrice": 4287.25,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT7 Pro(12GB/512GB)搭载高通 骁龙 8 Elite处理器，配备12GB RAM + 512GB存储组合，内置6500mAh电池，主摄达5000万像素，搭载realme UI 6.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "6500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 6.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "光域白、星迹钛、火星"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10070",
+    "name": "真我GT2 Pro（12GB/256GB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 256GB / 5000mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 3999.0,
+    "marketPrice": 4273.9,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT2 Pro（12GB/256GB/5G版）搭载高通 骁龙8 Gen1处理器，配备256GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载realme UI 3.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 3.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "大师·纸、大师·森、锻黑、钛蓝"
+      },
+      {
+        "name": "好评率",
+        "value": "9.5星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10071",
+    "name": "真我GT5 Pro(16GB/512GB)",
+    "subtitle": "骁龙8 Gen3 / 16GB+512GB / 5400mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 3999.0,
+    "marketPrice": 4258.01,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT5 Pro(16GB/512GB)搭载高通 骁龙8 Gen3处理器，配备16GB RAM + 512GB存储组合，内置5400mAh电池，主摄达5000万像素，搭载realme UI 5.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5400mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 5.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "赤岩、皓月、星夜"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10072",
+    "name": "真我GT2 大师探索版（12GB/256GB）",
+    "subtitle": "骁龙8+ Gen1 / 12GB+256GB / 5000mAh",
+    "category": "手机",
+    "brand": "真我",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 3999.0,
+    "marketPrice": 4462.9,
+    "publishedAt": "2024-01-01",
+    "description": "真我GT2 大师探索版（12GB/256GB）搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 256GB存储组合，内置5000mAh电池，主摄达5000万像素，搭载realme UI 3.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "realme UI 3.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "硬箱·旷野、冰岛、苍岩"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10073",
+    "name": "一加13（24GB/1TB）",
+    "subtitle": "骁龙 8 Elite / 24GB+1TB / 6000mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5999.0,
+    "marketPrice": 6666.96,
+    "publishedAt": "2024-01-01",
+    "description": "一加13（24GB/1TB）搭载高通 骁龙 8 Elite处理器，配备24GB RAM + 1TB存储组合，内置6000mAh电池，主摄达5000万像素，搭载ColorOS 15.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "6000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 15.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "白露晨曦、黑曜秘境、蓝调时刻"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10074",
+    "name": "一加8 Pro（12GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙865 / 12GB+256GB / 4510mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 5899.0,
+    "marketPrice": 6323.89,
+    "publishedAt": "2024-01-01",
+    "description": "一加8 Pro（12GB/256GB/全网通/5G版）搭载高通 骁龙865处理器，配备12GB RAM + 256GB存储组合，内置4510mAh电池，主摄达4800万像素，搭载HydrogenOS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙865"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4510mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "HydrogenOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑镜、青空、蓝调"
+      },
+      {
+        "name": "好评率",
+        "value": "7.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10075",
+    "name": "一加12（24GB/1TB）",
+    "subtitle": "骁龙8 Gen3 / 24GB+1TB / 5400mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5799.0,
+    "marketPrice": 6355.01,
+    "publishedAt": "2024-01-01",
+    "description": "一加12（24GB/1TB）搭载高通 骁龙8 Gen3处理器，配备24GB RAM + 1TB存储组合，内置5400mAh电池，主摄达5000万像素，搭载ColorOS 14.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5400mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 14.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "留白"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10076",
+    "name": "一加10 Pro（12GB/512GB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 12GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5799.0,
+    "marketPrice": 6249.55,
+    "publishedAt": "2024-01-01",
+    "description": "一加10 Pro（12GB/512GB/5G版）搭载高通 骁龙8 Gen1处理器，配备12GB RAM + 512GB存储组合，内置5000mAh电池，主摄达4800万像素，搭载ColorOS 12.1系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 12.1"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "胖达白"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10077",
+    "name": "一加9 Pro（12GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 12GB+256GB / 4500mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 5499.0,
+    "marketPrice": 6125.99,
+    "publishedAt": "2024-01-01",
+    "description": "一加9 Pro（12GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 256GB存储组合，内置4500mAh电池，主摄达4800万像素，搭载ColorOS 11系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 11"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "绿洲、黑洞、闪银"
+      },
+      {
+        "name": "好评率",
+        "value": "8.2星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10078",
+    "name": "一加9 Pro（8GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 8GB+256GB / 4500mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准"
+    ],
+    "price": 5499.0,
+    "marketPrice": 5950.58,
+    "publishedAt": "2024-01-01",
+    "description": "一加9 Pro（8GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备8GB RAM + 256GB存储组合，内置4500mAh电池，主摄达4800万像素，搭载ColorOS 11系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 11"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "闪银、绿洲、黑洞"
+      },
+      {
+        "name": "好评率",
+        "value": "8.2星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10079",
+    "name": "一加8 Pro（8GB/128GB/全网通/5G版）",
+    "subtitle": "骁龙865 / 8GB+128GB / 4510mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准"
+    ],
+    "price": 5399.0,
+    "marketPrice": 5769.06,
+    "publishedAt": "2024-01-01",
+    "description": "一加8 Pro（8GB/128GB/全网通/5G版）搭载高通 骁龙865处理器，配备8GB RAM + 128GB存储组合，内置4510mAh电池，主摄达4800万像素，搭载HydrogenOS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙865"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+128GB"
+      },
+      {
+        "name": "电池",
+        "value": "4510mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "HydrogenOS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑镜、青空"
+      },
+      {
+        "name": "好评率",
+        "value": "7.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10080",
+    "name": "一加13（16GB/512GB）",
+    "subtitle": "骁龙 8 Elite / 16GB+512GB / 6000mAh",
+    "category": "手机",
+    "brand": "一加",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5299.0,
+    "marketPrice": 5655.43,
+    "publishedAt": "2024-01-01",
+    "description": "一加13（16GB/512GB）搭载高通 骁龙 8 Elite处理器，配备16GB RAM + 512GB存储组合，内置6000mAh电池，主摄达5000万像素，搭载ColorOS 15.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "6000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ColorOS 15.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "白露晨曦、黑曜秘境、蓝调时刻"
+      },
+      {
+        "name": "好评率",
+        "value": "10.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10081",
+    "name": "索尼移动Xperia 1 V（12GB/512GB）",
+    "subtitle": "骁龙8 Gen2 / 12GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9799.0,
+    "marketPrice": 10674.01,
+    "publishedAt": "2024-01-01",
+    "description": "索尼移动Xperia 1 V（12GB/512GB）搭载高通 骁龙8 Gen2处理器，配备12GB RAM + 512GB存储组合，内置5000mAh电池，主摄达4800万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "墨黑、苍绿、雾银"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10082",
+    "name": "索尼Xperia 1 IV （12GB/512GB）",
+    "subtitle": "骁龙8 Gen1 / 12GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 9499.0,
+    "marketPrice": 10148.65,
+    "publishedAt": "2024-01-01",
+    "description": "索尼Xperia 1 IV （12GB/512GB）搭载高通 骁龙8 Gen1处理器，配备12GB RAM + 512GB存储组合，内置5000mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "夜烟黑、冰雾白、暮霞紫"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10083",
+    "name": "索尼Xperia 1 III（12GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 12GB+512GB / 4500mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 9499.0,
+    "marketPrice": 10362.66,
+    "publishedAt": "2024-01-01",
+    "description": "索尼Xperia 1 III（12GB/512GB/全网通/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 512GB存储组合，内置4500mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、紫色"
+      },
+      {
+        "name": "好评率",
+        "value": "7.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10084",
+    "name": "索尼Xperia 1 Professional Editon（6GB/128GB/全网通）",
+    "subtitle": "骁龙855 / 6GB+128GB / 3330mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9300.0,
+    "marketPrice": 10349.48,
+    "publishedAt": "2024-01-01",
+    "description": "索尼Xperia 1 Professional Editon（6GB/128GB/全网通）搭载高通 骁龙855处理器，配备6GB RAM + 128GB存储组合，内置3330mAh电池，主摄达1200万像素，搭载Google Android Pie系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙855"
+      },
+      {
+        "name": "存储",
+        "value": "6GB+128GB"
+      },
+      {
+        "name": "电池",
+        "value": "3330mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Google Android Pie"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "夜色黑"
+      }
+    ]
+  },
+  {
+    "productNo": "P10085",
+    "name": "索尼移动Xperia 1 V（12GB/256GB）",
+    "subtitle": "骁龙8 Gen2 / 12GB+256GB / 5000mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8999.0,
+    "marketPrice": 9700.54,
+    "publishedAt": "2024-01-01",
+    "description": "索尼移动Xperia 1 V（12GB/256GB）搭载高通 骁龙8 Gen2处理器，配备12GB RAM + 256GB存储组合，内置5000mAh电池，主摄达4800万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "墨黑、苍绿、雾银"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10086",
+    "name": "索尼Xperia 1 IV（12GB/256GB）",
+    "subtitle": "骁龙8 Gen1 / 12GB+256GB / 5000mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 8499.0,
+    "marketPrice": 9054.43,
+    "publishedAt": "2024-01-01",
+    "description": "索尼Xperia 1 IV（12GB/256GB）搭载高通 骁龙8 Gen1处理器，配备12GB RAM + 256GB存储组合，内置5000mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "夜烟黑、冰雾白、暮霞紫"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10087",
+    "name": "索尼Xperia 1 III（12GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 12GB+256GB / 4500mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 8499.0,
+    "marketPrice": 9517.42,
+    "publishedAt": "2024-01-01",
+    "description": "索尼Xperia 1 III（12GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 256GB存储组合，内置4500mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、灰色、紫色、绿色"
+      },
+      {
+        "name": "好评率",
+        "value": "7.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10088",
+    "name": "索尼Xperia 1 II（12GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙865 / 12GB+256GB / 4000mAh",
+    "category": "手机",
+    "brand": "索尼",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 7999.0,
+    "marketPrice": 8684.25,
+    "publishedAt": "2024-01-01",
+    "description": "索尼Xperia 1 II（12GB/256GB/全网通/5G版）搭载高通 骁龙865处理器，配备12GB RAM + 256GB存储组合，内置4000mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙865"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "4000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "月梨白、夜砚黑、青山绿、暮光紫"
+      },
+      {
+        "name": "好评率",
+        "value": "9.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10089",
+    "name": "联想拯救者电竞手机2 Pro（18GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 18GB+512GB / 5500mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5999.0,
+    "marketPrice": 6337.13,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者电竞手机2 Pro（18GB/512GB/全网通/5G版）搭载高通 骁龙888处理器，配备18GB RAM + 512GB存储组合，内置5500mAh电池，主摄达6400万像素，搭载ZUI 12.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "18GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 12.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "破晓之刃、玄青宝器"
+      },
+      {
+        "name": "好评率",
+        "value": "6.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10090",
+    "name": "联想拯救者电竞手机Pro（16GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙865 Plus / 16GB+512GB / 5000mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5999.0,
+    "marketPrice": 6318.74,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者电竞手机Pro（16GB/512GB/全网通/5G版）搭载高通 骁龙865 Plus处理器，配备16GB RAM + 512GB存储组合，内置5000mAh电池，主摄达6400万像素，搭载Legion OS系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙865 Plus"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "Legion OS"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "2000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "炽焰战甲、炫蓝冰刃"
+      },
+      {
+        "name": "好评率",
+        "value": "7.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10091",
+    "name": "联想拯救者电竞手机2 Pro（16GB/512GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 16GB+512GB / 5500mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 5299.0,
+    "marketPrice": 5604.62,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者电竞手机2 Pro（16GB/512GB/全网通/5G版）搭载高通 骁龙888处理器，配备16GB RAM + 512GB存储组合，内置5500mAh电池，主摄达6400万像素，搭载ZUI 12.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 12.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "破晓之刃、玄青宝器"
+      },
+      {
+        "name": "好评率",
+        "value": "6.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10092",
+    "name": "联想拯救者 Y90（18GB/640GB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 18GB+640GB / 5600mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4999.0,
+    "marketPrice": 5468.51,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者 Y90（18GB/640GB/5G版）搭载高通 骁龙8 Gen1处理器，配备18GB RAM + 640GB存储组合，内置5600mAh电池，主摄达6400万像素，搭载ZUI 13系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "18GB+640GB"
+      },
+      {
+        "name": "电池",
+        "value": "5600mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 13"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "钛晶灰"
+      },
+      {
+        "name": "好评率",
+        "value": "9.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10093",
+    "name": "联想拯救者电竞手机2 Pro（18GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 18GB+256GB / 5500mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4999.0,
+    "marketPrice": 5526.12,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者电竞手机2 Pro（18GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备18GB RAM + 256GB存储组合，内置5500mAh电池，主摄达6400万像素，搭载ZUI 12.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "18GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 12.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "破晓之刃、玄青宝器"
+      },
+      {
+        "name": "好评率",
+        "value": "6.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10094",
+    "name": "联想拯救者电竞手机2 Pro（16GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 16GB+256GB / 5500mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4499.0,
+    "marketPrice": 4856.9,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者电竞手机2 Pro（16GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备16GB RAM + 256GB存储组合，内置5500mAh电池，主摄达6400万像素，搭载ZUI 12.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 12.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "破晓之刃、玄青宝器"
+      },
+      {
+        "name": "好评率",
+        "value": "6.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10095",
+    "name": "联想拯救者电竞手机2 Pro（12GB/256GB/全网通/5G版）",
+    "subtitle": "骁龙888 / 12GB+256GB / 5500mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4399.0,
+    "marketPrice": 4638.51,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者电竞手机2 Pro（12GB/256GB/全网通/5G版）搭载高通 骁龙888处理器，配备12GB RAM + 256GB存储组合，内置5500mAh电池，主摄达6400万像素，搭载ZUI 12.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙888"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 12.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "4400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "破晓之刃、玄青宝器"
+      },
+      {
+        "name": "好评率",
+        "value": "6.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10096",
+    "name": "联想拯救者 Y90（16GB/256GB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 16GB+256GB / 5600mAh",
+    "category": "手机",
+    "brand": "联想",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 4299.0,
+    "marketPrice": 4628.79,
+    "publishedAt": "2024-01-01",
+    "description": "联想拯救者 Y90（16GB/256GB/5G版）搭载高通 骁龙8 Gen1处理器，配备16GB RAM + 256GB存储组合，内置5600mAh电池，主摄达6400万像素，搭载ZUI 13系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "5600mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "ZUI 13"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "钛晶灰"
+      },
+      {
+        "name": "好评率",
+        "value": "9.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10097",
+    "name": "努比亚红魔10 Pro+(24GB/1TB/暗夜骑士)",
+    "subtitle": "骁龙 8 Elite / 24GB+1TB / 7050mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 7499.0,
+    "marketPrice": 8396.84,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔10 Pro+(24GB/1TB/暗夜骑士)搭载高通 骁龙 8 Elite处理器，配备24GB RAM + 1TB存储组合，内置7050mAh电池，主摄达5000万像素，搭载REDMAGIC OS 10.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙 8 Elite"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "7050mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "REDMAGIC OS 10.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "暗夜骑士"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10098",
+    "name": "努比亚红魔8S PRO+（24GB/1TB）",
+    "subtitle": "骁龙8 Gen2 / 24GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 7499.0,
+    "marketPrice": 8151.7,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔8S PRO+（24GB/1TB）搭载高通 骁龙8 Gen2处理器，配备24GB RAM + 1TB存储组合，内置5000mAh电池，主摄达5000万像素，搭载RedMagic OS 8.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "RedMagic OS 8.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "暗夜骑士、氚锋透明"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10099",
+    "name": "努比亚红魔7S PRO（18GB/1TB）",
+    "subtitle": "骁龙8+ Gen1 / 18GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 7499.0,
+    "marketPrice": 8383.7,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔7S PRO（18GB/1TB）搭载高通 骁龙8+ Gen1处理器，配备18GB RAM + 1TB存储组合，内置5000mAh电池，主摄达6400万像素，搭载REDMAGIC OS 5.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "18GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "REDMAGIC OS 5.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "氚锋透明银翼版、暗夜骑士、氚锋透明暗银版"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10100",
+    "name": "努比亚红魔7 PRO（18GB/1TB/5G版）",
+    "subtitle": "骁龙8 Gen1 / 18GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 7499.0,
+    "marketPrice": 8325.8,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔7 PRO（18GB/1TB/5G版）搭载高通 骁龙8 Gen1处理器，配备18GB RAM + 1TB存储组合，内置5000mAh电池，主摄达6400万像素，搭载RedMagic OS 5.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "18GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "RedMagic OS 5.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "6400万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "氘锋透明"
+      },
+      {
+        "name": "好评率",
+        "value": "9.1星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10101",
+    "name": "努比亚红魔9S Pro+(24GB/1TB)",
+    "subtitle": "骁龙8 Gen3 领先版 / 24GB+1TB / 5500mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 6999.0,
+    "marketPrice": 7354.57,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔9S Pro+(24GB/1TB)搭载高通 骁龙8 Gen3 领先版处理器，配备24GB RAM + 1TB存储组合，内置5500mAh电池，主摄达5000万像素，搭载REDMAGIC OS 9.5系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3 领先版"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "REDMAGIC OS 9.5"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "暗夜骑士、白昼武士、氘锋透明暗夜、氘锋透明银翼"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10102",
+    "name": "努比亚红魔9 Pro+(24GB/1TB)",
+    "subtitle": "骁龙8 Gen3 / 24GB+1TB / 5500mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 6999.0,
+    "marketPrice": 7702.05,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔9 Pro+(24GB/1TB)搭载高通 骁龙8 Gen3处理器，配备24GB RAM + 1TB存储组合，内置5500mAh电池，主摄达5000万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "24GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "暗夜骑士"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10103",
+    "name": "努比亚红魔8 PRO+（16GB/1TB）",
+    "subtitle": "骁龙8 Gen2 / 16GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 6999.0,
+    "marketPrice": 7682.94,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔8 PRO+（16GB/1TB）搭载高通 骁龙8 Gen2处理器，配备16GB RAM + 1TB存储组合，内置5000mAh电池，主摄达5000万像素，搭载RedMagic OS 6.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "RedMagic OS 6.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "氚锋透明、暗夜骑士"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10104",
+    "name": "努比亚红魔8S PRO+（16GB/1TB）",
+    "subtitle": "骁龙8 Gen2 / 16GB+1TB / 5000mAh",
+    "category": "手机",
+    "brand": "努比亚",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久",
+      "大内存"
+    ],
+    "price": 6999.0,
+    "marketPrice": 7612.03,
+    "publishedAt": "2024-01-01",
+    "description": "努比亚红魔8S PRO+（16GB/1TB）搭载高通 骁龙8 Gen2处理器，配备16GB RAM + 1TB存储组合，内置5000mAh电池，主摄达5000万像素，搭载RedMagic OS 8.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8 Gen2"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "RedMagic OS 8.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "暗夜骑士、氚锋透明"
+      },
+      {
+        "name": "好评率",
+        "value": "9.7星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10105",
+    "name": "HTC Desire 21 Pro（8GB/128GB/全网通/5G版）",
+    "subtitle": "骁龙690 / 8GB+128GB / 5000mAh",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "大电池",
+      "续航久"
+    ],
+    "price": 7719.0,
+    "marketPrice": 8249.12,
+    "publishedAt": "2024-01-01",
+    "description": "HTC Desire 21 Pro（8GB/128GB/全网通/5G版）搭载高通 骁龙690处理器，配备8GB RAM + 128GB存储组合，内置5000mAh电池，主摄达4800万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙690"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+128GB"
+      },
+      {
+        "name": "电池",
+        "value": "5000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "4800万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "星辰蓝、幻境紫"
+      },
+      {
+        "name": "好评率",
+        "value": "5.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10106",
+    "name": "HTC Ace",
+    "subtitle": "1.0GHz",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准"
+    ],
+    "price": 5500.0,
+    "marketPrice": 6021.77,
+    "publishedAt": "2024-01-01",
+    "description": "HTC Ace搭载1.0GHz处理器，主摄达800万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "1.0GHz"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "800万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、银灰色"
+      },
+      {
+        "name": "好评率",
+        "value": "6.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10107",
+    "name": "HTC One max（双卡/普通版）",
+    "subtitle": "骁龙600（APQ8064T） / 16GB+32GB / 3300mAh",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 5488.0,
+    "marketPrice": 5805.25,
+    "publishedAt": "2024-01-01",
+    "description": "HTC One max（双卡/普通版）搭载高通 骁龙600（APQ8064T）处理器，配备16GB RAM + 32GB存储组合，内置3300mAh电池，主摄达400万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙600（APQ8064T）"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+32GB"
+      },
+      {
+        "name": "电池",
+        "value": "3300mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、银色、红色"
+      },
+      {
+        "name": "好评率",
+        "value": "8.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10108",
+    "name": "HTC U Ultra（蓝宝石版/全网通）",
+    "subtitle": "骁龙821（MSM8996 Pro） / 4GB+128GB / 3000mAh",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准"
+    ],
+    "price": 4839.0,
+    "marketPrice": 5228.22,
+    "publishedAt": "2024-01-01",
+    "description": "HTC U Ultra（蓝宝石版/全网通）搭载高通 骁龙821（MSM8996 Pro）处理器，配备4GB RAM + 128GB存储组合，内置3000mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙821（MSM8996 Pro）"
+      },
+      {
+        "name": "存储",
+        "value": "4GB+128GB"
+      },
+      {
+        "name": "电池",
+        "value": "3000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "1600万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、银色、白色、粉色"
+      },
+      {
+        "name": "好评率",
+        "value": "8.3星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10109",
+    "name": "HTC One max（单卡/国际版）",
+    "subtitle": "骁龙600（APQ8064T） / 16GB+32GB / 3300mAh",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 4200.0,
+    "marketPrice": 4543.39,
+    "publishedAt": "2024-01-01",
+    "description": "HTC One max（单卡/国际版）搭载高通 骁龙600（APQ8064T）处理器，配备16GB RAM + 32GB存储组合，内置3300mAh电池，主摄达400万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙600（APQ8064T）"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+32GB"
+      },
+      {
+        "name": "电池",
+        "value": "3300mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、银色、红色"
+      },
+      {
+        "name": "好评率",
+        "value": "8.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10110",
+    "name": "HTC One max（803e/单卡）",
+    "subtitle": "骁龙600（APQ8064T） / 32GB / 3300mAh",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 4100.0,
+    "marketPrice": 4578.75,
+    "publishedAt": "2024-01-01",
+    "description": "HTC One max（803e/单卡）搭载高通 骁龙600（APQ8064T）处理器，配备32GB存储组合，内置3300mAh电池，主摄达400万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙600（APQ8064T）"
+      },
+      {
+        "name": "存储",
+        "value": "32GB"
+      },
+      {
+        "name": "电池",
+        "value": "3300mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "400万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色、银色、红色"
+      },
+      {
+        "name": "好评率",
+        "value": "8.4星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10111",
+    "name": "HTC 10（国际版/双4G）",
+    "subtitle": "骁龙820（MSM8996） / 64GB / 3000mAh",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 4069.0,
+    "marketPrice": 4521.92,
+    "publishedAt": "2024-01-01",
+    "description": "HTC 10（国际版/双4G）搭载高通 骁龙820（MSM8996）处理器，配备64GB存储组合，内置3000mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙820（MSM8996）"
+      },
+      {
+        "name": "存储",
+        "value": "64GB"
+      },
+      {
+        "name": "电池",
+        "value": "3000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "500万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "鎏光金、炫光银、夜光灰"
+      },
+      {
+        "name": "好评率",
+        "value": "7.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10112",
+    "name": "HTC MAX 4G",
+    "subtitle": "Snapdragon（高通）MSM720 / 后置摄像头1",
+    "category": "手机",
+    "brand": "HTC",
+    "tags": [
+      "中高端",
+      "性价比高",
+      "续航标准"
+    ],
+    "price": 4000.0,
+    "marketPrice": 4273.75,
+    "publishedAt": "2024-01-01",
+    "description": "HTC MAX 4G搭载Snapdragon（高通）MSM7206A处理器，内置后置摄像头1电池，主摄达500万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "Snapdragon（高通）MSM7206A"
+      },
+      {
+        "name": "电池",
+        "value": "后置摄像头1"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "500万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "30万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "黑色"
+      },
+      {
+        "name": "好评率",
+        "value": "6.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10113",
+    "name": "Moto Aura月亮宝石版",
+    "subtitle": "空 / 780mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9950.0,
+    "marketPrice": 10796.16,
+    "publishedAt": "2024-01-01",
+    "description": "Moto Aura月亮宝石版搭载空处理器，内置780mAh电池，主摄达200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "空"
+      },
+      {
+        "name": "电池",
+        "value": "780mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "银色"
+      },
+      {
+        "name": "好评率",
+        "value": "9.0星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10114",
+    "name": "Moto AURA钻石版",
+    "subtitle": "空 / 2GB / 810mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 9000.0,
+    "marketPrice": 9562.55,
+    "publishedAt": "2024-01-01",
+    "description": "Moto AURA钻石版搭载空处理器，配备2GB存储组合，内置810mAh电池，主摄达200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "空"
+      },
+      {
+        "name": "存储",
+        "value": "2GB"
+      },
+      {
+        "name": "电池",
+        "value": "810mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "金色"
+      },
+      {
+        "name": "好评率",
+        "value": "6.6星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10115",
+    "name": "Moto AURA R1",
+    "subtitle": "空 / 750mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 8000.0,
+    "marketPrice": 8911.07,
+    "publishedAt": "2024-01-01",
+    "description": "Moto AURA R1搭载空处理器，内置750mAh电池，主摄达200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "空"
+      },
+      {
+        "name": "电池",
+        "value": "750mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "银色"
+      },
+      {
+        "name": "好评率",
+        "value": "7.2星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10116",
+    "name": "moto razr 2022（12GB/512GB）",
+    "subtitle": "骁龙8+ Gen1 / 12GB+512GB / 3500mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 7299.0,
+    "marketPrice": 8108.72,
+    "publishedAt": "2024-01-01",
+    "description": "moto razr 2022（12GB/512GB）搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 512GB存储组合，内置3500mAh电池，主摄达5000万像素，搭载MyUI 4.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MyUI 4.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "锋雅黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10117",
+    "name": "Moto razr 50 Ultra(16GB/1TB)",
+    "subtitle": "骁龙8S Gen3 / 16GB+1TB / 4000mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 6999.0,
+    "marketPrice": 7495.17,
+    "publishedAt": "2024-01-01",
+    "description": "Moto razr 50 Ultra(16GB/1TB)搭载高通 骁龙8S Gen3处理器，配备16GB RAM + 1TB存储组合，内置4000mAh电池，主摄达5000万像素，搭载moto myui 7.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8S Gen3"
+      },
+      {
+        "name": "存储",
+        "value": "16GB+1TB"
+      },
+      {
+        "name": "电池",
+        "value": "4000mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "moto myui 7.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "复古单宁、摩登艾绿、柔和桃限定版、哥特玫瑰"
+      },
+      {
+        "name": "好评率",
+        "value": "9.9星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10118",
+    "name": "moto razr 2022（8GB/256GB）",
+    "subtitle": "骁龙8+ Gen1 / 8GB+256GB / 3500mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准"
+    ],
+    "price": 6499.0,
+    "marketPrice": 7114.63,
+    "publishedAt": "2024-01-01",
+    "description": "moto razr 2022（8GB/256GB）搭载高通 骁龙8+ Gen1处理器，配备8GB RAM + 256GB存储组合，内置3500mAh电池，主摄达5000万像素，搭载MyUI 4.0系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "8GB+256GB"
+      },
+      {
+        "name": "电池",
+        "value": "3500mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "MyUI 4.0"
+      },
+      {
+        "name": "主摄像素",
+        "value": "5000万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "锋雅黑"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10119",
+    "name": "Moto Razr 40 Ultra（12GB/512GB）",
+    "subtitle": "骁龙8+ Gen1 / 12GB+512GB / 3800mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 6399.0,
+    "marketPrice": 6991.73,
+    "publishedAt": "2024-01-01",
+    "description": "Moto Razr 40 Ultra（12GB/512GB）搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 512GB存储组合，内置3800mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3800mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "锋雅黑、冰晶蓝、非凡洋红限定版"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
+    ]
+  },
+  {
+    "productNo": "P10120",
+    "name": "Moto Razr 40 Ultra  非凡洋红限定版",
+    "subtitle": "骁龙8+ Gen1 / 12GB+512GB / 3800mAh",
+    "category": "手机",
+    "brand": "Moto",
+    "tags": [
+      "旗舰机型",
+      "高端",
+      "续航标准",
+      "大内存"
+    ],
+    "price": 6399.0,
+    "marketPrice": 6787.41,
+    "publishedAt": "2024-01-01",
+    "description": "Moto Razr 40 Ultra  非凡洋红限定版搭载高通 骁龙8+ Gen1处理器，配备12GB RAM + 512GB存储组合，内置3800mAh电池，主摄达1200万像素，搭载安卓系统。",
+    "specs": [
+      {
+        "name": "处理器",
+        "value": "高通 骁龙8+ Gen1"
+      },
+      {
+        "name": "存储",
+        "value": "12GB+512GB"
+      },
+      {
+        "name": "电池",
+        "value": "3800mAh"
+      },
+      {
+        "name": "操作系统",
+        "value": "安卓"
+      },
+      {
+        "name": "主摄像素",
+        "value": "1200万像素"
+      },
+      {
+        "name": "前摄像素",
+        "value": "3200万像素"
+      },
+      {
+        "name": "颜色",
+        "value": "锋雅黑、冰晶蓝、非凡洋红限定版"
+      },
+      {
+        "name": "好评率",
+        "value": "9.8星"
+      }
     ]
   }
 ]

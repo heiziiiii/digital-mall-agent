@@ -109,7 +109,7 @@ def main():
         cases.append(("createAfterSale", {"userId": 1, "orderNo": "O202606010001", "type": 4,
                                           "reason": "屏幕有亮点申请维修"}))
         cases.append(("createHumanService", {"userId": 1, "orderNo": "O202606010001",
-                                             "afterSaleNo": "", "reason": "用户要求人工客服进一步处理"}))
+                                             "reason": "用户要求人工客服进一步处理"}))
     rid = 10
     for name, args in cases:
         rid += 1
